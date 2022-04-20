@@ -11,6 +11,25 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
-    "skipLibCheck": true
-  }
+    "skipLibCheck": true,
+    "strict": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "allowJs": true,
+    "lib": [
+      "es2018",
+      "es2020",
+      "esnext.asynciterable",
+      "DOM"
+    ],
+    "types": [
+      "jest",
+      "node"
+    ]
+  },
+    "include": [
+    "src/**/*",
+    "knexfile.ts",
+    "typings/**/*"
+  ]
 }
