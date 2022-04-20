@@ -6,11 +6,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [
-    SharedModule,
-    UserModule,
-    AuthModule,
-  ],
+  imports: [SharedModule, UserModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

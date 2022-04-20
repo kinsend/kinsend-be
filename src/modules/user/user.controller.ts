@@ -10,20 +10,18 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
-} from "@nestjs/common";
-import { ApiBearerAuth, ApiParam, ApiTags } from "@nestjs/swagger";
-import { Request } from "express";
-import { AuthVerifyApiKey } from "../auth/AuthVerifyApiKey/AuthVerifyApiKey.service";
-import { UserCreateAction } from "./UserCreate/UserCreateAction.service";
-import { UserCreatePayloadDto } from "./UserCreate/UserCreateRequest.dto";
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { AuthVerifyApiKey } from '../auth/AuthVerifyApiKey/AuthVerifyApiKey.service';
+import { UserCreateAction } from './UserCreate/UserCreateAction.service';
+import { UserCreatePayloadDto } from './UserCreate/UserCreateRequest.dto';
 
-@ApiTags("Users")
+@ApiTags('Users')
 @ApiBearerAuth()
-@Controller("users")
+@Controller('users')
 export class UserController {
-  constructor(
-    private userCreateAction: UserCreateAction,
-  ) {}
+  constructor(private userCreateAction: UserCreateAction) {}
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthVerifyApiKey)

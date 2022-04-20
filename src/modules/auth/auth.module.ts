@@ -3,7 +3,6 @@ import { SharedModule } from '../../shared/shared.module';
 
 @Module({
   imports: [SharedModule],
-  providers: [
-  ],
+  providers: [],
 })
 export class AuthModule {}

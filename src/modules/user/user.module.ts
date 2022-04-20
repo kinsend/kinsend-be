@@ -7,10 +7,7 @@ import { UserCreateAction } from './UserCreate/UserCreateAction.service';
 
 @Module({
   controllers: [UserController],
-  imports: [
-    SharedModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
+  imports: [SharedModule, MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
   providers: [UserCreateAction],
 })
 export class UserModule {}
