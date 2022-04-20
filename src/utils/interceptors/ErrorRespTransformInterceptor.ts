@@ -12,11 +12,6 @@ export class ErrorRespTransformInterceptor<T> implements NestInterceptor<T, Resp
     const request: Express.Request = context.switchToHttp().getRequest();
     return next.handle().pipe(
       catchError((error) => {
-        request.logger = request.logger.child({
-          errorMessage: error.message,
-          errorStack: error.stack,
-        });
-
         return throwError(error);
       }),
     );

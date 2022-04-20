@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from 'src/configs/config.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongodbConfigService } from '../configs/mongodb.config.service';
-
+import { MailModule } from '../modules/mail/mail.module';
 const configService = new ConfigService();
 const { jwtSecret, accessTokenExpiry } = configService;
 @Module({
@@ -22,8 +22,9 @@ const { jwtSecret, accessTokenExpiry } = configService;
       signOptions: { expiresIn: accessTokenExpiry },
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    MailModule,
   ],
-  exports: [ConfigService, JwtModule],
+  exports: [ConfigService, JwtModule, MailModule],
   providers: [ConfigService],
 })
 export class SharedModule {}

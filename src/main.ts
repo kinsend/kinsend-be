@@ -7,7 +7,6 @@ import { ConfigService } from './configs/config.service';
 import { bootstrapApp } from './utils/bootstrapApp';
 import { rootLogger } from './utils/Logger';
 
-
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   bootstrapApp(app);

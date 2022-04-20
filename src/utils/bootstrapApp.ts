@@ -4,8 +4,10 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ErrorRespTransformInterceptor } from './interceptors/ErrorRespTransformInterceptor';
 import { ConfigService } from '../configs/config.service';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
-export async function bootstrapApp(app: INestApplication) {
+export async function bootstrapApp(app: NestExpressApplication) {
   app.setGlobalPrefix('api');
   const config = new DocumentBuilder()
     .addApiKey(
@@ -31,6 +33,9 @@ export async function bootstrapApp(app: INestApplication) {
       transform: true,
     }),
   );
+  app.useStaticAssets(join(__dirname, '..', 'public'));
+  app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  app.setViewEngine('ejs')
 
   app.use(helmet());
   const { corsEnabled, corsAllowedOrigins } = new ConfigService();
