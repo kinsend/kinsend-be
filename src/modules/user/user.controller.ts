@@ -8,18 +8,22 @@ import {
   Post,
   Req,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { AuthVerifyApiKey } from '../auth/AuthVerifyApiKey/AuthVerifyApiKey.service';
+import { User as UserModel } from './user.schema';
 import { UserCreateAction } from './UserCreate/UserCreateAction.service';
 import { UserCreatePayloadDto } from './UserCreate/UserCreateRequest.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users')
+@UseInterceptors(MongooseClassSerializerInterceptor(UserModel))
 export class UserController {
   constructor(private userCreateAction: UserCreateAction) {}
 
@@ -28,8 +32,6 @@ export class UserController {
   @UsePipes(new ValidationPipe({ transform: true }))
   @Post()
   async create(@Req() request: Request, @Body() payload: UserCreatePayloadDto) {
-    console.log(payload);
-
-    return this.userCreateAction.create(payload);
+    return this.userCreateAction.execute(payload);
   }
 }
