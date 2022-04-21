@@ -6,7 +6,7 @@ import { Injectable, Res } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as mongoose from 'mongoose';
-import * as ejs from 'ejs';
+import * as handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
 import { UserCreatePayloadDto } from './UserCreateRequest.dto';
@@ -35,28 +35,27 @@ export class UserCreateAction {
       throw new UsernameConflictException('User has already conflicted');
     }
 
-    const { saltRounds } = this.configService;
+    const { saltRounds, mailForm, baseUrl } = this.configService;
     const hashPass = await hashAndValidatePassword(password, saltRounds);
 
     const user = await new this.userModel({ ...payload, password: hashPass }).save();
 
-    const url = `example.com/auth/confirm?token=${new Date().toISOString()}`;
-    const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation.ejs');
+    const url = `${baseUrl}/verification/confirm?token=${new Date().toISOString()}`;
+    const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation.hbs');
     const source = fs.readFileSync(filePath, 'utf-8').toString();
-    const template = ejs.compile(source);
+    const template = handlebars.compile(source);
     const replacements = {
       name: `${user.firstName} ${user.lastName}`,
       url,
     };
     const htmlToSend = template(replacements);
-    // TODO: Update
     const mail = {
-      to: 'quochungphp@gmail.com',
-      subject: 'Greeting Message from NestJS Sendgrid',
-      from: 'kinsend.sp@gmail.com',
-      text: 'Hello World from NestJS Sendgrid',
+      to: user.email,
+      subject: 'Verify register account!',
+      from: mailForm,
       html: htmlToSend,
     };
+
     this.mailSendGridService.sendUserConfirmation(mail);
     return user;
   }

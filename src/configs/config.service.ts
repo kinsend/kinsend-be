@@ -146,4 +146,12 @@ export class ConfigService {
   get sendGridApiKey(): string {
     return process.env.SEND_GRID_API_KEY || this.envConfig['SEND_GRID_API_KEY'] || '';
   }
+
+  get baseUrl(): string {
+    return process.env.BASE_URL || this.envConfig['BASE_URL'] || 'http://localhost:3131';
+  }
+
+  get mailForm(): string {
+    return process.env.MAIL_FROM || this.envConfig['MAIL_FROM'] || '';
+  }
 }
