@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Res } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
@@ -9,7 +9,11 @@ import { UsernameConflictException } from '../../../utils/exceptions/UsernameCon
 import { ConfigService } from '../../../configs/config.service';
 import { hashAndValidatePassword } from '../../../utils/hashUser';
 import { MailService } from '../../mail/mail.service';
-
+import { MailSendGridService } from '../../mail/mail-send-grid.service';
+import { Response } from 'express';
+import * as ejs from 'ejs';
+import * as fs from 'fs';
+import * as path from 'path';
 @Injectable()
 export class UserCreateAction {
   constructor(
@@ -17,6 +21,7 @@ export class UserCreateAction {
     @InjectConnection() private readonly connection: mongoose.Connection,
     private configService: ConfigService,
     private mailService: MailService,
+    private mailSendGridService: MailSendGridService,
   ) {}
 
   async execute(payload: UserCreatePayloadDto): Promise<User> {
@@ -31,7 +36,25 @@ export class UserCreateAction {
     const hashPass = await hashAndValidatePassword(password, saltRounds);
 
     const user = await new this.userModel({ ...payload, password: hashPass }).save();
-    this.mailService.sendUserConfirmation(user, new Date().toISOString());
+
+    const url = `example.com/auth/confirm?token=${new Date().toISOString()}`;
+    const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation.ejs');
+    const source = fs.readFileSync(filePath, 'utf-8').toString();
+    const template = ejs.compile(source);
+    const replacements = {
+      name: `${user.firstName } ${user.lastName}`,
+      url
+    };
+    const htmlToSend = template(replacements);
+    // TODO: Update
+    const mail = {
+      to: "quochungphp@gmail.com",
+      subject: 'Greeting Message from NestJS Sendgrid',
+      from: 'kinsend.sp@gmail.com',
+      text: 'Hello World from NestJS Sendgrid',
+      html: htmlToSend
+    };
+    this.mailSendGridService.sendUserConfirmation(mail);
     return user;
   }
 }

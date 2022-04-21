@@ -1,8 +1,10 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule , ConfigService} from '@nestjs/config';
 import { join } from 'path';
+import { ConfigService as ConfigEnvService } from '../../configs/config.service';
+import { MailSendGridService } from './mail-send-grid.service';
 import { MailService } from './mail.service';
 
 @Module({
@@ -14,7 +16,6 @@ import { MailService } from './mail.service';
         const user = configService.get("MAIL_USER");
         const password = configService.get("MAIL_PASSWORD");
         const email = configService.get("MAIL_FROM");
-        console.log(join(__dirname, '../../views/mail/templates'))
         return {
           transport: {
             host: smtp,
@@ -28,7 +29,7 @@ import { MailService } from './mail.service';
             from: `"No Reply" <${email}>`,
           },
           template: {
-            dir: join(__dirname, 'templates'),
+            dir: join(__dirname, '../../mail/templates'),
             adapter: new EjsAdapter(),
             options: {
               strict: true,
@@ -39,7 +40,7 @@ import { MailService } from './mail.service';
       inject: [ConfigService],
     }),    
   ],
-  providers: [MailService],
-  exports: [MailService], 
+  providers: [MailService, MailSendGridService, ConfigEnvService],
+  exports: [MailService, MailSendGridService], 
 })
 export class MailModule {}

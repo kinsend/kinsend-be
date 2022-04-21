@@ -142,4 +142,8 @@ export class ConfigService {
   get environment(): string {
     return process.env.NODE_ENV || this.envConfig['NODE_ENV'] || 'development';
   }
+
+  get sendGridApiKey(): string {
+    return process.env.SEND_GRID_API_KEY || this.envConfig['SEND_GRID_API_KEY'] || '';
+  }
 }

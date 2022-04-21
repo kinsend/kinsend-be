@@ -30,6 +30,8 @@
     "include": [
     "src/**/*",
     "knexfile.ts",
-    "typings/**/*"
+    "typings/**/*",
+    "public/**/*",
+    "views/**/*"
   ]
 }
