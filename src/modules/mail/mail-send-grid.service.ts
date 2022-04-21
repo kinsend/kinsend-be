@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { Injectable } from '@nestjs/common';
 import * as SendGrid from '@sendgrid/mail';
 import { ConfigService } from '../../configs/config.service';
@@ -8,12 +9,14 @@ export class MailSendGridService {
     SendGrid.setApiKey(this.configService.sendGridApiKey);
   }
 
-  async sendUserConfirmation(mail: SendGrid.MailDataRequired) : Promise<[SendGrid.ClientResponse, {}] | undefined> {
+  async sendUserConfirmation(
+    mail: SendGrid.MailDataRequired,
+  ): Promise<[SendGrid.ClientResponse, {}] | undefined> {
     try {
       const transport = await SendGrid.send(mail);
       return transport;
-    } catch (error) {
-      return undefined
+    } catch {
+      return undefined;
     }
   }
 }
