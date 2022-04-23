@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
+import { AppRequest } from 'src/utils/AppRequest';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { AuthVerifyApiKey } from '../auth/AuthVerifyApiKey/AuthVerifyApiKey.service';
 import { User as UserModel } from './user.schema';
@@ -32,7 +33,7 @@ export class UserController {
   @UseGuards(AuthVerifyApiKey)
   @UsePipes(new ValidationPipe({ transform: true }))
   @Post()
-  async create(@Req() request: Request, @Body() payload: UserCreatePayloadDto) {
-    return this.userCreateAction.execute(payload);
+  async create(@Req() request: AppRequest, @Body() payload: UserCreatePayloadDto) {
+    return this.userCreateAction.execute(request, payload);
   }
 }

@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable unicorn/prefer-module */
 /* eslint-disable @typescript-eslint/no-shadow */
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import onHeaders from 'on-headers';
-import httpContext from 'express-http-context';
+import * as httpContext from 'express-http-context';
 import { rootLogger } from '../Logger';
+
+const onHeaders = require('on-headers');
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -28,7 +31,6 @@ export class LoggerMiddleware implements NestMiddleware {
       onHeaders(response, function onHeaders() {
         const diff = process.hrtime(startTime);
         const responseTime = diff[0] * 1e3 + diff[1] * 1e-6;
-
         response.setHeader('X-Response-Time', responseTime);
         logger.info(
           {

@@ -1,11 +1,12 @@
+/* eslint-disable unicorn/prefer-module */
 import 'source-map-support/register';
 import helmet from 'helmet';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'node:path';
 import { ErrorRespTransformInterceptor } from './interceptors/ErrorRespTransformInterceptor';
 import { ConfigService } from '../configs/config.service';
-import { join } from 'path';
-import { NestExpressApplication } from '@nestjs/platform-express';
 
 export async function bootstrapApp(app: NestExpressApplication) {
   app.setGlobalPrefix('api');

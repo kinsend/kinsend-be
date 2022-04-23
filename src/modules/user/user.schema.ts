@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 import { Exclude, Transform, Type } from 'class-transformer';
 import { ExcludeProperty } from 'nestjs-mongoose-exclude';
+import { STATUS } from 'src/domain/const';
 
 export type UserDocument = User & Document;
 
@@ -33,6 +34,10 @@ export class User {
   @Prop()
   @Exclude()
   password: string;
+
+  @Prop()
+  status: STATUS;
+
 }
 
 const UserSchema = SchemaFactory.createForClass(User);
