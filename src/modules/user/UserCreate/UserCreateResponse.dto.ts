@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsLowercase, IsString, Length, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsLowercase,
+  IsOptional,
+  IsString,
+  Length,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UserCreateResponseDto {
   @ApiProperty({ example: '123-456-789', type: String })
@@ -22,7 +30,7 @@ export class UserCreateResponseDto {
   @ApiProperty({ example: 'Rem', required: true, type: String })
   @IsString()
   @Length(3, 50)
-  fullName: string;
+  lastName: string;
 
   @ApiProperty({
     example: 'https://facebook.com/user',
@@ -31,10 +39,12 @@ export class UserCreateResponseDto {
   })
   @IsString()
   @Length(3, 50)
-  oneSocial: string;
+  @IsOptional()
+  oneSocial?: string;
 
   @ApiProperty({ example: 123456, required: true, type: Number })
   @IsString()
   @Length(3, 20)
-  phoneNumber: number;
+  @IsOptional()
+  phoneNumber?: number;
 }
