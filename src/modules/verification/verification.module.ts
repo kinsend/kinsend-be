@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from 'src/shared/shared.module';
 import { User, UserSchema } from '../user/user.schema';
 import { VerificationController } from './verification.controller';
-import { VerificationConfirmEmailAction } from './VerificationConfirmEmail/VerificationConfirmEmailAction.service';
+import { VerificationConfirmEmailAction } from './services/VerificationConfirmEmailAction.service';
 
 @Module({
   controllers: [VerificationController],

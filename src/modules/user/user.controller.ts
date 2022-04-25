@@ -19,8 +19,8 @@ import { AppRequest } from 'src/utils/AppRequest';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { AuthVerifyApiKey } from '../auth/services/AuthVerifyApiKey.service';
 import { User as UserModel } from './user.schema';
-import { UserCreateAction } from './UserCreate/UserCreateAction.service';
-import { UserCreatePayloadDto } from './UserCreate/UserCreateRequest.dto';
+import { UserCreateAction } from './services/UserCreateAction.service';
+import { UserCreatePayloadDto } from './dtos/UserCreateRequest.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()

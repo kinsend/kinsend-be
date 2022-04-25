@@ -17,8 +17,8 @@ import {
 import { Response, Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AppRequest } from 'src/utils/AppRequest';
-import { VerificationConfirmEmailAction } from './VerificationConfirmEmail/VerificationConfirmEmailAction.service';
-import { VerificationConfirmEmailQueryDto } from './VerificationConfirmEmail/VerificationConfirmEmailQuery.dto';
+import { VerificationConfirmEmailAction } from './services/VerificationConfirmEmailAction.service';
+import { VerificationConfirmEmailQueryDto } from './dtos/VerificationConfirmEmailQuery.dto';
 
 @ApiTags('Verifications')
 @Controller('verifications')

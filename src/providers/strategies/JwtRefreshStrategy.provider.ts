@@ -7,10 +7,10 @@ import { AuthRefreshTokenResponseDto } from '../../modules/auth/dtos/AuthRefresh
 import { tokenCacheKey } from '../../utils/cacheKeys';
 import { RequestContext } from '../../utils/RequestContext';
 import { ConfigService } from '../../configs/config.service';
-import { UserCreateResponseDto } from '../../modules/user/UserCreate/UserCreateResponse.dto';
+import { UserCreateResponseDto } from '../../modules/user/dtos/UserCreateResponse.dto';
 import { User, UserDocument } from '../../modules/user/user.schema';
-import { UserFindByEmailAction } from '../../modules/user/UserFindByEmail/UserFindByEmailAction.service';
-import { UserFindByIdlAction } from '../../modules/user/UserFindById/UserFindByIdAction.service';
+import { UserFindByEmailAction } from '../../modules/user/services/UserFindByEmailAction.service';
+import { UserFindByIdlAction } from '../../modules/user/services/UserFindByIdAction.service';
 
 type RefreshTokenPayloadDto = AuthRefreshTokenResponseDto;
 

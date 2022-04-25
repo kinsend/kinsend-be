@@ -10,13 +10,13 @@ import * as mongoose from 'mongoose';
 import { RequestContext } from 'src/utils/RequestContext';
 import { JwtService } from '@nestjs/jwt';
 import { User, UserDocument } from 'src/modules/user/user.schema';
-import { UserConfirmationTokenDto } from 'src/modules/user/UserCreate/UserConfirmationToken.dto';
+import { UserConfirmationTokenDto } from 'src/modules/user/dtos/UserConfirmationToken.dto';
 import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
 import { STATUS } from 'src/domain/const';
 import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
 import { ConfigService } from '../../../configs/config.service';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
-import { VerificationConfirmEmailQueryDto } from './VerificationConfirmEmailQuery.dto';
+import { VerificationConfirmEmailQueryDto } from '../dtos/VerificationConfirmEmailQuery.dto';
 
 @Injectable()
 export class VerificationConfirmEmailAction {

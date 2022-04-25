@@ -12,14 +12,14 @@ import * as path from 'path';
 import { JwtService } from '@nestjs/jwt';
 import { RequestContext } from 'src/utils/RequestContext';
 import { STATUS } from 'src/domain/const';
-import { UserCreatePayloadDto } from './UserCreateRequest.dto';
+import { UserCreatePayloadDto } from '../dtos/UserCreateRequest.dto';
 import { User, UserDocument } from '../user.schema';
 import { UsernameConflictException } from '../../../utils/exceptions/UsernameConflictException';
 import { ConfigService } from '../../../configs/config.service';
 import { hashAndValidatePassword } from '../../../utils/hashUser';
 import { MailService } from '../../mail/mail.service';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
-import { UserConfirmationTokenDto } from './UserConfirmationToken.dto';
+import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 
 @Injectable()
 export class UserCreateAction {

@@ -7,7 +7,7 @@ import { InvalidCredentialsException } from '../../../utils/exceptions/InvalidCr
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { verify } from '../../../utils/hashUser';
 import { User, UserDocument } from '../../user/user.schema';
-import { UserCreateResponseDto } from '../../user/UserCreate/UserCreateResponse.dto';
+import { UserCreateResponseDto } from '../../user/dtos/UserCreateResponse.dto';
 
 @Injectable()
 export class AuthValidateAction {

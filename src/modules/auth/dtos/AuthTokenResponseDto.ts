@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserCreateResponseDto } from '../../user/UserCreate/UserCreateResponse.dto';
+import { UserCreateResponseDto } from '../../user/dtos/UserCreateResponse.dto';
 
 export class AuthAccessTokenResponseDto extends UserCreateResponseDto {
   @ApiProperty({ example: '123456789', type: String, required: true })

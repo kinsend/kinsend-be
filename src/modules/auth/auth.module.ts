@@ -5,7 +5,7 @@ import { LocalAuthStrategy } from '../../providers/strategies/LocalAuthStrategy.
 import { SharedModule } from '../../shared/shared.module';
 import { UserModule } from '../user/user.module';
 import { User, UserSchema } from '../user/user.schema';
-import { UserFindByIdlAction } from '../user/UserFindById/UserFindByIdAction.service';
+import { UserFindByIdlAction } from '../user/services/UserFindByIdAction.service';
 import { AuthController } from './auth.controller';
 import { AuthBlackListTokenAction } from './services/AuthBlackListTokenAction.service';
 import { AuthRefreshTokenAction } from './services/AuthRefreshTokenAction.service';
