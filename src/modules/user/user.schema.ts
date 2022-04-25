@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 import { Exclude, Transform } from 'class-transformer';
 import { STATUS } from 'src/domain/const';
+import { PhoneNumber } from './dtos/UserCreateResponse.dto';
 
 export type UserDocument = User & Document;
 
@@ -25,7 +26,7 @@ export class User {
   lastName: string;
 
   @Prop()
-  phoneNumber: number;
+  phoneNumber: PhoneNumber;
 
   @Prop()
   oneSocial: string;

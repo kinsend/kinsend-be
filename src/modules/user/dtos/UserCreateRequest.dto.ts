@@ -4,11 +4,13 @@ import {
   IsLowercase,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { PhoneNumber } from './UserCreateResponse.dto';
 
 export class UserCreatePayloadDto {
   @ApiProperty({ example: 'lorem@gmail.com', type: String })
@@ -37,8 +39,8 @@ export class UserCreatePayloadDto {
   @IsOptional()
   oneSocial?: string;
 
-  @ApiProperty({ example: 123456, required: false, type: Number })
-  @IsNumber()
+  @ApiProperty({ example: 123456, required: true, type: PhoneNumber })
+  @IsObject()
   @IsOptional()
-  phoneNumber?: number;
+  phoneNumber?: PhoneNumber;
 }

@@ -1,14 +1,29 @@
+/* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsLowercase,
+  IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Length,
   MaxLength,
-  MinLength,
 } from 'class-validator';
 
+export class PhoneNumber {
+  @ApiProperty({ example: 123456, required: true, type: String })
+  @IsString()
+  phone: string;
+
+  @ApiProperty({ example: 123, required: true, type: Number })
+  @IsNumber()
+  code?: number;
+
+  @ApiProperty({ example: 'US', required: true, type: String })
+  @IsString()
+  short: string;
+}
 export class UserCreateResponseDto {
   @ApiProperty({ example: '123-456-789', type: String })
   @MaxLength(50)
@@ -29,7 +44,6 @@ export class UserCreateResponseDto {
 
   @ApiProperty({ example: 'Rem', required: true, type: String })
   @IsString()
-  @Length(3, 50)
   lastName: string;
 
   @ApiProperty({
@@ -38,13 +52,11 @@ export class UserCreateResponseDto {
     type: String,
   })
   @IsString()
-  @Length(3, 50)
   @IsOptional()
   oneSocial?: string;
 
-  @ApiProperty({ example: 123456, required: true, type: Number })
-  @IsString()
-  @Length(3, 20)
+  @ApiProperty({ example: 123456, required: true, type: PhoneNumber })
+  @IsObject()
   @IsOptional()
-  phoneNumber?: number;
+  phoneNumber?: PhoneNumber;
 }
