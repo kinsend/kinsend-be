@@ -25,7 +25,6 @@ export class VerificationConfirmEmailAction {
     @InjectConnection() private readonly connection: mongoose.Connection,
     private configService: ConfigService,
     private jwtService: JwtService,
-    private mailSendGridService: MailSendGridService,
   ) {}
 
   async execute(
