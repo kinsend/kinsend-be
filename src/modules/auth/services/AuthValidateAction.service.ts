@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { omit } from 'lodash';
 import mongoose, { Model } from 'mongoose';
 
 import { InvalidCredentialsException } from '../../../utils/exceptions/InvalidCredentialsException';
+import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { verify } from '../../../utils/hashUser';
 import { User, UserDocument } from '../../user/user.schema';
 import { UserCreateResponseDto } from '../../user/UserCreate/UserCreateResponse.dto';

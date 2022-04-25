@@ -4,11 +4,11 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from '../user.schema';
 
 @Injectable()
-export class UserFindByEmailAction {
+export class UserFindByIdlAction {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async execute(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ $or: [{ email }] });
+  async execute(id: string): Promise<User> {
+    const user = await this.userModel.findById(id);
 
     if (!user) {
       throw new NotFoundException();

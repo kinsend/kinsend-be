@@ -17,7 +17,7 @@ import { Response, Request } from 'express';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { AppRequest } from 'src/utils/AppRequest';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
-import { AuthVerifyApiKey } from '../auth/AuthVerifyApiKey/AuthVerifyApiKey.service';
+import { AuthVerifyApiKey } from '../auth/services/AuthVerifyApiKey.service';
 import { User as UserModel } from './user.schema';
 import { UserCreateAction } from './UserCreate/UserCreateAction.service';
 import { UserCreatePayloadDto } from './UserCreate/UserCreateRequest.dto';

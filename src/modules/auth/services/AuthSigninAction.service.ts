@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '../../../configs/config.service';
+import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { AuthRefreshTokenResponseDto } from '../dtos/AuthRefreshTokenResponseDto';
 import { AuthSignInResponseDto } from '../dtos/AuthSigninResponseDto';
