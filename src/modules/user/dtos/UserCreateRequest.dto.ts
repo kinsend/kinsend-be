@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsLowercase, IsOptional, IsString, Length, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsLowercase,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UserCreatePayloadDto {
   @ApiProperty({ example: 'lorem@gmail.com', type: String })
@@ -15,23 +24,21 @@ export class UserCreatePayloadDto {
 
   @ApiProperty({ example: 'Lo', required: true, type: String })
   @IsString()
-  @Length(1, 50)
+  @IsNotEmpty()
   firstName: string;
 
   @ApiProperty({ example: 'Rem', required: true, type: String })
   @IsString()
-  @Length(1, 50)
+  @IsNotEmpty()
   lastName: string;
 
   @ApiProperty({ example: 'https://facebook.com/user', required: false, type: String })
   @IsString()
-  @Length(3, 50)
   @IsOptional()
   oneSocial?: string;
 
   @ApiProperty({ example: 123456, required: false, type: Number })
-  @IsString()
-  @Length(3, 20)
+  @IsNumber()
   @IsOptional()
   phoneNumber?: number;
 }

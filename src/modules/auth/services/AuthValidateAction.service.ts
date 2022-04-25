@@ -8,6 +8,7 @@ import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { verify } from '../../../utils/hashUser';
 import { User, UserDocument } from '../../user/user.schema';
 import { UserCreateResponseDto } from '../../user/dtos/UserCreateResponse.dto';
+import { STATUS } from '../../../domain/const';
 
 @Injectable()
 export class AuthValidateAction {
@@ -18,6 +19,10 @@ export class AuthValidateAction {
 
   async execute(email: string, password: string): Promise<UserCreateResponseDto> {
     const user = await this.userModel.findOne({ $or: [{ email }] });
+
+    if (user && user.status !== STATUS.ACTIVE) {
+      throw new NotFoundException('User', 'User not active');
+    }
 
     if (user) {
       await this.comparePassword(password, user.password || '');

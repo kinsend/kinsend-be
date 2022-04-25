@@ -12,6 +12,7 @@ import { AuthRefreshTokenAction } from './services/AuthRefreshTokenAction.servic
 import { AuthSignInAction } from './services/AuthSigninAction.service';
 import { AuthValidateAction } from './services/AuthValidateAction.service';
 import { AuthVerifyTokenAction } from './services/AuthVerifyTokenAction.service';
+import { JwtAuthStrategy } from '../../providers/strategies/JwtAuthStrategy.provider';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthVerifyTokenAction } from './services/AuthVerifyTokenAction.service'
   providers: [
     LocalAuthStrategy,
     JwtRefreshTokenStrategy,
+    JwtAuthStrategy,
     AuthSignInAction,
     AuthValidateAction,
     AuthVerifyTokenAction,
