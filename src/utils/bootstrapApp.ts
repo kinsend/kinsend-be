@@ -21,10 +21,9 @@ export async function bootstrapApp(app: NestExpressApplication) {
       'x-api-key',
     )
     .addBearerAuth()
-    .setTitle('NextJS TypeScript Test Assignment')
+    .setTitle('Kinsend Backend API')
     .setDescription('The API description')
     .setVersion('1.0')
-    .addTag('NextJS TypeScript Test Assignment')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

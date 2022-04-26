@@ -9,7 +9,7 @@ import {
   Body,
   Delete,
 } from '@nestjs/common';
-import { ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import JwtRefreshGuard from '../../providers/guards/JwtRefreshGuard.provider';
 import { LocalAuthGuard } from '../../providers/guards/LocalAuthGuard.provider';
 import { AppRequest } from '../../utils/AppRequest';
@@ -22,6 +22,7 @@ import { AuthRefreshTokenAction } from './services/AuthRefreshTokenAction.servic
 import { AuthBlackListTokenAction } from './services/AuthBlackListTokenAction.service';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 
+@ApiTags('Auths')
 @Controller('auths')
 export class AuthController {
   constructor(
