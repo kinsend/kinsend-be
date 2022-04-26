@@ -2,4 +2,5 @@ export enum STATUS {
   'ACTIVE' = 'ACTIVE',
   'INACTIVE' = 'INACTIVE',
   'DELETED' = 'DELETED',
+  'VERIFIED' = 'VERIFIED',
 }

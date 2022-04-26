@@ -18,11 +18,15 @@ export class PhoneNumber {
 
   @ApiProperty({ example: 123, required: true, type: Number })
   @IsNumber()
-  code?: number;
+  code: number;
 
   @ApiProperty({ example: 'US', required: true, type: String })
   @IsString()
   short: string;
+
+  @ApiProperty({ example: 'VERIFY', required: true, type: String })
+  @IsString()
+  status?: string;
 }
 export class UserCreateResponseDto {
   @ApiProperty({ example: '123-456-789', type: String })

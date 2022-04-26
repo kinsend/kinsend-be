@@ -154,4 +154,17 @@ export class ConfigService {
   get mailForm(): string {
     return process.env.MAIL_FROM || this.envConfig['MAIL_FROM'] || '';
   }
+  get twilioAccountSid(): string {
+    return process.env.TWILIO_ACCOUNT_SID || this.envConfig['TWILIO_ACCOUNT_SID'] || '';
+  }
+  get twilioAuthToken(): string {
+    return process.env.TWILIO_AUTH_TOKEN || this.envConfig['TWILIO_AUTH_TOKEN'] || '';
+  }
+  get twilioVerificationServiceSid(): string {
+    return (
+      process.env.TWILIO_VERIFICATION_SERVICE_SID ||
+      this.envConfig['TWILIO_VERIFICATION_SERVICE_SID'] ||
+      ''
+    );
+  }
 }
