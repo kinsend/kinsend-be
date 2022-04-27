@@ -37,6 +37,9 @@ export class User {
 
   @Prop()
   status: STATUS;
+
+  @Prop()
+  stripeCustomerUserId: string;
 }
 
 const UserSchema = SchemaFactory.createForClass(User);

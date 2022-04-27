@@ -6,9 +6,10 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { VerificationModule } from './modules/verification/verification.module';
 import { LoggerMiddleware } from './utils/middlewares/Logger.middleware';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
-  imports: [SharedModule, UserModule, AuthModule, VerificationModule],
+  imports: [SharedModule, UserModule, AuthModule, VerificationModule, PaymentModule],
   controllers: [AppController],
   providers: [AppService],
 })
