@@ -9,7 +9,7 @@ import {
   Body,
   Delete,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiTags } from '@nestjs/swagger';
 import JwtRefreshGuard from '../../providers/guards/JwtRefreshGuard.provider';
 import { LocalAuthGuard } from '../../providers/guards/LocalAuthGuard.provider';
 import { AppRequest } from '../../utils/AppRequest';

@@ -174,4 +174,8 @@ export class ConfigService {
   get stripeCurrency(): string {
     return process.env.STRIPE_CURRENCY || this.envConfig['STRIPE_CURRENCY'] || '';
   }
+
+  get publishableKey(): string {
+    return process.env.STRIPE_PUBLISHABLE_KEY || this.envConfig['STRIPE_PUBLISHABLE_KEY'] || '';
+  }
 }
