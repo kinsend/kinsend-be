@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { Twilio } from 'twilio';
+import { VerificationInstance } from 'twilio/lib/rest/verify/v2/service/verification';
+import { VerificationCheckInstance } from 'twilio/lib/rest/verify/v2/service/verificationCheck';
 import { ConfigService } from '../../configs/config.service';
 import { BadRequestException } from '../../utils/exceptions/BadRequestException';
 import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
@@ -18,20 +20,24 @@ export class SmsService {
   async initiatePhoneNumberVerification(
     context: RequestContext,
     phoneNumber: string,
-  ): Promise<unknown> {
+  ): Promise<VerificationInstance> {
     const { logger, correlationId } = context;
 
     try {
       logger.info('Request verify phone number');
 
       const { twilioVerificationServiceSid } = this.configService;
-      const response = await this.twilioClient.verify
+      const result = await this.twilioClient.verify
         .services(twilioVerificationServiceSid)
         .verifications.create({ to: phoneNumber, channel: 'sms' });
 
-      logger.info('Request verify phone number successfully');
+      logger.info({
+        correlationId,
+        message: 'Request verify phone number successful',
+        data: result,
+      });
 
-      return response;
+      return result;
     } catch (error: unknown) {
       logger.error({
         correlationId,
@@ -46,7 +52,7 @@ export class SmsService {
     context: RequestContext,
     phoneNumber: string,
     verificationCode: string,
-  ): Promise<unknown> {
+  ): Promise<VerificationCheckInstance> {
     const { twilioVerificationServiceSid } = this.configService;
     const { logger, correlationId } = context;
     try {
@@ -60,7 +66,11 @@ export class SmsService {
         throw new BadRequestException('Wrong code provided');
       }
 
-      logger.info('Request confirm phone number successfully');
+      logger.info({
+        correlationId,
+        message: 'Request confirm phone number successful',
+        data: result,
+      });
 
       return result;
     } catch (error: unknown) {

@@ -33,7 +33,7 @@ export class VerificationRequestConfirmPhoneNumberAction {
   ): Promise<User | null> {
     try {
       const checkExistedUser = await this.userModel.findOne({
-        $or: [{ phoneNumber: payload.phoneNumber }],
+        $or: [{ phone: payload.phoneNumber }],
       });
 
       if (!checkExistedUser) {
@@ -47,7 +47,7 @@ export class VerificationRequestConfirmPhoneNumberAction {
 
       const { code, phone } = phoneNumber;
       const smsPhone = `+${code}${phone}`;
-      this.smsService.confirmPhoneNumber(context, smsPhone, payload.verifyCode || '');
+      await this.smsService.confirmPhoneNumber(context, smsPhone, payload.verifyCode || '');
 
       return checkExistedUser;
     } catch (error) {

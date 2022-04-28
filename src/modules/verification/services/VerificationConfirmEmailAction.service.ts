@@ -40,8 +40,7 @@ export class VerificationConfirmEmailAction {
         throw new NotFoundException('User', 'User not found');
       }
 
-      let user = await this.userModel.findByIdAndUpdate(id, { status: STATUS.ACTIVE });
-      user = omit('password', { ...user });
+      const user = await this.userModel.findByIdAndUpdate(id, { status: STATUS.ACTIVE });
       return user;
     } catch (error) {
       context.logger.error(error);

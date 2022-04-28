@@ -24,9 +24,12 @@ import { VerificationRequestPhoneNumberDto } from './dtos/VerificationRequestPho
 import { VerificationRequestVerifyPhoneNumberAction } from './services/VerificationRequestVerifyPhoneNumberAction.service';
 import { AuthVerifyApiKey } from '../auth/services/AuthVerifyApiKey.service';
 import { VerificationRequestConfirmPhoneNumberAction } from './services/VerificationRequestConfirmPhoneNumberAction.service';
+import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
+import { User as UserModel } from '../user/user.schema';
 
 @ApiTags('Verifications')
 @Controller('verifications')
+@UseInterceptors(MongooseClassSerializerInterceptor(UserModel))
 export class VerificationController {
   constructor(
     private verificationConfirmEmailAction: VerificationConfirmEmailAction,
@@ -36,7 +39,7 @@ export class VerificationController {
 
   @HttpCode(HttpStatus.OK)
   @UsePipes(new ValidationPipe({ transform: true }))
-  @Get('email')
+  @Get('confirm')
   async confirm(@Req() request: AppRequest, @Query() query: VerificationConfirmEmailQueryDto) {
     return this.verificationConfirmEmailAction.execute(request, query);
   }
