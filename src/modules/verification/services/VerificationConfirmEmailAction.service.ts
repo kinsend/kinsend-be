@@ -13,10 +13,10 @@ import { User, UserDocument } from 'src/modules/user/user.schema';
 import { UserConfirmationTokenDto } from 'src/modules/user/dtos/UserConfirmationToken.dto';
 import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
 import { STATUS } from 'src/domain/const';
-import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
 import { ConfigService } from '../../../configs/config.service';
-import { MailSendGridService } from '../../mail/mail-send-grid.service';
 import { VerificationConfirmEmailQueryDto } from '../dtos/VerificationConfirmEmailQuery.dto';
+import { StripeService } from '../../../shared/services/stripe.service';
+import { ForbiddenException } from '../../../utils/exceptions/ForbiddenException';
 
 @Injectable()
 export class VerificationConfirmEmailAction {
@@ -24,6 +24,7 @@ export class VerificationConfirmEmailAction {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectConnection() private readonly connection: mongoose.Connection,
     private configService: ConfigService,
+    private stripeService: StripeService,
     private jwtService: JwtService,
   ) {}
 
@@ -33,18 +34,27 @@ export class VerificationConfirmEmailAction {
   ): Promise<User | null> {
     try {
       const decodedJwtEmailToken = this.jwtService.decode(query.token);
-      const { email, id } = <UserConfirmationTokenDto>decodedJwtEmailToken;
+      const { email } = <UserConfirmationTokenDto>decodedJwtEmailToken;
       const checkExistedUser = await this.userModel.findOne({ $or: [{ email }] });
 
       if (!checkExistedUser) {
         throw new NotFoundException('User', 'User not found');
       }
 
-      const user = await this.userModel.findByIdAndUpdate(id, { status: STATUS.ACTIVE });
+      if (checkExistedUser.status === STATUS.ACTIVE) {
+        throw new ForbiddenException('User has already active');
+      }
+      const fullName = `${checkExistedUser.firstName} ${checkExistedUser.lastName}`;
+      const customerInfo = await this.stripeService.createCustomerUser(context, fullName, email);
+      const user = await this.userModel.findByIdAndUpdate(checkExistedUser.id, {
+        status: STATUS.ACTIVE,
+        stripeCustomerUserId: customerInfo.id,
+      });
+
       return user;
     } catch (error) {
       context.logger.error(error);
-      throw new IllegalStateException('User token not found');
+      throw new ForbiddenException(error.message || 'User token not found');
     }
   }
 }

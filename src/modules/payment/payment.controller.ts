@@ -3,23 +3,24 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import { StripeService } from '../../shared/services/stripe.service';
 import { RequestContext } from '../../utils/RequestContext';
-import { PaymentAddCreditCardDto } from './dtos/PaymentAddCreditCard.dto';
+import { PaymentStoredCreditCardDto } from './dtos/PaymentStoredCreditCard.dto';
 import { PaymentCreateChargeDto } from './dtos/PaymentCreateCharge.dto';
+import { StoredCreditCardAction } from './services/StoredCreditCardAction.service';
+import { AppRequest } from '../../utils/AppRequest';
 
 @ApiTags('Payments')
 @ApiBearerAuth()
 @Controller('payments')
 @UseGuards(JwtAuthGuard)
 export class PaymentController {
-  constructor(private readonly stripeService: StripeService) {}
+  constructor(
+    private readonly stripeService: StripeService,
+    private readonly storedCreditCardAction: StoredCreditCardAction,
+  ) {}
 
   @Post('/credit-card')
-  async addCreditCard(@Body() creditCard: PaymentAddCreditCardDto, @Req() request: RequestContext) {
-    return this.stripeService.storedCreditCard(
-      request,
-      creditCard.paymentMethodId,
-      request.user.stripeCustomerId,
-    );
+  async storedCreditCard(@Body() payload: PaymentStoredCreditCardDto, @Req() request: AppRequest) {
+    return this.storedCreditCardAction.execute(request, payload);
   }
 
   @Get('/list-credit-cards')
