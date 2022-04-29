@@ -1,12 +1,15 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import { StripeService } from '../../shared/services/stripe.service';
 import { RequestContext } from '../../utils/RequestContext';
 import { PaymentStoredCreditCardDto } from './dtos/PaymentStoredCreditCard.dto';
 import { PaymentCreateChargeDto } from './dtos/PaymentCreateCharge.dto';
-import { StoredCreditCardAction } from './services/StoredCreditCardAction.service';
+import { PaymentStoredCreditCardAction } from './services/PaymentStoredCreditCardAction.service';
 import { AppRequest } from '../../utils/AppRequest';
+import { PaymentConfirmCreditCardAction } from './services/PaymentConfirmCreditCardAction.service';
+import { PaymentConfirmCreditCardDto } from './dtos/PaymentConfirmCreditCard.dto';
+import { PaymentCancelCreditCardAction } from './services/PaymentCancelCreditCardAction.service';
 
 @ApiTags('Payments')
 @ApiBearerAuth()
@@ -15,20 +18,39 @@ import { AppRequest } from '../../utils/AppRequest';
 export class PaymentController {
   constructor(
     private readonly stripeService: StripeService,
-    private readonly storedCreditCardAction: StoredCreditCardAction,
+    private readonly paymentStoredCreditCardAction: PaymentStoredCreditCardAction,
+    private readonly paymentConfirmCreditCardAction: PaymentConfirmCreditCardAction,
+    private readonly paymentCancelCreditCardAction: PaymentCancelCreditCardAction,
   ) {}
 
   @Post('/credit-card')
   async storedCreditCard(@Body() payload: PaymentStoredCreditCardDto, @Req() request: AppRequest) {
-    return this.storedCreditCardAction.execute(request, payload);
+    return this.paymentStoredCreditCardAction.execute(request, payload);
   }
 
-  @Get('/list-credit-cards')
+  @Post('/credit-card/:id/confirm')
+  async confirmCreditCard(
+    @Body() payload: PaymentConfirmCreditCardDto,
+    @Req() request: AppRequest,
+    @Param('setupIntentId') setupIntentId: string,
+  ) {
+    return this.paymentConfirmCreditCardAction.execute(request, setupIntentId, payload);
+  }
+
+  @Post('/credit-card/:id/cancel')
+  async cancelCreditCard(
+    @Req() request: AppRequest,
+    @Param('setupIntentId') setupIntentId: string,
+  ) {
+    return this.paymentCancelCreditCardAction.execute(request, setupIntentId);
+  }
+
+  @Get('/credit-cards')
   async getCreditCards(@Req() request: RequestContext) {
     return this.stripeService.listStoredCreditCards(request, request.user.stripeCustomerId);
   }
 
-  @Post('/charge')
+  @Post('/credit-card/charge')
   async createCharge(@Body() payload: PaymentCreateChargeDto, @Req() request: RequestContext) {
     const { amount, paymentMethodId } = payload;
     return this.stripeService.chargePaymentUser(

@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { ConfigService } from '../../../configs/config.service';
 import { StripeService } from '../../../shared/services/stripe.service';
 import { AppRequest } from '../../../utils/AppRequest';
+import { IllegalStateException } from '../../../utils/exceptions/IllegalStateException';
 import { UnauthorizedException } from '../../../utils/exceptions/UnauthorizedException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { UserFindByIdlAction } from '../../user/services/UserFindByIdAction.service';
@@ -15,7 +16,7 @@ import { PaymentStoredCreditCardDto } from '../dtos/PaymentStoredCreditCard.dto'
 import { Payment, PaymentDocument } from '../payment.schema';
 
 @Injectable()
-export class StoredCreditCardAction {
+export class PaymentStoredCreditCardAction {
   constructor(
     private jwtService: JwtService,
     @InjectModel(Payment.name) private PaymentModel: Model<PaymentDocument>,
@@ -27,25 +28,22 @@ export class StoredCreditCardAction {
 
   async execute(context: RequestContext, payload: PaymentStoredCreditCardDto): Promise<Payment> {
     const { user } = context;
-    try {
-      const userInfo = await this.userFindByIdlAction.execute(user.id);
-      const { id, type } = payload.paymentMethod;
+    const userInfo = await this.userFindByIdlAction.execute(user.id);
+    const { id, type } = payload.paymentMethod;
 
-      const creditCardInfo = await this.stripeService.storedCreditCard(
-        context,
-        id,
-        userInfo.stripeCustomerUserId,
-        [type],
-      );
+    const creditCardInfo = await this.stripeService.storedCreditCard(
+      context,
+      id,
+      userInfo.stripeCustomerUserId,
+      [type],
+    );
 
-      const paymentModel = new this.PaymentModel({
-        userId: userInfo._id,
-        stripePaymentMethodId: payload.paymentMethod.id,
-        metadata: creditCardInfo,
-      });
-      return await paymentModel.save();
-    } catch (error: any) {
-      throw new UnauthorizedException(error.message || 'Unauthorized');
-    }
+    const paymentModel = new this.PaymentModel({
+      userId: userInfo._id,
+      stripePaymentMethodId: payload.paymentMethod.id,
+      stripeSetupIntentId: creditCardInfo.id,
+    });
+
+    return paymentModel.save();
   }
 }

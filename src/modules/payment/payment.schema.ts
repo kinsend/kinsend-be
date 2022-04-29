@@ -22,9 +22,8 @@ export class Payment {
   @Prop()
   stripePaymentMethodId: string;
 
-  @Prop({ type: {} })
-  @Exclude()
-  metadata: unknown;
+  @Prop()
+  stripeSetupIntentId: string;
 
   @Prop()
   status: STATUS;

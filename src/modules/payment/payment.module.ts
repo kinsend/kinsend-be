@@ -5,7 +5,9 @@ import { UserModule } from '../user/user.module';
 import { User, UserSchema } from '../user/user.schema';
 import { PaymentController } from './payment.controller';
 import { Payment, PaymentSchema } from './payment.schema';
-import { StoredCreditCardAction } from './services/StoredCreditCardAction.service';
+import { PaymentCancelCreditCardAction } from './services/PaymentCancelCreditCardAction.service';
+import { PaymentConfirmCreditCardAction } from './services/PaymentConfirmCreditCardAction.service';
+import { PaymentStoredCreditCardAction } from './services/PaymentStoredCreditCardAction.service';
 
 @Module({
   controllers: [PaymentController],
@@ -17,6 +19,10 @@ import { StoredCreditCardAction } from './services/StoredCreditCardAction.servic
       { name: Payment.name, schema: PaymentSchema },
     ]),
   ],
-  providers: [StoredCreditCardAction],
+  providers: [
+    PaymentStoredCreditCardAction,
+    PaymentConfirmCreditCardAction,
+    PaymentCancelCreditCardAction,
+  ],
 })
 export class PaymentModule {}

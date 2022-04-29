@@ -6,5 +6,6 @@ export class PaymentCreateChargeDto {
   paymentMethodId: string;
 
   @IsNumber()
+  @IsNotEmpty()
   amount: number;
 }
