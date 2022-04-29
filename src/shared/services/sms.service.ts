@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { Twilio } from 'twilio';
+import { TollFreeInstance } from 'twilio/lib/rest/api/v2010/account/availablePhoneNumber/tollFree';
 import { VerificationInstance } from 'twilio/lib/rest/verify/v2/service/verification';
 import { VerificationCheckInstance } from 'twilio/lib/rest/verify/v2/service/verificationCheck';
 import { ConfigService } from '../../configs/config.service';
@@ -80,6 +81,35 @@ export class SmsService {
         error,
       });
       throw new IllegalStateException('Request confirm phone number not success');
+    }
+  }
+
+  async availablePhoneNumberTollFree(
+    context: RequestContext,
+    location = 'US',
+    limit = 20,
+  ): Promise<TollFreeInstance[]> {
+    const { logger, correlationId } = context;
+    try {
+      logger.info('Request confirm phone number');
+      const result = await this.twilioClient
+        .availablePhoneNumbers(location)
+        .tollFree.list({ limit });
+
+      logger.info({
+        correlationId,
+        message: 'Request rent numbers successful',
+        data: result,
+      });
+
+      return result;
+    } catch (error: unknown) {
+      logger.error({
+        correlationId,
+        msg: 'Request rent numbers error',
+        error,
+      });
+      throw new IllegalStateException('Request rent numbers error');
     }
   }
 }

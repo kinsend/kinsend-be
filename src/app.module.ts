@@ -7,9 +7,17 @@ import { AuthModule } from './modules/auth/auth.module';
 import { VerificationModule } from './modules/verification/verification.module';
 import { LoggerMiddleware } from './utils/middlewares/Logger.middleware';
 import { PaymentModule } from './modules/payment/payment.module';
+import { ResourceModule } from './modules/resource/resource.module';
 
 @Module({
-  imports: [SharedModule, UserModule, AuthModule, VerificationModule, PaymentModule],
+  imports: [
+    SharedModule,
+    UserModule,
+    AuthModule,
+    VerificationModule,
+    PaymentModule,
+    ResourceModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
