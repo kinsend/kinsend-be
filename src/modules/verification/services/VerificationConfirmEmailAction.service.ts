@@ -44,6 +44,10 @@ export class VerificationConfirmEmailAction {
       if (checkExistedUser.status === STATUS.ACTIVE) {
         throw new ForbiddenException('User has already active');
       }
+
+      if (checkExistedUser.stripeCustomerUserId) {
+        throw new ForbiddenException('User has verified Stripe customer');
+      }
       const fullName = `${checkExistedUser.firstName} ${checkExistedUser.lastName}`;
       const customerInfo = await this.stripeService.createCustomerUser(context, fullName, email);
       const user = await this.userModel.findByIdAndUpdate(checkExistedUser.id, {

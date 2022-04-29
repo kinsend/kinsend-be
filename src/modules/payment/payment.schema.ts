@@ -2,9 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 import { Exclude, Transform } from 'class-transformer';
 import { STATUS } from 'src/domain/const';
-import { PhoneNumber } from './dtos/UserCreateResponse.dto';
 
-export type UserDocument = User & Document;
+export type PaymentDocument = Payment & Document;
 
 @Schema({
   toJSON: {
@@ -12,34 +11,23 @@ export type UserDocument = User & Document;
     virtuals: true,
   },
 })
-export class User {
+export class Payment {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ unique: true })
-  email: string;
+  @Prop()
+  @Transform(({ value }) => value.toString())
+  userId: string;
 
   @Prop()
-  firstName: string;
+  stripePaymentMethodId: string;
 
-  @Prop()
-  lastName: string;
-
-  @Prop()
-  phoneNumber: PhoneNumber;
-
-  @Prop()
-  oneSocial: string;
-
-  @Prop()
+  @Prop({ type: {} })
   @Exclude()
-  password: string;
+  metadata: unknown;
 
   @Prop()
   status: STATUS;
-
-  @Prop()
-  stripeCustomerUserId: string;
 
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
@@ -48,8 +36,8 @@ export class User {
   updatedAt: Date;
 }
 
-const UserSchema = SchemaFactory.createForClass(User);
+const PaymentSchema = SchemaFactory.createForClass(Payment);
 
-UserSchema.index({ firstName: 'text', lastName: 'text', email: 'text' });
+PaymentSchema.index({ userId: 'text', stripePaymentId: 'text', status: 'text' });
 
-export { UserSchema };
+export { PaymentSchema };

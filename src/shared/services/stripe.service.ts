@@ -68,15 +68,18 @@ export class StripeService {
     context: RequestContext,
     paymentMethodId: string,
     customerId: string,
+    paymentMethodTypes: [string],
   ): Promise<Stripe.Response<Stripe.SetupIntent>> {
     const { logger, correlationId } = context;
     try {
       const cardInfo = await this.stripe.setupIntents.create({
         customer: customerId,
         payment_method: paymentMethodId,
+        payment_method_types: paymentMethodTypes,
       });
       return cardInfo;
     } catch (error: unknown) {
+      console.log(error);
       const message = 'Request stored card  is not successful';
       logger.error({
         correlationId,
