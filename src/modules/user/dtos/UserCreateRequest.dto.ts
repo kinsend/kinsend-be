@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
   IsEmail,
   IsLowercase,
   IsNotEmpty,
@@ -39,8 +40,8 @@ export class UserCreatePayloadDto {
   @IsOptional()
   oneSocial?: string;
 
-  @ApiProperty({ example: 123456, required: true, type: PhoneNumber })
-  @IsObject()
+  @ApiProperty({ example: [PhoneNumber], required: true, type: [PhoneNumber] })
+  @IsArray()
   @IsOptional()
-  phoneNumber?: PhoneNumber;
+  phoneNumber?: [PhoneNumber];
 }

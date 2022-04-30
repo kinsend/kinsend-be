@@ -21,11 +21,11 @@ import { AppRequest } from 'src/utils/AppRequest';
 import { VerificationConfirmEmailAction } from './services/VerificationConfirmEmailAction.service';
 import { VerificationConfirmEmailQueryDto } from './dtos/VerificationConfirmEmailQuery.dto';
 import { VerificationRequestPhoneNumberDto } from './dtos/VerificationRequestPhoneNumber.dto';
-import { VerificationRequestVerifyPhoneNumberAction } from './services/VerificationRequestVerifyPhoneNumberAction.service';
 import { AuthVerifyApiKey } from '../auth/services/AuthVerifyApiKey.service';
-import { VerificationRequestConfirmPhoneNumberAction } from './services/VerificationRequestConfirmPhoneNumberAction.service';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { User as UserModel } from '../user/user.schema';
+import { VerificationVerifyPhoneNumberAction } from './services/VerificationVerifyPhoneNumberAction.service';
+import { VerificationConfirmPhoneNumberAction } from './services/VerificationConfirmPhoneNumberAction.service';
 
 @ApiTags('Verifications')
 @Controller('verifications')
@@ -33,8 +33,8 @@ import { User as UserModel } from '../user/user.schema';
 export class VerificationController {
   constructor(
     private verificationConfirmEmailAction: VerificationConfirmEmailAction,
-    private verificationRequestVerifyPhoneNumberAction: VerificationRequestVerifyPhoneNumberAction,
-    private verificationRequestConfirmPhoneNumberAction: VerificationRequestConfirmPhoneNumberAction,
+    private verificationVerifyPhoneNumberAction: VerificationVerifyPhoneNumberAction,
+    private verificationConfirmPhoneNumberAction: VerificationConfirmPhoneNumberAction,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -52,7 +52,7 @@ export class VerificationController {
     @Req() request: AppRequest,
     @Body() payload: VerificationRequestPhoneNumberDto,
   ) {
-    return this.verificationRequestVerifyPhoneNumberAction.execute(request, payload);
+    return this.verificationVerifyPhoneNumberAction.execute(request, payload);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -63,6 +63,6 @@ export class VerificationController {
     @Req() request: AppRequest,
     @Body() payload: VerificationRequestPhoneNumberDto,
   ) {
-    return this.verificationRequestConfirmPhoneNumberAction.execute(request, payload);
+    return this.verificationConfirmPhoneNumberAction.execute(request, payload);
   }
 }

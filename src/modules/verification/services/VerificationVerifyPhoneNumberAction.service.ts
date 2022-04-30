@@ -34,18 +34,25 @@ export class VerificationVerifyPhoneNumberAction {
   ): Promise<User | null> {
     try {
       const checkExistedUser = await this.userModel.findOne({
-        $or: [{ phone: payload.phoneNumber }],
+        $or: [{ phoneNumber: { $elemMatch: { phone: payload.phoneNumber } } }],
       });
-
       if (!checkExistedUser) {
         throw new NotFoundException('User', 'User not found');
       }
       const { id, phoneNumber } = checkExistedUser;
 
-      if (phoneNumber.status === STATUS.VERIFIED) {
+      const primaryPhone = phoneNumber.find((item) => {
+        return item.isPrimary === true;
+      });
+
+      if (!primaryPhone) {
+        throw new NotFoundException('User', 'Please add phone number');
+      }
+
+      if (primaryPhone.status === STATUS.VERIFIED) {
         throw new BadRequestException('User phone number already confirmed');
       }
-      const { code, phone } = phoneNumber;
+      const { code, phone } = primaryPhone;
       const smsPhone = `+${code}${phone}`;
       await this.smsService.initiatePhoneNumberVerification(context, smsPhone);
       return checkExistedUser;

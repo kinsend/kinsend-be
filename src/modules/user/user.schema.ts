@@ -26,7 +26,7 @@ export class User {
   lastName: string;
 
   @Prop()
-  phoneNumber: PhoneNumber;
+  phoneNumber: [PhoneNumber];
 
   @Prop()
   oneSocial: string;

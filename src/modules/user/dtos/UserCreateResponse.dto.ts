@@ -27,6 +27,10 @@ export class PhoneNumber {
   @ApiProperty({ example: 'VERIFY', required: true, type: String })
   @IsString()
   status?: string;
+
+  @ApiProperty({ example: true, required: true, type: Boolean })
+  @IsString()
+  isPrimary?: boolean;
 }
 export class UserCreateResponseDto {
   @ApiProperty({ example: '123-456-789', type: String })
@@ -59,8 +63,7 @@ export class UserCreateResponseDto {
   @IsOptional()
   oneSocial?: string;
 
-  @ApiProperty({ example: 123456, required: true, type: PhoneNumber })
-  @IsObject()
+  @ApiProperty({ example: 123456, required: true, type: [PhoneNumber] })
   @IsOptional()
-  phoneNumber?: PhoneNumber;
+  phoneNumber?: [PhoneNumber];
 }

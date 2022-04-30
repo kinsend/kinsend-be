@@ -19,7 +19,7 @@ import { VerificationPhoneNumberDto } from '../dtos/VerificationPhoneNumber.dto'
 import { BadRequestException } from '../../../utils/exceptions/BadRequestException';
 
 @Injectable()
-export class VerificationRequestConfirmPhoneNumberAction {
+export class VerificationConfirmPhoneNumberAction {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectConnection() private readonly connection: mongoose.Connection,
@@ -33,7 +33,7 @@ export class VerificationRequestConfirmPhoneNumberAction {
   ): Promise<User | null> {
     try {
       const checkExistedUser = await this.userModel.findOne({
-        $or: [{ phone: payload.phoneNumber }],
+        $or: [{ phoneNumber: { $elemMatch: { phone: payload.phoneNumber } } }],
       });
 
       if (!checkExistedUser) {
@@ -41,11 +41,20 @@ export class VerificationRequestConfirmPhoneNumberAction {
       }
 
       const { id, phoneNumber } = checkExistedUser;
-      if (phoneNumber.status === STATUS.VERIFIED) {
+
+      const primaryPhone = phoneNumber.find((item) => {
+        return item.isPrimary === true;
+      });
+
+      if (!primaryPhone) {
+        throw new NotFoundException('User', 'Please add phone number');
+      }
+
+      if (primaryPhone.status === STATUS.VERIFIED) {
         throw new BadRequestException('User phone number already confirmed');
       }
 
-      const { code, phone } = phoneNumber;
+      const { code, phone } = primaryPhone;
       const smsPhone = `+${code}${phone}`;
       await this.smsService.confirmPhoneNumber(context, smsPhone, payload.verifyCode || '');
 
