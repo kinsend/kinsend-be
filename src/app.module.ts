@@ -8,6 +8,7 @@ import { VerificationModule } from './modules/verification/verification.module';
 import { LoggerMiddleware } from './utils/middlewares/Logger.middleware';
 import { PaymentModule } from './modules/payment/payment.module';
 import { ResourceModule } from './modules/resource/resource.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ResourceModule } from './modules/resource/resource.module';
     VerificationModule,
     PaymentModule,
     ResourceModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '../../../configs/config.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
+import { User, UserDocument } from '../../user/user.schema';
 import { AuthRefreshTokenResponseDto } from '../dtos/AuthRefreshTokenResponseDto';
 import { AuthSignInResponseDto } from '../dtos/AuthSigninResponseDto';
 import { AuthAccessTokenResponseDto } from '../dtos/AuthTokenResponseDto';
@@ -13,7 +14,9 @@ export class AuthSignInAction {
 
   async execute(context: RequestContext): Promise<AuthSignInResponseDto> {
     const { correlationId, user } = context;
-    const { id, email, phoneNumber, firstName, lastName } = user;
+    const { id, email, phoneNumber, firstName, lastName, stripeCustomerUserId } = <UserDocument>(
+      user
+    );
     if (!user) {
       throw new NotFoundException('User', 'Username and password are not correct');
     }
@@ -26,6 +29,7 @@ export class AuthSignInAction {
       firstName,
       lastName,
       sessionId: correlationId,
+      stripeCustomerUserId,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '../../configs/config.service';
+import { CreateSubscriptionByCustomerIdDto } from '../../modules/subscription/dtos/CreateSubscriptionByCustomerId.dto';
 import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 import { RequestContext } from '../../utils/RequestContext';
 
@@ -142,6 +144,90 @@ export class StripeService {
       return await this.stripe.setupIntents.cancel(setupIntentId);
     } catch (error: unknown) {
       const message = 'Request cancel card  is not successful';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
+  async getSubscriptionsList(
+    context: RequestContext,
+    limit = 10,
+  ): Promise<Stripe.Response<Stripe.ApiList<Stripe.Subscription>>> {
+    const { logger, correlationId } = context;
+    try {
+      const data = await this.stripe.subscriptions.list({
+        limit,
+      });
+      return data;
+    } catch (error: unknown) {
+      const message = 'Request get subscriptions are not successful';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
+  async getProductsList(
+    context: RequestContext,
+    limit = 10,
+  ): Promise<Stripe.Response<Stripe.ApiList<Stripe.Product>>> {
+    const { logger, correlationId } = context;
+    try {
+      const data = await this.stripe.products.list({
+        limit,
+      });
+      return data;
+    } catch (error: unknown) {
+      const message = 'Request get products are not successful';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
+  async getPricesList(
+    context: RequestContext,
+    limit = 10,
+  ): Promise<Stripe.Response<Stripe.ApiList<Stripe.Price>>> {
+    const { logger, correlationId } = context;
+    try {
+      const data = await this.stripe.prices.list({
+        limit,
+        expand: ['data.product'],
+      });
+      return data;
+    } catch (error: unknown) {
+      const message = 'Request get prices are not successful';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
+  async createSubscriptionByCustomer(
+    context: RequestContext,
+    payload: CreateSubscriptionByCustomerIdDto,
+  ): Promise<Stripe.Response<Stripe.Subscription>> {
+    const { logger, correlationId } = context;
+    try {
+      const data = await this.stripe.subscriptions.create(payload);
+      return data;
+    } catch (error: unknown) {
+      console.log('error', error);
+      const message = 'Request create subscription by customer are not successful';
       logger.error({
         correlationId,
         message,

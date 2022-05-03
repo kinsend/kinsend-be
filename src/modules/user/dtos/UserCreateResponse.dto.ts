@@ -56,14 +56,18 @@ export class UserCreateResponseDto {
 
   @ApiProperty({
     example: 'https://facebook.com/user',
-    required: true,
+    required: false,
     type: String,
   })
   @IsString()
   @IsOptional()
   oneSocial?: string;
 
-  @ApiProperty({ example: 123456, required: true, type: [PhoneNumber] })
+  @ApiProperty({ example: 123456, required: false, type: [PhoneNumber] })
   @IsOptional()
   phoneNumber?: [PhoneNumber];
+
+  @ApiProperty({ example: 123456, required: false, type: String })
+  @IsOptional()
+  stripeCustomerUserId?: string;
 }
