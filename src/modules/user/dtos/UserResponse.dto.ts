@@ -10,6 +10,7 @@ import {
   Length,
   MaxLength,
 } from 'class-validator';
+import { UserProvider } from '../interfaces/user.interface';
 
 export class PhoneNumber {
   @ApiProperty({ example: 123456, required: true, type: String })
@@ -32,7 +33,7 @@ export class PhoneNumber {
   @IsString()
   isPrimary?: boolean;
 }
-export class UserCreateResponseDto {
+export class UserResponseDto {
   @ApiProperty({ example: '123-456-789', type: String })
   @MaxLength(50)
   @IsLowercase()
@@ -53,6 +54,10 @@ export class UserCreateResponseDto {
   @ApiProperty({ example: 'Rem', required: true, type: String })
   @IsString()
   lastName: string;
+
+  @ApiProperty({ example: 'GOOGLE', required: true, type: UserProvider })
+  @IsString()
+  provider?: UserProvider;
 
   @ApiProperty({
     example: 'https://facebook.com/user',

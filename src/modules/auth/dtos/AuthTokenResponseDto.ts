@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserCreateResponseDto } from '../../user/dtos/UserCreateResponse.dto';
+import { UserResponseDto } from '../../user/dtos/UserResponse.dto';
 
-export class AuthAccessTokenResponseDto extends UserCreateResponseDto {
+export class AuthAccessTokenResponseDto extends UserResponseDto {
   @ApiProperty({ example: '123456789', type: String, required: true })
   sessionId!: string | null;
 

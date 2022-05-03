@@ -4,14 +4,12 @@ import {
   IsEmail,
   IsLowercase,
   IsNotEmpty,
-  IsNumber,
-  IsObject,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { PhoneNumber } from './UserCreateResponse.dto';
+import { PhoneNumber } from './UserResponse.dto';
 
 export class UserCreatePayloadDto {
   @ApiProperty({ example: 'lorem@gmail.com', type: String })

@@ -5,7 +5,6 @@ import { LocalAuthStrategy } from '../../providers/strategies/LocalAuthStrategy.
 import { SharedModule } from '../../shared/shared.module';
 import { UserModule } from '../user/user.module';
 import { User, UserSchema } from '../user/user.schema';
-import { UserFindByIdlAction } from '../user/services/UserFindByIdAction.service';
 import { AuthController } from './auth.controller';
 import { AuthBlackListTokenAction } from './services/AuthBlackListTokenAction.service';
 import { AuthRefreshTokenAction } from './services/AuthRefreshTokenAction.service';
@@ -13,6 +12,8 @@ import { AuthSignInAction } from './services/AuthSigninAction.service';
 import { AuthValidateAction } from './services/AuthValidateAction.service';
 import { AuthVerifyTokenAction } from './services/AuthVerifyTokenAction.service';
 import { JwtAuthStrategy } from '../../providers/strategies/JwtAuthStrategy.provider';
+import { AuthSigninByGoogleAction } from './services/AuthSigninByGoogleAction.service';
+import { AuthSigninProviderAction } from './services/AuthSigninProviderAction.service';
 
 @Module({
   imports: [
@@ -29,6 +30,8 @@ import { JwtAuthStrategy } from '../../providers/strategies/JwtAuthStrategy.prov
     AuthVerifyTokenAction,
     AuthRefreshTokenAction,
     AuthBlackListTokenAction,
+    AuthSigninProviderAction,
+    AuthSigninByGoogleAction,
   ],
   controllers: [AuthController],
 })

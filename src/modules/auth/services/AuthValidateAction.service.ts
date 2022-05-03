@@ -7,7 +7,7 @@ import { InvalidCredentialsException } from '../../../utils/exceptions/InvalidCr
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { verify } from '../../../utils/hashUser';
 import { User, UserDocument } from '../../user/user.schema';
-import { UserCreateResponseDto } from '../../user/dtos/UserCreateResponse.dto';
+import { UserResponseDto } from '../../user/dtos/UserResponse.dto';
 import { STATUS } from '../../../domain/const';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class AuthValidateAction {
     @InjectConnection() private readonly connection: mongoose.Connection,
   ) {}
 
-  async execute(email: string, password: string): Promise<UserCreateResponseDto> {
+  async execute(email: string, password: string): Promise<UserResponseDto> {
     const user = await this.userModel.findOne({ $or: [{ email }] });
 
     if (user && user.status !== STATUS.ACTIVE) {
@@ -26,7 +26,7 @@ export class AuthValidateAction {
 
     if (user) {
       await this.comparePassword(password, user.password || '');
-      return <UserCreateResponseDto>omit(user, 'password');
+      return <UserResponseDto>omit(user, 'password');
     }
 
     throw new NotFoundException('User', 'User not found');
