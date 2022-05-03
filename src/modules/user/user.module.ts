@@ -6,11 +6,12 @@ import { User, UserSchema } from './user.schema';
 import { UserCreateAction } from './services/UserCreateAction.service';
 import { UserFindByIdlAction } from './services/UserFindByIdAction.service';
 import { UserResendEmailAction } from './services/UserResendEmailAction.service';
+import { UserGetProfileAction } from './services/UserGetProfileAction.service';
 
 @Module({
   controllers: [UserController],
   imports: [SharedModule, MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
-  providers: [UserCreateAction, UserFindByIdlAction, UserResendEmailAction],
+  providers: [UserCreateAction, UserFindByIdlAction, UserResendEmailAction, UserGetProfileAction],
   exports: [UserCreateAction, UserFindByIdlAction],
 })
 export class UserModule {}
