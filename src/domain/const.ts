@@ -7,7 +7,7 @@ export enum STATUS {
 }
 
 export enum SIGNIN_PROVIDER {
-  PASSWORD = 'password',
-  FACEBOOK = 'facebook',
-  GOOGLE = 'google',
+  PASSWORD = 'PASSWORD',
+  FACEBOOK = 'FACEBOOK',
+  GOOGLE = 'GOOGLE',
 }

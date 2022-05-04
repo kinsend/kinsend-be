@@ -39,7 +39,7 @@ export class AuthSigninProviderAction {
     const userSocial = await (async (): Promise<UserResponseDto> => {
       switch (provider) {
         case SIGNIN_PROVIDER.GOOGLE:
-          return this.authSigninByGoogleAction.execute(context, payload.accessToken);
+          return this.authSigninByGoogleAction.execute(context, payload.idToken);
         default:
           throw new BadRequestException('Provider should be by Google');
       }

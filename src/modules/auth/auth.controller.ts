@@ -66,6 +66,7 @@ export class AuthController {
       provider,
       payload,
     );
+
     const { correlationId } = request;
     if (!user || !accessToken || !refreshToken) {
       throw new IllegalStateException(correlationId);

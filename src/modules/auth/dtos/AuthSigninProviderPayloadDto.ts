@@ -6,6 +6,10 @@ export class AuthSigninProviderPayload {
   @IsNotEmpty()
   accessToken!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  idToken!: string;
+
   @IsOptional()
   @IsNotEmpty()
   @IsIn(Object.values(CookieConsent))
