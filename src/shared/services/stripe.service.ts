@@ -29,7 +29,7 @@ export class StripeService {
       });
       return customerInfo;
     } catch (error: unknown) {
-      const message = 'Request create customer is not successful';
+      const message = 'Exception created customer method error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -56,7 +56,7 @@ export class StripeService {
       });
       return paymentInfo;
     } catch (error: unknown) {
-      const message = 'Request charge payment with card is not successful';
+      const message = 'Exception charged payment method error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -81,7 +81,30 @@ export class StripeService {
       });
       return cardInfo;
     } catch (error: unknown) {
-      const message = 'Request stored card  is not successful';
+      const message = 'Exception stored payment method error by Stripe';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
+  async attachPaymentMethodByCurrentCreditCard(
+    context: RequestContext,
+    paymentMethodId: string,
+    customerId: string,
+  ): Promise<Stripe.Response<Stripe.PaymentMethod>> {
+    const { logger, correlationId } = context;
+    try {
+      const paymentInfo = await this.stripe.paymentMethods.attach(paymentMethodId, {
+        customer: customerId,
+      });
+
+      return paymentInfo;
+    } catch (error: unknown) {
+      const message = 'Exception attached payment method error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -103,7 +126,7 @@ export class StripeService {
       });
       return listCardInfo;
     } catch (error: unknown) {
-      const message = 'Request list stored cards is not successful';
+      const message = 'Exception list stored cards error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -116,7 +139,7 @@ export class StripeService {
   async confirmCreditCard(
     context: RequestContext,
     setupIntentId: string,
-    paymentMethod?: string,
+    paymentMethod = 'pm_card_visa',
   ): Promise<Stripe.Response<Stripe.SetupIntent>> {
     const { logger, correlationId } = context;
     try {
@@ -125,7 +148,7 @@ export class StripeService {
       });
       return cardInfo;
     } catch (error: unknown) {
-      const message = 'Request confirm card  is not successful';
+      const message = 'Exception confirmed card error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -143,7 +166,7 @@ export class StripeService {
     try {
       return await this.stripe.setupIntents.cancel(setupIntentId);
     } catch (error: unknown) {
-      const message = 'Request cancel card  is not successful';
+      const message = 'Exception cancel card error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -164,7 +187,7 @@ export class StripeService {
       });
       return data;
     } catch (error: unknown) {
-      const message = 'Request get subscriptions are not successful';
+      const message = 'Exception get subscriptions error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -185,7 +208,7 @@ export class StripeService {
       });
       return data;
     } catch (error: unknown) {
-      const message = 'Request get products are not successful';
+      const message = 'Exception get products error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -207,7 +230,7 @@ export class StripeService {
       });
       return data;
     } catch (error: unknown) {
-      const message = 'Request get prices are not successful';
+      const message = 'Exception get prices error by Stripe';
       logger.error({
         correlationId,
         message,
@@ -226,8 +249,7 @@ export class StripeService {
       const data = await this.stripe.subscriptions.create(payload);
       return data;
     } catch (error: unknown) {
-      console.log('error', error);
-      const message = 'Request create subscription by customer are not successful';
+      const message = 'Exception created subscription by customer error by Stripe';
       logger.error({
         correlationId,
         message,

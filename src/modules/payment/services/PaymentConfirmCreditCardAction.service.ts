@@ -21,15 +21,8 @@ export class PaymentConfirmCreditCardAction {
   async execute(
     context: RequestContext,
     setupIntentId: string,
-    payload: PaymentConfirmCreditCardDto,
   ): Promise<Stripe.Response<Stripe.SetupIntent>> {
-    const { paymentMethod } = payload;
-
-    const creditCardInfo = await this.stripeService.confirmCreditCard(
-      context,
-      setupIntentId,
-      paymentMethod,
-    );
+    const creditCardInfo = await this.stripeService.confirmCreditCard(context, setupIntentId);
     return creditCardInfo;
   }
 }

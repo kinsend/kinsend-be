@@ -1,7 +1,7 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class PaymentConfirmCreditCardDto {
   @IsString()
-  @IsOptional()
-  paymentMethod?: string;
+  @IsNotEmpty()
+  paymentMethodId: string;
 }

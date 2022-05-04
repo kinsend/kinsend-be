@@ -1,0 +1,48 @@
+/* eslint-disable unicorn/consistent-destructuring */
+/* eslint-disable no-underscore-dangle */
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { Cache } from 'cache-manager';
+import { Model } from 'mongoose';
+import { ConfigService } from '../../../configs/config.service';
+import { StripeService } from '../../../shared/services/stripe.service';
+import { AppRequest } from '../../../utils/AppRequest';
+import { IllegalStateException } from '../../../utils/exceptions/IllegalStateException';
+import { UnauthorizedException } from '../../../utils/exceptions/UnauthorizedException';
+import { RequestContext } from '../../../utils/RequestContext';
+import { UserFindByIdlAction } from '../../user/services/UserFindByIdAction.service';
+import { PaymentStoredCreditCardDto } from '../dtos/PaymentStoredCreditCard.dto';
+import { Payment, PaymentDocument } from '../payment.schema';
+
+@Injectable()
+export class PaymentAttachCreditCardAction {
+  constructor(
+    private jwtService: JwtService,
+    @InjectModel(Payment.name) private PaymentModel: Model<PaymentDocument>,
+    private readonly stripeService: StripeService,
+    private readonly userFindByIdlAction: UserFindByIdlAction,
+
+    private configService: ConfigService,
+  ) {}
+
+  async execute(context: RequestContext, payload: PaymentStoredCreditCardDto): Promise<Payment> {
+    const { user } = context;
+    const userInfo = await this.userFindByIdlAction.execute(user.id);
+    const { id } = payload.paymentMethod;
+
+    const creditCardInfo = await this.stripeService.attachPaymentMethodByCurrentCreditCard(
+      context,
+      id,
+      userInfo.stripeCustomerUserId,
+    );
+
+    const paymentModel = new this.PaymentModel({
+      userId: userInfo._id,
+      stripePaymentMethodId: payload.paymentMethod.id,
+      stripeSetupIntentId: creditCardInfo.id,
+    });
+
+    return paymentModel.save();
+  }
+}

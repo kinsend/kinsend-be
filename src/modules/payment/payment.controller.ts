@@ -28,16 +28,15 @@ export class PaymentController {
     return this.paymentStoredCreditCardAction.execute(request, payload);
   }
 
-  @Post('/credit-card/:id/confirm')
+  @Post('/credit-card/:setupIntentId/confirm')
   async confirmCreditCard(
-    @Body() payload: PaymentConfirmCreditCardDto,
     @Req() request: AppRequest,
     @Param('setupIntentId') setupIntentId: string,
   ) {
-    return this.paymentConfirmCreditCardAction.execute(request, setupIntentId, payload);
+    return this.paymentConfirmCreditCardAction.execute(request, setupIntentId);
   }
 
-  @Post('/credit-card/:id/cancel')
+  @Post('/credit-card/:setupIntentId/cancel')
   async cancelCreditCard(
     @Req() request: AppRequest,
     @Param('setupIntentId') setupIntentId: string,
