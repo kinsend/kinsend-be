@@ -5,9 +5,11 @@ import { UserModule } from '../user/user.module';
 import { User, UserSchema } from '../user/user.schema';
 import { PaymentController } from './payment.controller';
 import { Payment, PaymentSchema } from './payment.schema';
+import { PaymentAttachCreditCardAction } from './services/PaymentAttachCreditCardAction.service';
 import { PaymentCancelCreditCardAction } from './services/PaymentCancelCreditCardAction.service';
 import { PaymentConfirmCreditCardAction } from './services/PaymentConfirmCreditCardAction.service';
 import { PaymentStoredCreditCardAction } from './services/PaymentStoredCreditCardAction.service';
+import { PaymentUpdateDefaultMethodByCustomerIdAction } from './services/PaymentUpdateDefaultMethodByCustomerIdAction.service';
 
 @Module({
   controllers: [PaymentController],
@@ -23,6 +25,8 @@ import { PaymentStoredCreditCardAction } from './services/PaymentStoredCreditCar
     PaymentStoredCreditCardAction,
     PaymentConfirmCreditCardAction,
     PaymentCancelCreditCardAction,
+    PaymentAttachCreditCardAction,
+    PaymentUpdateDefaultMethodByCustomerIdAction,
   ],
 })
 export class PaymentModule {}

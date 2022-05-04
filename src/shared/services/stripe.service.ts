@@ -249,7 +249,32 @@ export class StripeService {
       const data = await this.stripe.subscriptions.create(payload);
       return data;
     } catch (error: unknown) {
-      const message = 'Exception created subscription by customer error by Stripe';
+      const message = 'Exception created subscription for customer error by Stripe';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
+  async updateDefaultPaymentMethodByCustomerId(
+    context: RequestContext,
+    paymentMethodId: string,
+    customerId: string,
+  ): Promise<Stripe.Response<Stripe.Customer>> {
+    const { logger, correlationId } = context;
+    try {
+      const customerInfo = await this.stripe.customers.update(customerId, {
+        invoice_settings: {
+          default_payment_method: paymentMethodId,
+        },
+      });
+
+      return customerInfo;
+    } catch (error: unknown) {
+      const message = 'Exception updated default payment method for customer error by Stripe';
       logger.error({
         correlationId,
         message,

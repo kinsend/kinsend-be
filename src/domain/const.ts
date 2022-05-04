@@ -4,6 +4,8 @@ export enum STATUS {
   'INACTIVE' = 'INACTIVE',
   'DELETED' = 'DELETED',
   'VERIFIED' = 'VERIFIED',
+  'ATTACHED' = 'ATTACHED',
+  'DEFAULT' = 'DEFAULT',
 }
 
 export enum SIGNIN_PROVIDER {

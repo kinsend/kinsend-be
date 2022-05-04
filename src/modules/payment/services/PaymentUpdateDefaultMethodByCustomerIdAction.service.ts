@@ -14,7 +14,7 @@ import { UserFindByIdlAction } from '../../user/services/UserFindByIdAction.serv
 import { Payment, PaymentDocument } from '../payment.schema';
 
 @Injectable()
-export class PaymentAttachCreditCardAction {
+export class PaymentUpdateDefaultMethodByCustomerIdAction {
   constructor(
     private jwtService: JwtService,
     @InjectModel(Payment.name) private PaymentModel: Model<PaymentDocument>,
@@ -27,7 +27,7 @@ export class PaymentAttachCreditCardAction {
   async execute(
     context: RequestContext,
     paymentMethodId: string,
-  ): Promise<Stripe.Response<Stripe.PaymentMethod>> {
+  ): Promise<Stripe.Response<Stripe.Customer>> {
     const { user } = context;
     const userInfo = await this.userFindByIdlAction.execute(user.id);
 
@@ -35,7 +35,7 @@ export class PaymentAttachCreditCardAction {
       throw new NotFoundException('User', 'User not found');
     }
 
-    const creditCardInfo = await this.stripeService.attachPaymentMethodByCurrentCreditCard(
+    const customerInfo = await this.stripeService.updateDefaultPaymentMethodByCustomerId(
       context,
       paymentMethodId,
       userInfo.stripeCustomerUserId,
@@ -50,9 +50,9 @@ export class PaymentAttachCreditCardAction {
     }
 
     await paymentMethodInfo.update({
-      status: STATUS.ATTACHED,
+      status: STATUS.DEFAULT,
     });
 
-    return creditCardInfo;
+    return customerInfo;
   }
 }
