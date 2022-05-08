@@ -51,8 +51,9 @@ export class VerificationController {
   async verifyPhone(
     @Req() request: AppRequest,
     @Body() payload: VerificationRequestPhoneNumberDto,
+    @Query() query: { useMock?: boolean }
   ) {
-    return this.verificationVerifyPhoneNumberAction.execute(request, payload);
+    return this.verificationVerifyPhoneNumberAction.execute(request, payload, query.useMock);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -62,7 +63,8 @@ export class VerificationController {
   async confirmPhone(
     @Req() request: AppRequest,
     @Body() payload: VerificationRequestPhoneNumberDto,
+    @Query() query: { useMock?: boolean }
   ) {
-    return this.verificationConfirmPhoneNumberAction.execute(request, payload);
+    return this.verificationConfirmPhoneNumberAction.execute(request, payload,query.useMock);
   }
 }

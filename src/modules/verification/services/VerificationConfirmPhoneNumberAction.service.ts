@@ -30,6 +30,7 @@ export class VerificationConfirmPhoneNumberAction {
   async execute(
     context: RequestContext,
     payload: VerificationPhoneNumberDto,
+    useMock?: boolean,
   ): Promise<User | null> {
     try {
       const checkExistedUser = await this.userModel.findOne({
@@ -56,7 +57,7 @@ export class VerificationConfirmPhoneNumberAction {
 
       const { code, phone } = primaryPhone;
       const smsPhone = `+${code}${phone}`;
-      await this.smsService.confirmPhoneNumber(context, smsPhone, payload.verifyCode || '');
+      await this.smsService.confirmPhoneNumber(context, smsPhone, payload.verifyCode || '', useMock);
 
       return checkExistedUser;
     } catch (error) {

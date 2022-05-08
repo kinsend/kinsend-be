@@ -8,6 +8,7 @@ import { ConfigService } from '../../configs/config.service';
 import { BadRequestException } from '../../utils/exceptions/BadRequestException';
 import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 import { RequestContext } from '../../utils/RequestContext';
+import { verifyInstaceMockResponse } from './mock';
 
 @Injectable()
 export class SmsService {
@@ -21,11 +22,21 @@ export class SmsService {
   async initiatePhoneNumberVerification(
     context: RequestContext,
     phoneNumber: string,
+    useMock?: boolean,
   ): Promise<VerificationInstance> {
     const { logger, correlationId } = context;
 
     try {
       logger.info('Request verify phone number');
+
+      if (useMock) {
+        logger.info({
+          correlationId,
+          message: 'Request verify phone number successful by mock',
+          data: verifyInstaceMockResponse,
+        });
+        return verifyInstaceMockResponse;
+      }
 
       const { twilioVerificationServiceSid } = this.configService;
       const result = await this.twilioClient.verify
@@ -53,11 +64,22 @@ export class SmsService {
     context: RequestContext,
     phoneNumber: string,
     verificationCode: string,
+    useMock?: boolean,
   ): Promise<VerificationCheckInstance> {
     const { twilioVerificationServiceSid } = this.configService;
     const { logger, correlationId } = context;
     try {
       logger.info('Request confirm phone number');
+
+
+      if (useMock) {
+        logger.info({
+          correlationId,
+          message: 'Request confirm phone number successful by mock',
+          data: verifyInstaceMockResponse,
+        });
+        return verifyInstaceMockResponse;
+      }
 
       const result = await this.twilioClient.verify
         .services(twilioVerificationServiceSid)
