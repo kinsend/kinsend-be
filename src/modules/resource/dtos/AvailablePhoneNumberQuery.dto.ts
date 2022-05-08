@@ -10,4 +10,7 @@ export class AvailablePhoneNumberQueryDto {
   @ApiProperty({ example: '10' })
   @IsOptional()
   limit: number;
+
+  @IsOptional()
+  useMock?: boolean;
 }

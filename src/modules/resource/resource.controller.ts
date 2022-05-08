@@ -28,7 +28,7 @@ export class ResourceController {
     @Req() request: AppRequest,
     @Query() query: AvailablePhoneNumberQueryDto,
   ) {
-    const { location, limit } = query;
-    return this.smsService.availablePhoneNumberTollFree(request, location, limit);
+    const { location, limit, useMock } = query;
+   return this.smsService.availablePhoneNumberTollFree(request, location, limit, useMock);
   }
 }

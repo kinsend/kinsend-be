@@ -8,7 +8,7 @@ import { ConfigService } from '../../configs/config.service';
 import { BadRequestException } from '../../utils/exceptions/BadRequestException';
 import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 import { RequestContext } from '../../utils/RequestContext';
-import { verifyInstaceMockResponse } from './mock';
+import { availablePhoneNumberMockResponse, verifyInstaceMockResponse } from './mock';
 
 @Injectable()
 export class SmsService {
@@ -110,10 +110,19 @@ export class SmsService {
     context: RequestContext,
     location = 'US',
     limit = 20,
+    useMock?: boolean,
   ): Promise<TollFreeInstance[]> {
     const { logger, correlationId } = context;
     try {
       logger.info('Request confirm phone number');
+      if(useMock){
+        logger.info({
+          correlationId,
+          message: 'Request rent numbers successful by mock',
+          data: [availablePhoneNumberMockResponse],
+        });
+        return [availablePhoneNumberMockResponse];
+      }
       const result = await this.twilioClient
         .availablePhoneNumbers(location)
         .tollFree.list({ limit });
