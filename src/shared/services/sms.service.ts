@@ -8,7 +8,7 @@ import { ConfigService } from '../../configs/config.service';
 import { BadRequestException } from '../../utils/exceptions/BadRequestException';
 import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 import { RequestContext } from '../../utils/RequestContext';
-import { availablePhoneNumberMockResponse, verifyInstaceMockResponse } from '../../modules/resource/mocks/mock';
+import { availablePhoneNumberMockResponse, verifyInstaceMockResponse } from '../../modules/resource/mocks/twilio.mock';
 
 @Injectable()
 export class SmsService {
