@@ -1,22 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
-import { User, UserDocument } from '../user.schema';
+import { User } from '../user.schema';
+import { UserFindByIdAction } from './UserFindByIdAction.service';
 
 @Injectable()
 export class UserGetProfileAction {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(private userFindByIdAction: UserFindByIdAction) {}
 
   async execute(context: RequestContext): Promise<User> {
     const { user } = context;
-    const userProfile = await this.userModel.findById(user.id);
 
-    if (!userProfile) {
-      throw new NotFoundException('User', 'User not found');
-    }
-
-    return userProfile;
+   return this.userFindByIdAction.execute(user.id);
   }
 }

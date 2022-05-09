@@ -10,7 +10,7 @@ import { STATUS } from '../../../domain/const';
 import { StripeService } from '../../../shared/services/stripe.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
-import { UserFindByIdlAction } from '../../user/services/UserFindByIdAction.service';
+import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
 import { Payment, PaymentDocument } from '../payment.schema';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class PaymentAttachCreditCardAction {
     private jwtService: JwtService,
     @InjectModel(Payment.name) private PaymentModel: Model<PaymentDocument>,
     private readonly stripeService: StripeService,
-    private readonly userFindByIdlAction: UserFindByIdlAction,
+    private readonly userFindByIdlAction: UserFindByIdAction,
 
     private configService: ConfigService,
   ) {}
