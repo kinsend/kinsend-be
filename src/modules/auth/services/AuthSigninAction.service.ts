@@ -14,7 +14,7 @@ export class AuthSignInAction {
 
   async execute(context: RequestContext): Promise<AuthSignInResponseDto> {
     const { correlationId, user } = context;
-    const { id, email, phoneNumber, firstName, lastName, stripeCustomerUserId } = <UserDocument>(
+    const { id, email, phoneNumber, firstName, lastName, stripeCustomerUserId, isEnabledBuyPlan,isEnabledPayment } = <UserDocument>(
       user
     );
     if (!user) {
@@ -30,6 +30,8 @@ export class AuthSignInAction {
       lastName,
       sessionId: correlationId,
       stripeCustomerUserId,
+      isEnabledBuyPlan,
+      isEnabledPayment
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

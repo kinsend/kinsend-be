@@ -10,4 +10,10 @@ export class AuthAccessTokenResponseDto extends UserResponseDto {
 
   @ApiProperty({ example: 123456789, type: Number, required: true })
   exp?: number;
+
+  @ApiProperty({ example: false, type: Boolean, required: false })
+  isEnabledBuyPlan?: boolean;
+
+  @ApiProperty({ example: false, type: Boolean, required: false })
+  isEnabledPayment?: boolean;
 }
