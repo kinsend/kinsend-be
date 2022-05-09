@@ -16,12 +16,12 @@ export class PaymentStoredCreditCardAction {
   constructor(
     @InjectModel(Payment.name) private PaymentModel: Model<PaymentDocument>,
     private readonly stripeService: StripeService,
-    private readonly userFindByIdlAction: UserFindByIdAction,
+    private readonly userFindByIdAction: UserFindByIdAction,
   ) {}
 
   async execute(context: RequestContext, payload: PaymentStoredCreditCardDto): Promise<Payment> {
     const { user } = context;
-    const userInfo = await this.userFindByIdlAction.execute(user.id);
+    const userInfo = await this.userFindByIdAction.execute(user.id);
     const { id, type } = payload.paymentMethod;
 
     const creditCardInfo = await this.stripeService.storedCreditCard(

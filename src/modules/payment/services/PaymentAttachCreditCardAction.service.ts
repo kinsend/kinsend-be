@@ -19,7 +19,7 @@ export class PaymentAttachCreditCardAction {
     private jwtService: JwtService,
     @InjectModel(Payment.name) private PaymentModel: Model<PaymentDocument>,
     private readonly stripeService: StripeService,
-    private readonly userFindByIdlAction: UserFindByIdAction,
+    private readonly userFindByIdAction: UserFindByIdAction,
 
     private configService: ConfigService,
   ) {}
@@ -29,7 +29,7 @@ export class PaymentAttachCreditCardAction {
     paymentMethodId: string,
   ): Promise<Stripe.Response<Stripe.PaymentMethod>> {
     const { user } = context;
-    const userInfo = await this.userFindByIdlAction.execute(user.id);
+    const userInfo = await this.userFindByIdAction.execute(user.id);
 
     if (!userInfo) {
       throw new NotFoundException('User', 'User not found');

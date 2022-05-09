@@ -15,7 +15,7 @@ type RefreshTokenPayloadDto = AuthRefreshTokenResponseDto;
 export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh-token') {
   constructor(
     private readonly configService: ConfigService,
-    private readonly userFindByIdlAction: UserFindByIdAction,
+    private readonly userFindByIdAction: UserFindByIdAction,
 
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
@@ -36,7 +36,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
     if (hasCache) {
       throw new UnauthorizedException(`Expired session : ${sessionId}`);
     }
-    const user = <UserResponseDto>(<unknown>await this.userFindByIdlAction.execute(id));
+    const user = <UserResponseDto>(<unknown>await this.userFindByIdAction.execute(id));
 
     if (user) {
       return <UserResponseDto>user;
