@@ -9,7 +9,6 @@ export class UserGetProfileAction {
 
   async execute(context: RequestContext): Promise<User> {
     const { user } = context;
-
    return this.userFindByIdAction.execute(user.id);
   }
 }

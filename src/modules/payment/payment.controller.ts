@@ -11,6 +11,8 @@ import { PaymentConfirmCreditCardAction } from './services/PaymentConfirmCreditC
 import { PaymentCancelCreditCardAction } from './services/PaymentCancelCreditCardAction.service';
 import { PaymentAttachCreditCardAction } from './services/PaymentAttachCreditCardAction.service';
 import { PaymentUpdateDefaultMethodByCustomerIdAction } from './services/PaymentUpdateDefaultMethodByCustomerIdAction.service';
+import { PaymentStoreAndConfirmCreditCardAction } from './services/PaymentStoreAndConfirmCreditCardAction.service';
+import { PaymentAttachCreditCardToConsumerAction } from './services/PaymentAttachCreditCardToConsumerAction.service';
 
 @ApiTags('Payments')
 @ApiBearerAuth()
@@ -24,6 +26,9 @@ export class PaymentController {
     private readonly paymentCancelCreditCardAction: PaymentCancelCreditCardAction,
     private readonly paymentAttachCreditCardAction: PaymentAttachCreditCardAction,
     private readonly paymentUpdateDefaultMethodByCustomerIdAction: PaymentUpdateDefaultMethodByCustomerIdAction,
+    private readonly paymentStoreAndConfirmCreditCardAction: PaymentStoreAndConfirmCreditCardAction,
+    private readonly paymentAttachCreditCardToConsumerAction: PaymentAttachCreditCardToConsumerAction,
+
   ) {}
 
   @Post('/credit-card')
@@ -39,12 +44,29 @@ export class PaymentController {
     return this.paymentConfirmCreditCardAction.execute(request, setupIntentId);
   }
 
+  // New version replace for api credit-card and confirm
+  @Post('/credit-card/store-and-confirm')
+  async storeAndConfirmCreditCard(
+    @Body() payload: PaymentStoredCreditCardDto, @Req() request: AppRequest
+  ) {
+    return this.paymentStoreAndConfirmCreditCardAction.execute(request, payload);
+  }
+
   @Post('/credit-card/setup-intent/:setupIntentId/cancel')
   async cancelCreditCard(
     @Req() request: AppRequest,
     @Param('setupIntentId') setupIntentId: string,
   ) {
     return this.paymentCancelCreditCardAction.execute(request, setupIntentId);
+  }
+
+
+  @Post('/credit-card/payment-method/:paymentMethodId/customer-update')
+  async updateDefaultPaymentMethodByCustomerId(
+    @Req() request: AppRequest,
+    @Param('paymentMethodId') paymentMethodId: string,
+  ) {
+    return this.paymentUpdateDefaultMethodByCustomerIdAction.execute(request, paymentMethodId);
   }
 
   @Post('/credit-card/payment-method/:paymentMethodId/attach')
@@ -55,12 +77,13 @@ export class PaymentController {
     return this.paymentAttachCreditCardAction.execute(request, paymentMethodId);
   }
 
-  @Post('/credit-card/payment-method/:paymentMethodId/customer-update')
-  async updateDefaultPaymentMethodByCustomerId(
+  // New version replace for api attach and customer-update
+  @Post('/credit-card/payment-method/:paymentMethodId/attach-consumer')
+  async attachPaymentMethodForConsumer(
     @Req() request: AppRequest,
     @Param('paymentMethodId') paymentMethodId: string,
   ) {
-    return this.paymentUpdateDefaultMethodByCustomerIdAction.execute(request, paymentMethodId);
+    return this.paymentAttachCreditCardToConsumerAction.execute(request, paymentMethodId);
   }
 
   @Get('/credit-cards')

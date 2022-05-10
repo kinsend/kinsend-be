@@ -6,8 +6,11 @@ import { User, UserSchema } from '../user/user.schema';
 import { PaymentController } from './payment.controller';
 import { Payment, PaymentSchema } from './payment.schema';
 import { PaymentAttachCreditCardAction } from './services/PaymentAttachCreditCardAction.service';
+import { PaymentAttachCreditCardToConsumerAction } from './services/PaymentAttachCreditCardToConsumerAction.service';
 import { PaymentCancelCreditCardAction } from './services/PaymentCancelCreditCardAction.service';
 import { PaymentConfirmCreditCardAction } from './services/PaymentConfirmCreditCardAction.service';
+import { PaymentCreateAction } from './services/PaymentCreateAction.service';
+import { PaymentStoreAndConfirmCreditCardAction } from './services/PaymentStoreAndConfirmCreditCardAction.service';
 import { PaymentStoredCreditCardAction } from './services/PaymentStoredCreditCardAction.service';
 import { PaymentUpdateDefaultMethodByCustomerIdAction } from './services/PaymentUpdateDefaultMethodByCustomerIdAction.service';
 
@@ -27,6 +30,9 @@ import { PaymentUpdateDefaultMethodByCustomerIdAction } from './services/Payment
     PaymentCancelCreditCardAction,
     PaymentAttachCreditCardAction,
     PaymentUpdateDefaultMethodByCustomerIdAction,
+    PaymentStoreAndConfirmCreditCardAction,
+    PaymentCreateAction,
+    PaymentAttachCreditCardToConsumerAction
   ],
 })
 export class PaymentModule {}

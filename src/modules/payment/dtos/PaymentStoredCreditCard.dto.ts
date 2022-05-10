@@ -87,5 +87,8 @@ export class ThreeDSecureUsage {
 
 export class PaymentStoredCreditCardDto {
   @IsNotEmpty()
-  paymentMethod: PaymentMethod;
+  paymentMethodId: string;
+
+  @IsNotEmpty()
+  type: string;
 }
