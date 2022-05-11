@@ -9,12 +9,20 @@ import { UserResendEmailAction } from './services/UserResendEmailAction.service'
 import { UserGetProfileAction } from './services/UserGetProfileAction.service';
 import { UserFindByStripeCustomerUserIdAction } from './services/UserFindByStripeCustomerUserIdAction.service';
 import { UserUpdateProfileAction } from './services/UserUpdateProfileAction.service';
+import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.service';
 
 @Module({
   controllers: [UserController],
   imports: [SharedModule, MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
-  providers: [UserCreateAction, UserFindByIdAction, UserResendEmailAction, UserGetProfileAction,
-     UserFindByStripeCustomerUserIdAction,UserUpdateProfileAction],
+  providers: [
+    UserCreateAction,
+    UserFindByIdAction,
+    UserResendEmailAction,
+    UserGetProfileAction,
+    UserFindByStripeCustomerUserIdAction,
+    UserUpdateProfileAction,
+    UserUpdatePasswordAction,
+  ],
   exports: [UserCreateAction, UserFindByIdAction, UserFindByStripeCustomerUserIdAction],
 })
 export class UserModule {}

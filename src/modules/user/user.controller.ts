@@ -27,6 +27,9 @@ import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import { UserGetProfileAction } from './services/UserGetProfileAction.service';
 import { UserUpdateProfilePayloadDto } from './dtos/UserUpdateProfilePayload.dto';
 import { UserUpdateProfileAction } from './services/UserUpdateProfileAction.service';
+import { UserPasswordUpdatePayload } from './dtos/UserUpdatePasswordPayload.dto';
+import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
+import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.service';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -38,6 +41,7 @@ export class UserController {
     private userResendEmailAction: UserResendEmailAction,
     private userGetProfileAction: UserGetProfileAction,
     private userUpdateProfileAction: UserUpdateProfileAction,
+    private userUpdatePasswordAction: UserUpdatePasswordAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -66,9 +70,21 @@ export class UserController {
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  @UsePipes(new ValidationPipe({whitelist:true }))
+  @UsePipes(new ValidationPipe({ whitelist: true }))
   @Put('/me')
   async updateProfile(@Req() request: AppRequest, @Body() payload: UserUpdateProfilePayloadDto) {
     return this.userUpdateProfileAction.execute(request, payload);
+  }
+
+  @Put('/me/password')
+  @UseGuards(JwtAuthGuard)
+  async updatePassword(@Req() request: AppRequest, @Body() payload: UserPasswordUpdatePayload) {
+    const { correlationId } = request;
+    const { user, accessToken } = await this.userUpdatePasswordAction.execute(request, payload);
+    if (!user || !accessToken) {
+      throw new IllegalStateException(correlationId);
+    }
+    request.res?.setHeader('accessToken', accessToken);
+    return user;
   }
 }
