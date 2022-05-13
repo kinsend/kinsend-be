@@ -5,6 +5,9 @@ import { Injectable } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 
+const int = (value: string | undefined, number: number): number =>
+value ? (Number.isNaN(Number.parseInt(value)) ? number : Number.parseInt(value)) : number;
+
 @Injectable()
 export class ConfigService {
   private readonly envConfig: { [key: string]: string };
@@ -178,4 +181,16 @@ export class ConfigService {
   get publishableKey(): string {
     return process.env.STRIPE_PUBLISHABLE_KEY || this.envConfig['STRIPE_PUBLISHABLE_KEY'] || '';
   }
+
+  get awsRegion(): string {
+    return process.env.AWS_REGION || this.envConfig['AWS_REGION'] || '';
+  }
+
+  get awsImageExpireIn(): number {
+   return int(process.env.AWS_IMAGE_EXPIRESIN, 60 * 60 * 24 * 7)
+  }
+
+  get awsBucket(): string {
+    return process.env.BUCKET_NAME ?? '';
+   }
 }
