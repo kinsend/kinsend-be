@@ -21,7 +21,7 @@ export class PaymentStoredCreditCardAction {
 
   async execute(context: RequestContext, payload: PaymentStoredCreditCardDto): Promise<Payment> {
     const { user } = context;
-    const userInfo = await this.userFindByIdAction.execute(user.id);
+    const userInfo = await this.userFindByIdAction.execute(context, user.id);
     const { paymentMethodId, type } = payload;
 
     const creditCardInfo = await this.stripeService.storedCreditCard(

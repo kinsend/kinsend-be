@@ -2,6 +2,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -10,6 +11,7 @@ import {
   Query,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -30,6 +32,10 @@ import { UserUpdateProfileAction } from './services/UserUpdateProfileAction.serv
 import { UserPasswordUpdatePayload } from './dtos/UserUpdatePasswordPayload.dto';
 import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
 import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.service';
+import { Multer } from 'multer';
+import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -42,6 +48,8 @@ export class UserController {
     private userGetProfileAction: UserGetProfileAction,
     private userUpdateProfileAction: UserUpdateProfileAction,
     private userUpdatePasswordAction: UserUpdatePasswordAction,
+    private userUpdatePhotoAction: UserUpdatePhotoAction,
+    private userDeletePhotoAction: UserDeletePhotoAction, 
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -86,5 +94,25 @@ export class UserController {
     }
     request.res?.setHeader('accessToken', accessToken);
     return user;
+  }
+
+  @Put("/me/photo")
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  updateProfilePhoto(
+    @Req() request: AppRequest,
+    @UploadedFile()
+    photo:  Express.Multer.File
+  ) {
+    return this.userUpdatePhotoAction.execute(request, photo);
+  }
+  
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete("/me/photo")
+  @UseGuards(JwtAuthGuard)
+  deleteProfilePhoto(
+    @Req() request: AppRequest,
+  ) {
+    return this.userDeletePhotoAction.execute(request);
   }
 }

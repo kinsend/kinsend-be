@@ -51,6 +51,9 @@ export class User {
   @Prop({required: false})
   isEnabledBuyPlan?: boolean;
 
+  @Prop({required: false})
+  image?: string;
+
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
 

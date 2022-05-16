@@ -10,6 +10,7 @@ import { MailModule } from '../modules/mail/mail.module';
 import { SmsService } from './services/sms.service';
 import { StripeService } from './services/stripe.service';
 import { AwsS3Service } from './services/AwsS3Service';
+import { MulterModule } from '@nestjs/platform-express';
 
 const configService = new ConfigService();
 const { jwtSecret, accessTokenExpiry } = configService;
@@ -39,7 +40,7 @@ const { jwtSecret, accessTokenExpiry } = configService;
     MailModule,
     CacheModule,
     HttpModule,
-    AwsS3Service
+    AwsS3Service,
   ],
   providers: [ConfigService, SmsService, StripeService, HttpModule, AwsS3Service],
 })

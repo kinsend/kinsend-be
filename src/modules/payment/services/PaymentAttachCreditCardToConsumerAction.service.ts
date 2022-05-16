@@ -25,7 +25,7 @@ export class PaymentAttachCreditCardToConsumerAction {
   ): Promise<Stripe.Response<Stripe.Customer>> {
     const { logger, correlationId } = context;
     const { user } = context;
-    const userInfo = await this.userFindByIdAction.execute(user.id);
+    const userInfo = await this.userFindByIdAction.execute(context, user.id);
 
     if (!userInfo) {
       throw new NotFoundException('User', 'User not found');

@@ -36,7 +36,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
     if (hasCache) {
       throw new UnauthorizedException(`Expired session : ${sessionId}`);
     }
-    const user = <UserResponseDto>(<unknown>await this.userFindByIdAction.execute(id));
+    const user = <UserResponseDto>(<unknown>await this.userFindByIdAction.execute(context, id));
 
     if (user) {
       return <UserResponseDto>user;

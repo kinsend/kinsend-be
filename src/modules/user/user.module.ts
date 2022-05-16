@@ -10,6 +10,8 @@ import { UserGetProfileAction } from './services/UserGetProfileAction.service';
 import { UserFindByStripeCustomerUserIdAction } from './services/UserFindByStripeCustomerUserIdAction.service';
 import { UserUpdateProfileAction } from './services/UserUpdateProfileAction.service';
 import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.service';
+import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service';
+import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
 
 @Module({
   controllers: [UserController],
@@ -22,6 +24,8 @@ import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.se
     UserFindByStripeCustomerUserIdAction,
     UserUpdateProfileAction,
     UserUpdatePasswordAction,
+    UserUpdatePhotoAction,
+    UserDeletePhotoAction
   ],
   exports: [UserCreateAction, UserFindByIdAction, UserFindByStripeCustomerUserIdAction],
 })

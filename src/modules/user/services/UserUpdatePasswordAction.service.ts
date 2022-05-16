@@ -20,7 +20,7 @@ export class UserUpdatePasswordAction {
     const { oldPassword, newPassword } = payload;
     const { correlationId, user } = context;
 
-    const userInfo = await this.userFindByIdAction.execute(user.id);
+    const userInfo = await this.userFindByIdAction.execute(context,user.id);
 
     const isValidPassword = await verify(oldPassword, userInfo.password);
     if(!isValidPassword) throw new UnauthorizedException("Unauthorized");
