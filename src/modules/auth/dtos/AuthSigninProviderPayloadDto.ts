@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsOptional, IsIn } from 'class-validator';
-import { CookieConsent } from '../../user/interfaces/user.interface';
+import { COOKIE_CONSENT } from '../../user/interfaces/user.interface';
 
 export class AuthSigninProviderPayload {
   @IsString()
@@ -12,8 +12,8 @@ export class AuthSigninProviderPayload {
 
   @IsOptional()
   @IsNotEmpty()
-  @IsIn(Object.values(CookieConsent))
-  consent!: CookieConsent;
+  @IsIn(Object.values(COOKIE_CONSENT))
+  consent!: COOKIE_CONSENT;
 
   @IsOptional()
   @IsString()

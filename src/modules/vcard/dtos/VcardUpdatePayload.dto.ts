@@ -7,7 +7,7 @@ import {
   MaxLength,
 } from 'class-validator';
 
-export class VcardUpdatePayloadDto {
+export class VCardUpdatePayloadDto {
   @ApiProperty({ example: 'lorem@gmail.com', type: String, required: false })
   @IsLowercase()
   @MaxLength(50)

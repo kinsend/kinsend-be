@@ -5,7 +5,7 @@ import { ConfigService } from '../../../configs/config.service';
 import { IllegalStateException } from '../../../utils/exceptions/IllegalStateException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { UserResponseDto } from '../../user/dtos/UserResponse.dto';
-import { UserProvider } from '../../user/interfaces/user.interface';
+import { USER_PROVIDER } from '../../user/interfaces/user.interface';
 
 @Injectable()
 export class AuthSigninByGoogleAction {
@@ -43,7 +43,7 @@ export class AuthSigninByGoogleAction {
         firstName: socialUserGoogle.given_name,
         lastName: socialUserGoogle.family_name,
         email: socialUserGoogle.email,
-        provider: UserProvider.GOOGLE,
+        provider: USER_PROVIDER.GOOGLE,
       };
     } catch (error: any) {
       const message = 'Exception request by Google token';

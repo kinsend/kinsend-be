@@ -11,7 +11,7 @@ import { SmsService } from './services/sms.service';
 import { StripeService } from './services/stripe.service';
 import { AwsS3Service } from './services/AwsS3Service';
 import { MulterModule } from '@nestjs/platform-express';
-import { VcardJSService } from './services/VcardJSService';
+import { VCardJSService } from './services/VCardJSService';
 
 const configService = new ConfigService();
 const { jwtSecret, accessTokenExpiry } = configService;
@@ -42,8 +42,8 @@ const { jwtSecret, accessTokenExpiry } = configService;
     CacheModule,
     HttpModule,
     AwsS3Service,
-    VcardJSService,
+    VCardJSService,
   ],
-  providers: [ConfigService, SmsService, StripeService, HttpModule, AwsS3Service, VcardJSService],
+  providers: [ConfigService, SmsService, StripeService, HttpModule, AwsS3Service, VCardJSService],
 })
 export class SharedModule {}

@@ -3,19 +3,19 @@ import { ConfigService } from '@nestjs/config';
 import { RequestContext } from 'src/utils/RequestContext';
 import vCardsJS = require('vcards-js');
 import * as fs from 'fs';
-import { Vcard } from 'src/modules/vcard/vcard.schema';
+import { VCard } from 'src/modules/vcard/vcard.schema';
 import { AwsS3Service } from './AwsS3Service';
 
 @Injectable()
-export class VcardJSService {
+export class VCardJSService {
   constructor(
     private readonly configService: ConfigService,
     private readonly awsS3Service: AwsS3Service,
   ) {}
 
-  public async uploadImage(
+  public async uploadVCard(
     context: RequestContext,
-    vcardPayload: Vcard,
+    vcardPayload: VCard,
     fileKey: string,
   ): Promise<void> {
     const vCard = vCardsJS();

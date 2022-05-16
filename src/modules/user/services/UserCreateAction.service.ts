@@ -20,7 +20,7 @@ import { hashAndValidatePassword } from '../../../utils/hashUser';
 import { MailService } from '../../mail/mail.service';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
 import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
-import { UserProvider } from '../interfaces/user.interface';
+import { USER_PROVIDER } from '../interfaces/user.interface';
 
 @Injectable()
 export class UserCreateAction {
@@ -50,7 +50,7 @@ export class UserCreateAction {
       ...payload,
       password: hashPass,
       status: STATUS.INACTIVE,
-      provider: UserProvider.PASSWORD,
+      provider: USER_PROVIDER.PASSWORD,
     }).save();
 
     const { jwtSecret, accessTokenExpiry } = this.configService;

@@ -3,7 +3,7 @@ import { Document, ObjectId } from 'mongoose';
 import { Exclude, Transform } from 'class-transformer';
 import { STATUS } from 'src/domain/const';
 import { PhoneNumber } from './dtos/UserResponse.dto';
-import { UserProvider } from './interfaces/user.interface';
+import { USER_PROVIDER } from './interfaces/user.interface';
 
 export type UserDocument = User & Document;
 
@@ -33,7 +33,7 @@ export class User {
   oneSocial: string;
 
   @Prop()
-  provider: UserProvider;
+  provider: USER_PROVIDER;
 
   @Prop()
   @Exclude()

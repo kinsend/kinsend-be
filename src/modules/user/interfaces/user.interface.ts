@@ -1,14 +1,14 @@
-export enum UserProvider {
+export enum USER_PROVIDER {
   PASSWORD = 'password',
   FACEBOOK = 'facebook',
   GOOGLE = 'google',
 }
-export enum CookieConsent {
+export enum COOKIE_CONSENT {
   NONE = 'none',
   BASIC = 'basic',
   SOCIAL_MEDIA = 'social_media',
 }
-export type UserProviderSocial = UserProvider.FACEBOOK | UserProvider.GOOGLE;
+export type UserProviderSocial = USER_PROVIDER.FACEBOOK | USER_PROVIDER.GOOGLE;
 export type UserSocial = {
   emailAddress?: string;
   firstName: string;

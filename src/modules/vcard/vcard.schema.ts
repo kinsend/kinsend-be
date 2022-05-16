@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 import { Transform } from 'class-transformer';
 
-export type VcardDocument = Vcard & Document;
+export type VCardDocument = VCard & Document;
 
 @Schema({
   toJSON: {
@@ -10,7 +10,7 @@ export type VcardDocument = Vcard & Document;
     virtuals: true,
   },
 })
-export class Vcard {
+export class VCard {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
@@ -76,8 +76,8 @@ export class Vcard {
   updatedAt: Date;
 }
 
-const VcardSchema = SchemaFactory.createForClass(Vcard);
+const VCardSchema = SchemaFactory.createForClass(VCard);
 
-VcardSchema.index({ firstName: 'text', lastName: 'text', email: 'text' });
+VCardSchema.index({ firstName: 'text', lastName: 'text', email: 'text', userId: 'text' });
 
-export { VcardSchema };
+export { VCardSchema};

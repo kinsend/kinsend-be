@@ -2,36 +2,36 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RequestContext } from 'src/utils/RequestContext';
-import { Vcard, VcardDocument } from '../vcard.schema';
-import { VcardJSService } from 'src/shared/services/VcardJSService';
+import { VCard, VCardDocument } from '../vcard.schema';
+import { VCardJSService } from 'src/shared/services/VCardJSService';
 import { AwsS3Service } from 'src/shared/services/AwsS3Service';
 import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
-import { VcardUpdatePayloadDto } from '../dtos/VcardUpdatePayload.dto';
+import { VCardUpdatePayloadDto } from '../dtos/VCardUpdatePayload.dto';
 
 @Injectable()
-export class VcardUpdateByUserContextAction {
+export class VCardUpdateByUserContextAction {
   constructor(
-    @InjectModel(Vcard.name) private vcardModel: Model<VcardDocument>,
-    private vcardJSService: VcardJSService,
+    @InjectModel(VCard.name) private vCardModel: Model<VCardDocument>,
+    private vcardJSService: VCardJSService,
     private awsS3Service: AwsS3Service,
   ) {}
 
-  async execute(context: RequestContext, payload: VcardUpdatePayloadDto): Promise<Vcard> {
+  async execute(context: RequestContext, payload: VCardUpdatePayloadDto): Promise<VCard> {
     const { user } = context;
-    const vcard = await this.vcardModel.findOne({ $or: [{ userId: user.id }] });
+    const vcard = await this.vCardModel.findOne({ $or: [{ userId: user.id }] });
 
     if (!vcard) {
-      throw new NotFoundException('Vcard', 'Vcard not found');
+      throw new NotFoundException('VCard', 'VCard not found');
     }
     await vcard.updateOne({ ...payload });
-    const vcardAfterUpdated = await this.vcardModel.findOne({ $or: [{ userId: user.id }] });
-    if (!vcardAfterUpdated) {
-      throw new NotFoundException('Vcard', 'Vcard not found');
+    const vCardAfterUpdated = await this.vCardModel.findOne({ $or: [{ userId: user.id }] });
+    if (!vCardAfterUpdated) {
+      throw new NotFoundException('VCard', 'VCard not found');
     }
     const fileKey = vcard.userId + 'vcard';
-    await this.vcardJSService.uploadImage(context, vcardAfterUpdated, fileKey);
+    await this.vcardJSService.uploadVCard(context, vCardAfterUpdated, fileKey);
     const url = await this.awsS3Service.getFile(context, fileKey);
-    vcardAfterUpdated.url = url;
-    return vcardAfterUpdated;
+    vCardAfterUpdated.url = url;
+    return vCardAfterUpdated;
   }
 }

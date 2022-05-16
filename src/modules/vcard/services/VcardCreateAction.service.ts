@@ -2,32 +2,32 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RequestContext } from 'src/utils/RequestContext';
-import { Vcard, VcardDocument } from '../vcard.schema';
-import { VcardCreatePayloadDto } from '../dtos/VcardCreatePayload.dto';
+import { VCard, VCardDocument } from '../vcard.schema';
+import { VCardCreatePayloadDto } from '../dtos/VCardCreatePayload.dto';
 import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
-import { VcardJSService } from 'src/shared/services/VcardJSService';
+import { VCardJSService } from 'src/shared/services/VCardJSService';
 import { AwsS3Service } from 'src/shared/services/AwsS3Service';
 
 @Injectable()
-export class VcardCreateAction {
+export class VCardCreateAction {
   constructor(
-    @InjectModel(Vcard.name) private vcardModel: Model<VcardDocument>,
-    private vcardJSService: VcardJSService,
+    @InjectModel(VCard.name) private vcardModel: Model<VCardDocument>,
+    private vcardJSService: VCardJSService,
     private awsS3Service: AwsS3Service,
   ) {}
 
-  async execute(context: RequestContext, payload: VcardCreatePayloadDto): Promise<Vcard> {
+  async execute(context: RequestContext, payload: VCardCreatePayloadDto): Promise<VCard> {
     const { email } = payload;
-    const checkExistedVcard = await this.vcardModel.findOne({ $or: [{ email }] });
+    const checkExistedVCard = await this.vcardModel.findOne({ $or: [{ email }] });
 
-    if (checkExistedVcard) {
-      throw new EmailConflictException('Vcard has already conflicted');
+    if (checkExistedVCard) {
+      throw new EmailConflictException('VCard has already conflicted');
     }
-    const vcard = await new this.vcardModel({ ...payload, userId: context.user.id }).save();
-    const fileKey = vcard.userId + "vcard";
-    await this.vcardJSService.uploadImage(context, vcard,fileKey);
+    const vCard = await new this.vcardModel({ ...payload, userId: context.user.id }).save();
+    const fileKey = vCard.userId + "vCard";
+    await this.vcardJSService.uploadVCard(context, vCard,fileKey);
     const url = await this.awsS3Service.getFile(context,fileKey);
-    vcard.url = url;
-    return vcard;
+    vCard.url = url;
+    return vCard;
   }
 }

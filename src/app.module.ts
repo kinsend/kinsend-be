@@ -9,7 +9,7 @@ import { LoggerMiddleware } from './utils/middlewares/Logger.middleware';
 import { PaymentModule } from './modules/payment/payment.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
-import { VcardModule } from './modules/vcard/vcard.module';
+import { VCardModule } from './modules/vcard/vcard.module';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { VcardModule } from './modules/vcard/vcard.module';
     PaymentModule,
     ResourceModule,
     SubscriptionModule,
-    VcardModule
+    VCardModule
   ],
   controllers: [AppController],
   providers: [AppService],
