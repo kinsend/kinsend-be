@@ -14,7 +14,7 @@ export class VCard {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop()
+  @Prop({ unique: true })
   @Transform(({ value }) => value.toString())
   userId: string;
 

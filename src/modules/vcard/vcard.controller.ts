@@ -24,7 +24,6 @@ import { VCardGetByUserContextAction } from './services/VCardGetByUserContextAct
 import { VCardUpdateByUserContextAction } from './services/VCardUpdateByUserContextAction.service';
 import { VCardModule } from './vcard.module';
 
-
 @ApiTags('vcards')
 @ApiBearerAuth()
 @Controller('vcards')
@@ -33,7 +32,7 @@ export class VCardController {
   constructor(
     private vCardCreateAction: VCardCreateAction,
     private vCardGetByUserContextAction: VCardGetByUserContextAction,
-    private vCardUpdateByUserContextAction: VCardUpdateByUserContextAction
+    private vCardUpdateByUserContextAction: VCardUpdateByUserContextAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)

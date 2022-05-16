@@ -7,6 +7,7 @@ import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
 import { S3Service } from 'src/shared/services/s3.service';
 import { VCardUpdatePayloadDto } from '../dtos/VCardUpdatePayload.dto';
 import { VCard, VCardDocument } from '../vcard.schema';
+import { VCardCreateAction } from './VCardCreateAction.service';
 
 @Injectable()
 export class VCardUpdateByUserContextAction {
@@ -14,6 +15,7 @@ export class VCardUpdateByUserContextAction {
     @InjectModel(VCard.name) private vCardModel: Model<VCardDocument>,
     private vCardService: VCardService,
     private s3Service: S3Service,
+    private vCardCreateAction: VCardCreateAction,
   ) {}
 
   async execute(context: RequestContext, payload: VCardUpdatePayloadDto): Promise<VCard> {
@@ -21,8 +23,10 @@ export class VCardUpdateByUserContextAction {
     const vcard = await this.vCardModel.findOne({ $or: [{ userId: user.id }] });
 
     if (!vcard) {
-      throw new NotFoundException('VCard', 'VCard not found');
+      // Create new vCard
+      return this.vCardCreateAction.execute(context, payload);
     }
+
     await vcard.updateOne({ ...payload });
     const vCardAfterUpdated = await this.vCardModel.findOne({ $or: [{ userId: user.id }] });
     if (!vCardAfterUpdated) {
