@@ -10,7 +10,6 @@ import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
 import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
 import { ConfigService } from 'src/configs/config.service';
 import { RequestContext } from 'src/utils/RequestContext';
-import { extractExtensionFromImageBase64 } from 'src/utils/imageBase64Helpers';
 import { BadRequestException } from 'src/utils/exceptions/BadRequestException';
 
 @Injectable()
@@ -23,7 +22,7 @@ export class AwsS3Service {
     });
   }
 
-  public async getImage(requestContext: RequestContext, awsKey: string): Promise<string> {
+  public async getFile(requestContext: RequestContext, awsKey: string): Promise<string> {
     try {
       const { awsImageExpireIn: expiresIn, awsBucket } = this.configService;
       const command = new GetObjectCommand({
@@ -42,15 +41,15 @@ export class AwsS3Service {
       throw new NotFoundException('Image', 'Image not found');
     }
   }
-  async uploadImageBase64(
+  async uploadFileBase64(
     { logger }: RequestContext,
     imageBase64: string,
     awsKey: string,
+    contentType: string,
   ): Promise<void> {
     try {
       const { awsBucket } = this.configService;
-      const base64Data = Buffer.from(imageBase64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
-      const extension = extractExtensionFromImageBase64(imageBase64);
+      const base64Data = Buffer.from(imageBase64, 'base64');
       logger.info({ awsKey, awsBucket: awsBucket }, 'uploading image base64 to s3');
       await this.awsS3Client.send(
         new PutObjectCommand({
@@ -58,7 +57,7 @@ export class AwsS3Service {
           Key: awsKey,
           Body: base64Data,
           ContentEncoding: 'base64', // required
-          ContentType: `image/${extension}`, // required
+          ContentType: contentType, // required
         }),
       );
       logger.info({ awsKey, awsBucket: awsBucket }, 'uploaded image base64 to s3');

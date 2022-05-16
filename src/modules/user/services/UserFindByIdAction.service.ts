@@ -18,7 +18,7 @@ export class UserFindByIdAction {
       throw new NotFoundException('User', 'User not found');
     }
     if(isFetchImage){
-      const image = await this.awsS3Service.getImage(context, user.id);
+      const image = await this.awsS3Service.getFile(context, user.id);
       user.image = image;
     }
     return user;

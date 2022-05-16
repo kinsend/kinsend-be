@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-export class UsernameConflictException extends HttpException {
+export class EmailConflictException extends HttpException {
   constructor(debugMessage: string) {
     super(
       {

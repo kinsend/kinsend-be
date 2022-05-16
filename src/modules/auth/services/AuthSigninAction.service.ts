@@ -32,7 +32,7 @@ export class AuthSignInAction {
     if (!user) {
       throw new NotFoundException('User', 'Username and password are not correct');
     }
-    const image = await this.awsS3Service.getImage(context, id);
+    const image = await this.awsS3Service.getFile(context, id);
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const payloadAccessToken: AuthAccessTokenResponseDto = {
       id,

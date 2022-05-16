@@ -12,11 +12,12 @@ import * as path from 'path';
 import { JwtService } from '@nestjs/jwt';
 import { RequestContext } from 'src/utils/RequestContext';
 import { User, UserDocument } from '../user.schema';
-import { UsernameConflictException } from '../../../utils/exceptions/UsernameConflictException';
+import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
 import { ConfigService } from '../../../configs/config.service';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
 import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 import { STATUS } from '../../../domain/const';
+import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
 
 @Injectable()
 export class UserResendEmailAction {
@@ -33,7 +34,7 @@ export class UserResendEmailAction {
     const user = await this.userModel.findOne({ $and: [{ email }, { status: STATUS.INACTIVE }] });
 
     if (!user) {
-      throw new UsernameConflictException('User not found');
+      throw new NotFoundException('User','User not found');
     }
 
     const { jwtSecret, accessTokenExpiry, baseUrl, mailForm } = this.configService;

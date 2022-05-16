@@ -14,5 +14,5 @@ export function extractExtensionFromImageBase64(imageUrl: string): string {
 }
 
 export function convertFileToBase64(file: Express.Multer.File): string{
-    return "data:image/gif;base64,"+ file.buffer.toString("base64");
+  return file.buffer.toString("base64");
 }

@@ -13,12 +13,13 @@ export class UserUpdatePhotoAction {
     const { user } = context;
     const userInfo = await this.userFindByIdAction.execute(context, user.id);
     const imageKey = user.id + 'photo';
-    await this.awsS3Service.uploadImageBase64(
+    await this.awsS3Service.uploadFileBase64(
       context,
       convertFileToBase64(photo),
       imageKey,
+      photo.mimetype
     );
-    const image = await this.awsS3Service.getImage(context, imageKey);
+    const image = await this.awsS3Service.getFile(context, imageKey);
     userInfo.image = image;
     return userInfo;
   }

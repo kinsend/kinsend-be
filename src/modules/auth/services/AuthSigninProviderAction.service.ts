@@ -73,7 +73,7 @@ export class AuthSigninProviderAction {
 
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const { id, email, phoneNumber, firstName, lastName, stripeCustomerUserId } = checkExistedUser;
-    const image = await this.awsS3Service.getImage(context, id);
+    const image = await this.awsS3Service.getFile(context, id);
     const payloadAccessToken: AuthAccessTokenResponseDto = {
       id,
       email,
