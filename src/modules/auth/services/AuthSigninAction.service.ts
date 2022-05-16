@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AwsS3Service } from 'src/shared/services/AwsS3Service';
+import { S3Service } from 'src/shared/services/s3.service';
 import { ConfigService } from '../../../configs/config.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
@@ -14,7 +14,7 @@ export class AuthSignInAction {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-    private awsS3Service: AwsS3Service,
+    private s3Service: S3Service,
   ) {}
 
   async execute(context: RequestContext): Promise<AuthSignInResponseDto> {
@@ -32,7 +32,8 @@ export class AuthSignInAction {
     if (!user) {
       throw new NotFoundException('User', 'Username and password are not correct');
     }
-    const image = await this.awsS3Service.getFile(context, id);
+    const imageKey = id+"photo";
+    const image = await this.s3Service.getFile(context, imageKey);
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const payloadAccessToken: AuthAccessTokenResponseDto = {
       id,

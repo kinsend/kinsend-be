@@ -1,7 +1,3 @@
-/* eslint-disable unicorn/import-style */
-/* eslint-disable unicorn/prefer-node-protocol */
-/* eslint-disable new-cap */
-/* eslint-disable unicorn/prefer-module */
 import { Injectable } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

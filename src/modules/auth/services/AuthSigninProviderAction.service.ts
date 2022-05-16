@@ -20,7 +20,7 @@ import { AuthSigninByGoogleAction } from './AuthSigninByGoogleAction.service';
 import { AuthAccessTokenResponseDto } from '../dtos/AuthTokenResponseDto';
 import { AuthRefreshTokenResponseDto } from '../dtos/AuthRefreshTokenResponseDto';
 import { StripeService } from '../../../shared/services/stripe.service';
-import { AwsS3Service } from 'src/shared/services/AwsS3Service';
+import { S3Service } from 'src/shared/services/s3.service';
 
 @Injectable()
 export class AuthSigninProviderAction {
@@ -30,7 +30,7 @@ export class AuthSigninProviderAction {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private authSigninByGoogleAction: AuthSigninByGoogleAction,
     private stripeService: StripeService,
-    private awsS3Service: AwsS3Service
+    private s3Service: S3Service
   ) {}
 
   async execute(
@@ -73,7 +73,8 @@ export class AuthSigninProviderAction {
 
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const { id, email, phoneNumber, firstName, lastName, stripeCustomerUserId } = checkExistedUser;
-    const image = await this.awsS3Service.getFile(context, id);
+    const imageKey = id + "photo";
+    const image = await this.s3Service.getFile(context, id);
     const payloadAccessToken: AuthAccessTokenResponseDto = {
       id,
       email,

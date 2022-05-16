@@ -37,7 +37,14 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
+
 ```
+
+# AWS
+AWS_REGION=
+BUCKET_NAME=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
 
 ## License
 

@@ -9,9 +9,9 @@ import { MongodbConfigService } from '../configs/mongodb.config.service';
 import { MailModule } from '../modules/mail/mail.module';
 import { SmsService } from './services/sms.service';
 import { StripeService } from './services/stripe.service';
-import { AwsS3Service } from './services/AwsS3Service';
 import { MulterModule } from '@nestjs/platform-express';
-import { VCardJSService } from './services/VCardJSService';
+import { VCardService } from './services/vCard.service';
+import { S3Service } from './services/s3.service';
 
 const configService = new ConfigService();
 const { jwtSecret, accessTokenExpiry } = configService;
@@ -41,9 +41,9 @@ const { jwtSecret, accessTokenExpiry } = configService;
     MailModule,
     CacheModule,
     HttpModule,
-    AwsS3Service,
-    VCardJSService,
+    S3Service,
+    VCardService,
   ],
-  providers: [ConfigService, SmsService, StripeService, HttpModule, AwsS3Service, VCardJSService],
+  providers: [ConfigService, SmsService, StripeService, HttpModule, S3Service, VCardService],
 })
 export class SharedModule {}

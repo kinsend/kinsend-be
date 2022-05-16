@@ -5,15 +5,15 @@ import { RequestContext } from 'src/utils/RequestContext';
 import { VCard, VCardDocument } from '../vcard.schema';
 import { VCardCreatePayloadDto } from '../dtos/VCardCreatePayload.dto';
 import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
-import { VCardJSService } from 'src/shared/services/VCardJSService';
-import { AwsS3Service } from 'src/shared/services/AwsS3Service';
+import { VCardService } from 'src/shared/services/vCard.service';
+import { S3Service } from 'src/shared/services/s3.service';
 
 @Injectable()
 export class VCardCreateAction {
   constructor(
     @InjectModel(VCard.name) private vcardModel: Model<VCardDocument>,
-    private vcardJSService: VCardJSService,
-    private awsS3Service: AwsS3Service,
+    private vcardService: VCardService,
+    private s3Service: S3Service,
   ) {}
 
   async execute(context: RequestContext, payload: VCardCreatePayloadDto): Promise<VCard> {
@@ -25,8 +25,8 @@ export class VCardCreateAction {
     }
     const vCard = await new this.vcardModel({ ...payload, userId: context.user.id }).save();
     const fileKey = vCard.userId + "vCard";
-    await this.vcardJSService.uploadVCard(context, vCard,fileKey);
-    const url = await this.awsS3Service.getFile(context,fileKey);
+    await this.vcardService.uploadVCard(context, vCard,fileKey);
+    const url = await this.s3Service.getFile(context,fileKey);
     vCard.url = url;
     return vCard;
   }

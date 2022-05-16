@@ -4,13 +4,13 @@ import { RequestContext } from 'src/utils/RequestContext';
 import vCardsJS = require('vcards-js');
 import * as fs from 'fs';
 import { VCard } from 'src/modules/vcard/vcard.schema';
-import { AwsS3Service } from './AwsS3Service';
+import { S3Service } from './s3.service';
 
 @Injectable()
-export class VCardJSService {
+export class VCardService {
   constructor(
     private readonly configService: ConfigService,
-    private readonly awsS3Service: AwsS3Service,
+    private readonly s3Service: S3Service,
   ) {}
 
   public async uploadVCard(
@@ -37,7 +37,7 @@ export class VCardJSService {
     vCard.note = vcardPayload.note;
     vCard.saveToFile(`${fileKey}.vcf`);
     const fileBase64 = fs.readFileSync(`${fileKey}.vcf`, { encoding: 'base64' });
-    await this.awsS3Service.uploadFileBase64(context, fileBase64,fileKey, "text/vcard");
+    await this.s3Service.uploadFileBase64(context, fileBase64,fileKey, "text/vcard");
     // Remove file
     fs.unlinkSync(`${fileKey}.vcf`);
   }

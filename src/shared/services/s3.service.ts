@@ -13,7 +13,7 @@ import { RequestContext } from 'src/utils/RequestContext';
 import { BadRequestException } from 'src/utils/exceptions/BadRequestException';
 
 @Injectable()
-export class AwsS3Service {
+export class S3Service {
   private readonly awsS3Client: AwsS3Client;
 
   constructor(private readonly configService: ConfigService) {
