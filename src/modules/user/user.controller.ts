@@ -19,6 +19,9 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
 import { AppRequest } from 'src/utils/AppRequest';
+import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
+import { Multer } from 'multer';
+import { FileInterceptor } from '@nestjs/platform-express';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { AuthVerifyApiKey } from '../auth/services/AuthVerifyApiKey.service';
 import { User as UserModel } from './user.schema';
@@ -30,11 +33,8 @@ import { UserGetProfileAction } from './services/UserGetProfileAction.service';
 import { UserUpdateProfilePayloadDto } from './dtos/UserUpdateProfilePayload.dto';
 import { UserUpdateProfileAction } from './services/UserUpdateProfileAction.service';
 import { UserPasswordUpdatePayload } from './dtos/UserUpdatePasswordPayload.dto';
-import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
 import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.service';
-import { Multer } from 'multer';
 import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
 
 @ApiTags('Users')
@@ -49,7 +49,7 @@ export class UserController {
     private userUpdateProfileAction: UserUpdateProfileAction,
     private userUpdatePasswordAction: UserUpdatePasswordAction,
     private userUpdatePhotoAction: UserUpdatePhotoAction,
-    private userDeletePhotoAction: UserDeletePhotoAction, 
+    private userDeletePhotoAction: UserDeletePhotoAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -96,23 +96,21 @@ export class UserController {
     return user;
   }
 
-  @Put("/me/photo")
+  @Put('/me/photo')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   updateProfilePhoto(
     @Req() request: AppRequest,
     @UploadedFile()
-    photo:  Express.Multer.File
+    photo: Express.Multer.File,
   ) {
     return this.userUpdatePhotoAction.execute(request, photo);
   }
-  
+
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Delete("/me/photo")
+  @Delete('/me/photo')
   @UseGuards(JwtAuthGuard)
-  deleteProfilePhoto(
-    @Req() request: AppRequest,
-  ) {
+  deleteProfilePhoto(@Req() request: AppRequest) {
     return this.userDeletePhotoAction.execute(request);
   }
 }

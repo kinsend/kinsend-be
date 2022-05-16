@@ -45,13 +45,13 @@ export class User {
   @Prop()
   stripeCustomerUserId: string;
 
-  @Prop({required: false})
+  @Prop({ required: false })
   isEnabledPayment?: boolean;
 
-  @Prop({required: false})
+  @Prop({ required: false })
   isEnabledBuyPlan?: boolean;
 
-  @Prop({required: false})
+  @Prop({ required: false })
   image?: string;
 
   @Prop({ default: Date.now(), type: Date })

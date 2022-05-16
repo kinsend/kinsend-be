@@ -1,13 +1,16 @@
+/* eslint-disable new-cap */
+/* eslint-disable unicorn/prefer-module */
 import { Injectable } from '@nestjs/common';
 import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as mongoose from 'mongoose';
 import * as handlebars from 'handlebars';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { JwtService } from '@nestjs/jwt';
 import { RequestContext } from 'src/utils/RequestContext';
 import { STATUS } from 'src/domain/const';
+import { VCardCreateAction } from '../../vcard/services/VCardCreateAction.service';
 import { UserCreatePayloadDto } from '../dtos/UserCreateRequest.dto';
 import { User, UserDocument } from '../user.schema';
 import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
@@ -26,8 +29,8 @@ export class UserCreateAction {
     private configService: ConfigService,
     private mailService: MailService,
     private jwtService: JwtService,
-
     private mailSendGridService: MailSendGridService,
+    private vCardCreateAction: VCardCreateAction,
   ) {}
 
   async execute(context: RequestContext, payload: UserCreatePayloadDto): Promise<User> {
@@ -78,6 +81,10 @@ export class UserCreateAction {
     };
 
     this.mailSendGridService.sendUserConfirmation(mail);
+
+    // Create vCard defaul
+    context.user = user;
+    await this.vCardCreateAction.execute(context, {});
     return user;
   }
 }

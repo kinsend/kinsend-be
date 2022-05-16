@@ -19,54 +19,54 @@ export class VCard {
   userId: string;
 
   @Prop({ unique: true })
-  email: string;
+  email?: string;
 
-  @Prop()
-  firstName: string;
+  @Prop({ required: false })
+  firstName?: string;
 
-  @Prop()
-  lastName: string;
+  @Prop({ required: false })
+  lastName?: string;
 
-  @Prop()
-  title: string;
+  @Prop({ required: false })
+  title?: string;
 
-  @Prop()
-  organization: string;
+  @Prop({ required: false })
+  organization?: string;
 
-  @Prop()
-  facebook: string;
+  @Prop({ required: false })
+  facebook?: string;
 
-  @Prop()
-  instagram: string;
+  @Prop({ required: false })
+  instagram?: string;
 
-  @Prop()
-  twitter: string;
+  @Prop({ required: false })
+  twitter?: string;
 
-  @Prop()
-  linkedIn: string;
+  @Prop({ required: false })
+  linkedIn?: string;
 
-  @Prop()
-  youtube: string;
+  @Prop({ required: false })
+  youtube?: string;
 
-  @Prop()
-  snapchat: string;
+  @Prop({ required: false })
+  snapchat?: string;
 
-  @Prop()
-  soundCloud: string;
+  @Prop({ required: false })
+  soundCloud?: string;
 
-  @Prop()
-  store: string;
+  @Prop({ required: false })
+  store?: string;
 
-  @Prop()
-  website: string;
+  @Prop({ required: false })
+  website?: string;
 
-  @Prop()
-  zipCode: string;
+  @Prop({ required: false })
+  zipCode?: string;
 
-  @Prop()
-  note: string;
+  @Prop({ required: false })
+  note?: string;
 
-  @Prop()
+  @Prop({ required: false })
   url?: string;
 
   @Prop({ default: Date.now(), type: Date })
@@ -80,4 +80,4 @@ const VCardSchema = SchemaFactory.createForClass(VCard);
 
 VCardSchema.index({ firstName: 'text', lastName: 'text', email: 'text', userId: 'text' });
 
-export { VCardSchema};
+export { VCardSchema };

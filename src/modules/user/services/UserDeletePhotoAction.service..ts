@@ -9,8 +9,8 @@ export class UserDeletePhotoAction {
 
   async execute(context: RequestContext): Promise<void> {
     const { user } = context;
-    await this.userFindByIdAction.execute(context,user.id);
-    const imageKey = user.id + 'photo';
+    await this.userFindByIdAction.execute(context, user.id);
+    const imageKey = `${user.id}photo`;
     await this.s3Service.deleteFilesByKeys(context, [imageKey]);
   }
 }

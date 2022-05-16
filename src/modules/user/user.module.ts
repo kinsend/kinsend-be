@@ -12,10 +12,15 @@ import { UserUpdateProfileAction } from './services/UserUpdateProfileAction.serv
 import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.service';
 import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service';
 import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
+import { VCardModule } from '../vcard/vcard.module';
 
 @Module({
   controllers: [UserController],
-  imports: [SharedModule, MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+  imports: [
+    SharedModule,
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    VCardModule,
+  ],
   providers: [
     UserCreateAction,
     UserFindByIdAction,
@@ -25,7 +30,7 @@ import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.
     UserUpdateProfileAction,
     UserUpdatePasswordAction,
     UserUpdatePhotoAction,
-    UserDeletePhotoAction
+    UserDeletePhotoAction,
   ],
   exports: [UserCreateAction, UserFindByIdAction, UserFindByStripeCustomerUserIdAction],
 })

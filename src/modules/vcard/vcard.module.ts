@@ -11,6 +11,6 @@ import { VCard, VCardSchema } from './vcard.schema';
   controllers: [VCardController],
   imports: [SharedModule, MongooseModule.forFeature([{ name: VCard.name, schema: VCardSchema }])],
   providers: [VCardCreateAction, VCardGetByUserContextAction, VCardUpdateByUserContextAction],
-  exports: [],
+  exports: [VCardCreateAction],
 })
 export class VCardModule {}
