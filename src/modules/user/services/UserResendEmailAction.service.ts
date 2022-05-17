@@ -11,13 +11,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { JwtService } from '@nestjs/jwt';
 import { RequestContext } from 'src/utils/RequestContext';
+import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
 import { User, UserDocument } from '../user.schema';
-import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
 import { ConfigService } from '../../../configs/config.service';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
 import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 import { STATUS } from '../../../domain/const';
-import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
 
 @Injectable()
 export class UserResendEmailAction {
@@ -31,10 +30,12 @@ export class UserResendEmailAction {
 
   async execute(context: RequestContext, email: string): Promise<User> {
     const { correlationId } = context;
-    const user = await this.userModel.findOne({ $and: [{ email }, { status: STATUS.INACTIVE }] });
+    const user = await this.userModel.findOne({
+      $and: [{ email }, { status: { $ne: STATUS.DELETED } }],
+    });
 
     if (!user) {
-      throw new NotFoundException('User','User not found');
+      throw new NotFoundException('User', 'User not found');
     }
 
     const { jwtSecret, accessTokenExpiry, baseUrl, mailForm } = this.configService;
