@@ -17,7 +17,7 @@ function MongooseClassSerializerInterceptor(
     private prepareResponse(
       response: PlainLiteralObject | PlainLiteralObject[],
     ): PlainLiteralObject {
-      if (!Array.isArray(response) && response.results) {
+      if (!Array.isArray(response) && response && response.results) {
         const results = this.prepareResponse(response.results);
         return {
           ...response,

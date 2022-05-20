@@ -1,6 +1,15 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-export type NotFoundResourceTypes = 'User' | 'Admin' | 'Accountant' | 'Permission' | 'Payment' | "File" | "Image" | "VCard";
+export type NotFoundResourceTypes =
+  | 'User'
+  | 'Admin'
+  | 'Accountant'
+  | 'Permission'
+  | 'Payment'
+  | 'File'
+  | 'Image'
+  | 'VCard'
+  | 'Tags';
 export class NotFoundException extends HttpException {
   constructor(resourceType: NotFoundResourceTypes, debugMessage: string) {
     super(

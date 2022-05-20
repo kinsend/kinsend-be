@@ -28,7 +28,6 @@ export class PaymentController {
     private readonly paymentUpdateDefaultMethodByCustomerIdAction: PaymentUpdateDefaultMethodByCustomerIdAction,
     private readonly paymentStoreAndConfirmCreditCardAction: PaymentStoreAndConfirmCreditCardAction,
     private readonly paymentAttachCreditCardToConsumerAction: PaymentAttachCreditCardToConsumerAction,
-
   ) {}
 
   @Post('/credit-card')
@@ -47,7 +46,8 @@ export class PaymentController {
   // New version replace for api credit-card and confirm
   @Post('/credit-card/store-and-confirm')
   async storeAndConfirmCreditCard(
-    @Body() payload: PaymentStoredCreditCardDto, @Req() request: AppRequest
+    @Body() payload: PaymentStoredCreditCardDto,
+    @Req() request: AppRequest,
   ) {
     return this.paymentStoreAndConfirmCreditCardAction.execute(request, payload);
   }
@@ -59,7 +59,6 @@ export class PaymentController {
   ) {
     return this.paymentCancelCreditCardAction.execute(request, setupIntentId);
   }
-
 
   @Post('/credit-card/payment-method/:paymentMethodId/customer-update')
   async updateDefaultPaymentMethodByCustomerId(

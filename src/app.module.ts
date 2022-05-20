@@ -11,6 +11,7 @@ import { ResourceModule } from './modules/resource/resource.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { VCardModule } from './modules/vcard/vcard.module';
 import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module';
+import { TagsModule } from './modules/tags/tags.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module
     SubscriptionModule,
     VCardModule,
     CustomFieldsModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
