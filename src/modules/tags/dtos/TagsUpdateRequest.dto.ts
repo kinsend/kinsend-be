@@ -7,13 +7,13 @@ export class TagsUpdatePayloadDto {
   @IsOptional()
   name?: string;
 
-  @ApiProperty({ example: 'tags name', required: false, type: String })
+  @ApiProperty({ example: 1, required: false, type: Number })
   @IsString()
   @IsOptional()
-  contact?: string;
+  contact?: number;
 
-  @ApiProperty({ example: 'tags name', required: false, type: String })
+  @ApiProperty({ example: 1, required: false, type: Number })
   @IsString()
   @IsOptional()
-  unknow?: string;
+  unknown?: number;
 }

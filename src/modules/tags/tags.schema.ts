@@ -25,7 +25,7 @@ export class Tags {
   contacts: number;
 
   @Prop({ default: 0, type: Number })
-  unknow: number;
+  unknown: number;
 
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
