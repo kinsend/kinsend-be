@@ -23,6 +23,7 @@ export class CustomFieldsUpdateAction {
     if (!customFileds) {
       throw new NotFoundException('CustomFileds', 'CustomFileds not found!');
     }
+
     const customFiledsUpdated = dynamicUpdateModel<CustomFieldsDocument>(payload, customFileds);
     await customFiledsUpdated.save();
 

@@ -15,8 +15,11 @@ export class CustomFieldsCreateAction {
   async execute(
     context: RequestContext,
     payload: CustomFieldsCreatePayload,
-  ): Promise<CustomFields> {
+  ): Promise<CustomFieldsDocument> {
     const { user } = context;
-    return new this.customFieldsModel({ userId: user.id, ...payload }).save();
+    return new this.customFieldsModel({
+      userId: user.id,
+      ...payload,
+    }).save();
   }
 }

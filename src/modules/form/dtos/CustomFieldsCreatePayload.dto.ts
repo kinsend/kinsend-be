@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/prefer-set-has */
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsBoolean, IsIn, IsArray, IsOptional } from 'class-validator';
@@ -13,6 +12,7 @@ export class Options {
   @IsNotEmpty()
   label: string;
 }
+
 export class CustomFieldsCreatePayload {
   @ApiProperty({ example: 'SINGLE_TEXT', required: true, enum: CUSTOM_FIELDS_TYPE, type: String })
   @IsString()
@@ -20,9 +20,10 @@ export class CustomFieldsCreatePayload {
   @IsNotEmpty()
   type: CUSTOM_FIELDS_TYPE;
 
-  @ApiProperty({ example: ['tag 1', 'tag 2'], required: true })
-  @IsArray()
-  tags: string[];
+  @ApiProperty({ example: 'Tag', required: true, type: String })
+  @IsString()
+  @IsNotEmpty()
+  tag: string;
 
   @ApiProperty({ example: 'What is today?', required: true, type: String })
   @IsString()

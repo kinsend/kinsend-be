@@ -24,20 +24,20 @@ export class CustomFields {
   @Prop({ enum: CUSTOM_FIELDS_TYPE })
   type: string;
 
-  @Prop()
-  tag: string;
+  @Prop({ type: [String] })
+  tags: [string];
 
   @Prop()
   label: string;
 
-  @Prop()
-  placeholder: string;
+  @Prop({ required: false })
+  placeholder?: string;
 
   @Prop()
   isRequired: boolean;
 
-  @Prop()
-  options: [Options];
+  @Prop({ required: false })
+  options?: [Options];
 
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
