@@ -20,7 +20,7 @@ export class ImageController {
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
   @UseInterceptors(FileInterceptor('file'))
-  imageUpload(
+  uploadImage(
     @Req() request: AppRequest,
     @UploadedFile()
     file: Express.Multer.File,
