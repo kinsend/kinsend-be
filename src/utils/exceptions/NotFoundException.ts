@@ -9,7 +9,8 @@ export type NotFoundResourceTypes =
   | 'File'
   | 'Image'
   | 'VCard'
-  | 'Tags';
+  | 'Tags'
+  | 'CustomFileds';
 export class NotFoundException extends HttpException {
   constructor(resourceType: NotFoundResourceTypes, debugMessage: string) {
     super(

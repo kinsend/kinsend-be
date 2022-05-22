@@ -12,6 +12,7 @@ import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { VCardModule } from './modules/vcard/vcard.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { ImageModule } from './modules/image/image.module';
+import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ImageModule } from './modules/image/image.module';
     VCardModule,
     TagsModule,
     ImageModule,
+    CustomFieldsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

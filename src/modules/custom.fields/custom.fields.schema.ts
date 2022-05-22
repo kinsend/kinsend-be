@@ -1,7 +1,9 @@
+/* eslint-disable max-classes-per-file */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
 import { Transform } from 'class-transformer';
-import { CUSTOM_FIELDS_TYPE } from '../../domain/const';
+import { CUSTOM_FIELDS_TYPE } from './interfaces/custom.fields.interface';
+import { Options } from './dtos/CustomFieldsCreatePayload.dto';
 
 export type CustomFieldsDocument = CustomFields & Document;
 
@@ -15,21 +17,27 @@ export class CustomFields {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ unique: true })
+  @Prop()
   @Transform(({ value }) => value.toString())
   userId: string;
 
+  @Prop({ enum: CUSTOM_FIELDS_TYPE })
+  type: string;
+
   @Prop()
-  type: CUSTOM_FIELDS_TYPE;
+  tag: string;
 
   @Prop()
   label: string;
 
   @Prop()
-  opstions: any;
+  placeholder: string;
 
   @Prop()
   isRequired: boolean;
+
+  @Prop()
+  options: [Options];
 
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
