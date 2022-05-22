@@ -35,7 +35,7 @@ export class CustomFieldsUpdatePayload {
   @IsOptional()
   placeholder?: string;
 
-  @ApiProperty({ example: true, required: true, type: Boolean })
+  @ApiProperty({ example: true, required: false, type: Boolean })
   @IsBoolean()
   @IsOptional()
   isRequired?: boolean;

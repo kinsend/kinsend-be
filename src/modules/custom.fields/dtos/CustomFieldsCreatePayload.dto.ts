@@ -39,7 +39,7 @@ export class CustomFieldsCreatePayload {
   @IsBoolean()
   isRequired: boolean;
 
-  @ApiProperty({ example: [Options], required: true, type: [Options] })
+  @ApiProperty({ example: [Options], required: false, type: [Options] })
   @IsArray()
   @IsOptional()
   options?: Options[];
