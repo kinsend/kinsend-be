@@ -13,6 +13,7 @@ import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.se
 import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service';
 import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
 import { VCardModule } from '../vcard/vcard.module';
+import { ImageModule } from '../image/image.module';
 
 @Module({
   controllers: [UserController],
@@ -20,6 +21,7 @@ import { VCardModule } from '../vcard/vcard.module';
     SharedModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     VCardModule,
+    ImageModule,
   ],
   providers: [
     UserCreateAction,

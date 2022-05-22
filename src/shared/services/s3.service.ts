@@ -41,16 +41,17 @@ export class S3Service {
       throw new NotFoundException('Image', 'Image not found');
     }
   }
+
   async uploadFileBase64(
     { logger }: RequestContext,
     imageBase64: string,
     awsKey: string,
     contentType: string,
-  ): Promise<void> {
+  ): Promise<string> {
     try {
       const { awsBucket } = this.configService;
       const base64Data = Buffer.from(imageBase64, 'base64');
-      logger.info({ awsKey, awsBucket: awsBucket }, 'uploading image base64 to s3');
+      logger.info({ awsKey, awsBucket }, 'uploading image base64 to s3');
       await this.awsS3Client.send(
         new PutObjectCommand({
           Bucket: awsBucket,
@@ -60,7 +61,8 @@ export class S3Service {
           ContentType: contentType, // required
         }),
       );
-      logger.info({ awsKey, awsBucket: awsBucket }, 'uploaded image base64 to s3');
+      logger.info({ awsKey, awsBucket }, 'uploaded image base64 to s3');
+      return `https://${awsBucket}.s3.amazonaws.com/${awsKey}`;
     } catch (error) {
       logger.error(
         { err: error, errStack: error.stack, imageBase64 },
@@ -70,10 +72,7 @@ export class S3Service {
     }
   }
 
-  public async deleteFilesByKeys(
-    requestContext: RequestContext,
-    awsKeys: string[],
-  ): Promise<void> {
+  public async deleteFilesByKeys(requestContext: RequestContext, awsKeys: string[]): Promise<void> {
     if (!awsKeys || awsKeys.length === 0) {
       return;
     }

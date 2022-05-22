@@ -10,8 +10,8 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { VCardModule } from './modules/vcard/vcard.module';
-import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module';
 import { TagsModule } from './modules/tags/tags.module';
+import { ImageModule } from './modules/image/image.module';
 
 @Module({
   imports: [
@@ -23,8 +23,8 @@ import { TagsModule } from './modules/tags/tags.module';
     ResourceModule,
     SubscriptionModule,
     VCardModule,
-    CustomFieldsModule,
     TagsModule,
+    ImageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

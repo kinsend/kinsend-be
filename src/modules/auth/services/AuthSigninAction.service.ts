@@ -28,12 +28,11 @@ export class AuthSignInAction {
       stripeCustomerUserId,
       isEnabledBuyPlan,
       isEnabledPayment,
+      image,
     } = <UserDocument>user;
     if (!user) {
       throw new NotFoundException('User', 'Username and password are not correct');
     }
-    const imageKey = id+"photo";
-    const image = await this.s3Service.getFile(context, imageKey);
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const payloadAccessToken: AuthAccessTokenResponseDto = {
       id,

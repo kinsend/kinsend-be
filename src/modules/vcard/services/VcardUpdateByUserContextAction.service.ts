@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { RequestContext } from 'src/utils/RequestContext';
 import { VCardService } from 'src/shared/services/vCard.service';
 import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
-import { S3Service } from 'src/shared/services/s3.service';
 import { VCardUpdatePayloadDto } from '../dtos/VCardUpdatePayload.dto';
 import { VCard, VCardDocument } from '../vcard.schema';
 import { VCardCreateAction } from './VCardCreateAction.service';
@@ -14,7 +13,6 @@ export class VCardUpdateByUserContextAction {
   constructor(
     @InjectModel(VCard.name) private vCardModel: Model<VCardDocument>,
     private vCardService: VCardService,
-    private s3Service: S3Service,
     private vCardCreateAction: VCardCreateAction,
   ) {}
 
@@ -33,9 +31,10 @@ export class VCardUpdateByUserContextAction {
       throw new NotFoundException('VCard', 'VCard not found');
     }
     const fileKey = `${vcard.userId}vcard`;
-    await this.vCardService.uploadVCard(context, fileKey, vCardAfterUpdated);
-    const url = await this.s3Service.getFile(context, fileKey);
+    const url = await this.vCardService.uploadVCard(context, fileKey, vCardAfterUpdated);
     vCardAfterUpdated.url = url;
+    // Update url after upload file
+    await vCardAfterUpdated.save();
     return vCardAfterUpdated;
   }
 }

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RequestContext } from 'src/utils/RequestContext';
-import { S3Service } from 'src/shared/services/s3.service';
 import { VCardService } from 'src/shared/services/vCard.service';
 import { VCard, VCardDocument } from '../vcard.schema';
 import { VCardCreatePayloadDto } from '../dtos/VCardCreatePayload.dto';
@@ -13,7 +12,6 @@ export class VCardCreateAction {
   constructor(
     @InjectModel(VCard.name) private vcardModel: Model<VCardDocument>,
     private vcardService: VCardService,
-    private s3Service: S3Service,
   ) {}
 
   async execute(context: RequestContext, payload: VCardCreatePayloadDto): Promise<VCard> {
@@ -27,11 +25,11 @@ export class VCardCreateAction {
       }
     }
     // eslint-disable-next-line new-cap
-    const vCard = await new this.vcardModel({ ...payload, userId: context.user.id }).save();
-    const fileKey = `${vCard.userId}vCard`;
-    await this.vcardService.uploadVCard(context, fileKey, vCard);
-    const url = await this.s3Service.getFile(context, fileKey);
+    const vCard = new this.vcardModel({ ...payload, userId: context.user.id });
+    const fileKey = `${vCard.userId}vcard`;
+    const url = await this.vcardService.uploadVCard(context, fileKey, vCard);
     vCard.url = url;
+    await vCard.save();
     return vCard;
   }
 }

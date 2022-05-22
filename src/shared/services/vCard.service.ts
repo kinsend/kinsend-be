@@ -18,7 +18,7 @@ export class VCardService {
     context: RequestContext,
     fileKey: string,
     vcardPayload?: VCard,
-  ): Promise<void> {
+  ): Promise<string> {
     const vCard = vCardsJS();
     if (vcardPayload) {
       vCard.firstName = vcardPayload.firstName || '';
@@ -40,8 +40,9 @@ export class VCardService {
     }
     vCard.saveToFile(`${fileKey}.vcf`);
     const fileBase64 = fs.readFileSync(`${fileKey}.vcf`, { encoding: 'base64' });
-    await this.s3Service.uploadFileBase64(context, fileBase64, fileKey, 'text/vcard');
+    const url = await this.s3Service.uploadFileBase64(context, fileBase64, fileKey, 'text/vcard');
     // Remove file
     fs.unlinkSync(`${fileKey}.vcf`);
+    return url;
   }
 }
