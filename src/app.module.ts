@@ -13,6 +13,7 @@ import { VCardModule } from './modules/vcard/vcard.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { ImageModule } from './modules/image/image.module';
 import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module';
+import { FormModule } from './modules/form/form.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module
     TagsModule,
     ImageModule,
     CustomFieldsModule,
+    FormModule,
   ],
   controllers: [AppController],
   providers: [AppService],

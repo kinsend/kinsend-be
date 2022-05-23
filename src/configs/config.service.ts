@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 
 const int = (value: string | undefined, number: number): number =>
-value ? (Number.isNaN(Number.parseInt(value)) ? number : Number.parseInt(value)) : number;
+  value ? (Number.isNaN(Number.parseInt(value)) ? number : Number.parseInt(value)) : number;
 
 @Injectable()
 export class ConfigService {
@@ -187,10 +187,10 @@ export class ConfigService {
   }
 
   get awsImageExpireIn(): number {
-   return int(process.env.AWS_IMAGE_EXPIRESIN, 60 * 60 * 24 * 7)
+    return int(process.env.AWS_IMAGE_EXPIRESIN, 60 * 60 * 24 * 7);
   }
 
   get awsBucket(): string {
     return process.env.BUCKET_NAME ?? '';
-   }
+  }
 }

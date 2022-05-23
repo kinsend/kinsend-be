@@ -22,6 +22,6 @@ import { CustomFieldsDeleteByIdAction } from './services/CustomFieldsDeleteByIdA
     CustomFieldsUpdateAction,
     CustomFieldsDeleteByIdAction,
   ],
-  exports: [],
+  exports: [CustomFieldsGetByIdAction],
 })
 export class CustomFieldsModule {}

@@ -24,6 +24,6 @@ import { Tags, TagsSchema } from './tags.schema';
     TagsUpdateByIdAction,
     TagsDeleteByIdAction,
   ],
-  exports: [],
+  exports: [TagsGetByIdAction],
 })
 export class TagsModule {}
