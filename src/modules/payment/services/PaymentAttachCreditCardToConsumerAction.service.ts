@@ -38,9 +38,8 @@ export class PaymentAttachCreditCardToConsumerAction {
     );
     logger.info({
       correlationId,
-      message:"Acttach payment successfull",
+      message: 'Acttach payment successfull',
     });
-
 
     const paymentMethodInfo = await this.PaymentModel.findOne({
       $or: [{ stripePaymentMethodId: paymentMethodId }],
@@ -55,7 +54,7 @@ export class PaymentAttachCreditCardToConsumerAction {
     });
     logger.info({
       correlationId,
-      message:"Update ATTACHED status for payment successfull",
+      message: 'Update ATTACHED status for payment successfull',
     });
 
     const customerInfo = await this.stripeService.updateDefaultPaymentMethodByCustomerId(
@@ -65,7 +64,7 @@ export class PaymentAttachCreditCardToConsumerAction {
     );
     logger.info({
       correlationId,
-      message:"Update payment defaul for customer successfull",
+      message: 'Update payment defaul for customer successfull',
     });
 
     await paymentMethodInfo.update({
@@ -73,7 +72,7 @@ export class PaymentAttachCreditCardToConsumerAction {
     });
     logger.info({
       correlationId,
-      message:"Update DEFAULT status for payment successfull",
+      message: 'Update DEFAULT status for payment successfull',
     });
 
     await userInfo.update({ isEnabledPayment: true });

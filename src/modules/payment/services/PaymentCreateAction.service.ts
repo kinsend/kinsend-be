@@ -7,12 +7,10 @@ import { Payment, PaymentDocument } from '../payment.schema';
 
 @Injectable()
 export class PaymentCreateAction {
-  constructor(
-    @InjectModel(Payment.name) private PaymentModel: Model<PaymentDocument>,
-  ) {}
+  constructor(@InjectModel(Payment.name) private PaymentModel: Model<PaymentDocument>) {}
 
   async execute(payload: any): Promise<PaymentDocument> {
     const paymentModel = new this.PaymentModel(payload);
-    return await paymentModel.save();
+    return paymentModel.save();
   }
 }

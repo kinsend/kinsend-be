@@ -13,7 +13,7 @@ export class Options {
 }
 
 export class CustomFieldsUpdatePayload {
-  @ApiProperty({ example: 'Tag', required: false })
+  @ApiProperty()
   @IsArray()
   @IsOptional()
   tag?: string[];

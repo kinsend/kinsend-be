@@ -57,7 +57,12 @@ export class VerificationConfirmPhoneNumberAction {
 
       const { code, phone } = primaryPhone;
       const smsPhone = `+${code}${phone}`;
-      await this.smsService.confirmPhoneNumber(context, smsPhone, payload.verifyCode || '', useMock);
+      await this.smsService.confirmPhoneNumber(
+        context,
+        smsPhone,
+        payload.verifyCode || '',
+        useMock,
+      );
 
       return checkExistedUser;
     } catch (error) {

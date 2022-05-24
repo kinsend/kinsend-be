@@ -17,7 +17,6 @@ export class AuthAccessTokenResponseDto extends UserResponseDto {
   @ApiProperty({ example: false, type: Boolean, required: false })
   isEnabledPayment?: boolean;
 
-  @ApiProperty({ example: "https://domain.image.com/image", type: String, required: false })
+  @ApiProperty({ example: 'https://domain.image.com/image', type: String, required: false })
   image?: string;
- 
 }

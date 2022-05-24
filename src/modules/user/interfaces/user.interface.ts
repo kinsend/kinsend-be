@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 export enum USER_PROVIDER {
   PASSWORD = 'password',
   FACEBOOK = 'facebook',

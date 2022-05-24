@@ -32,7 +32,7 @@ import { PaymentUpdateDefaultMethodByCustomerIdAction } from './services/Payment
     PaymentUpdateDefaultMethodByCustomerIdAction,
     PaymentStoreAndConfirmCreditCardAction,
     PaymentCreateAction,
-    PaymentAttachCreditCardToConsumerAction
+    PaymentAttachCreditCardToConsumerAction,
   ],
 })
 export class PaymentModule {}

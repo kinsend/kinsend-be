@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsLowercase,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsEmail, IsLowercase, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class VCardUpdatePayloadDto {
   @ApiProperty({ example: 'lorem@gmail.com', type: String, required: false })

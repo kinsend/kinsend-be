@@ -29,7 +29,7 @@ export class PaymentAttachCreditCardAction {
     paymentMethodId: string,
   ): Promise<Stripe.Response<Stripe.PaymentMethod>> {
     const { user } = context;
-    const userInfo = await this.userFindByIdAction.execute(context,user.id);
+    const userInfo = await this.userFindByIdAction.execute(context, user.id);
 
     if (!userInfo) {
       throw new NotFoundException('User', 'User not found');

@@ -13,7 +13,6 @@ export class SubscriptionCreateByCustomerIdAction {
     private readonly stripeService: StripeService,
 
     private readonly userFindByStripeCustomerUserIdAction: UserFindByStripeCustomerUserIdAction,
-
   ) {}
 
   async execute(
@@ -22,7 +21,7 @@ export class SubscriptionCreateByCustomerIdAction {
   ): Promise<Stripe.Response<Stripe.Subscription>> {
     const subscriptions = await this.stripeService.createSubscriptionByCustomer(context, payload);
     const userUpdate = await this.userFindByStripeCustomerUserIdAction.execute(payload.customer);
-    await userUpdate.update({isEnabledBuyPlan: true})
+    await userUpdate.update({ isEnabledBuyPlan: true });
     return subscriptions;
   }
 }

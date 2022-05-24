@@ -1,3 +1,5 @@
+/* eslint-disable import/no-default-export */
+/* eslint-disable unicorn/no-array-callback-reference */
 import { ClassSerializerInterceptor, PlainLiteralObject, Type } from '@nestjs/common';
 import { ClassTransformOptions, plainToClass } from 'class-transformer';
 import { Document } from 'mongoose';

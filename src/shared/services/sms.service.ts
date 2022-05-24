@@ -8,7 +8,10 @@ import { ConfigService } from '../../configs/config.service';
 import { BadRequestException } from '../../utils/exceptions/BadRequestException';
 import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 import { RequestContext } from '../../utils/RequestContext';
-import { availablePhoneNumberMockResponse, verifyInstaceMockResponse } from '../../modules/resource/mocks/twilio.mock';
+import {
+  availablePhoneNumberMockResponse,
+  verifyInstaceMockResponse,
+} from '../../modules/resource/mocks/twilio.mock';
 
 @Injectable()
 export class SmsService {
@@ -71,7 +74,6 @@ export class SmsService {
     try {
       logger.info('Request confirm phone number');
 
-
       if (useMock) {
         logger.info({
           correlationId,
@@ -115,7 +117,7 @@ export class SmsService {
     const { logger, correlationId } = context;
     try {
       logger.info('Request confirm phone number');
-      if(useMock){
+      if (useMock) {
         logger.info({
           correlationId,
           message: 'Request rent numbers successful by mock',

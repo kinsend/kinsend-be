@@ -20,12 +20,11 @@ export class PaymentStoreAndConfirmCreditCardAction {
     private readonly stripeService: StripeService,
     private readonly userFindByIdAction: UserFindByIdAction,
     private readonly paymentCreateAction: PaymentCreateAction,
-
   ) {}
 
   async execute(
-    context: RequestContext, 
-    payload: PaymentStoredCreditCardDto
+    context: RequestContext,
+    payload: PaymentStoredCreditCardDto,
   ): Promise<Stripe.Response<Stripe.SetupIntent>> {
     const { user } = context;
     const userInfo = await this.userFindByIdAction.execute(context, user.id);
@@ -38,14 +37,17 @@ export class PaymentStoreAndConfirmCreditCardAction {
       [type],
     );
 
-    const paymentModel ={
+    const paymentModel = {
       userId: userInfo._id,
       stripePaymentMethodId: paymentMethodId,
       stripeSetupIntentId: creditCardInfo.id,
     };
 
     await this.paymentCreateAction.execute(paymentModel);
-    const creditCardConfirmInfo = await this.stripeService.confirmCreditCard(context, creditCardInfo.id);
+    const creditCardConfirmInfo = await this.stripeService.confirmCreditCard(
+      context,
+      creditCardInfo.id,
+    );
     return creditCardConfirmInfo;
   }
 }

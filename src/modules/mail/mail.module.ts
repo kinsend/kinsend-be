@@ -1,9 +1,10 @@
+/* eslint-disable unicorn/prefer-module */
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { join } from 'path';
-import { ConfigService as ConfigEnvService } from '../../configs/config.service';
+import { join } from 'node:path';
+import { ConfigService as ConfigEnvironmentService } from '../../configs/config.service';
 import { MailSendGridService } from './mail-send-grid.service';
 import { MailService } from './mail.service';
 
@@ -21,7 +22,7 @@ import { MailService } from './mail.service';
             host: smtp,
             secure: false,
             auth: {
-              user: user,
+              user,
               pass: password,
             },
           },
@@ -40,7 +41,7 @@ import { MailService } from './mail.service';
       inject: [ConfigService],
     }),
   ],
-  providers: [MailService, MailSendGridService, ConfigEnvService],
+  providers: [MailService, MailSendGridService, ConfigEnvironmentService],
   exports: [MailService, MailSendGridService],
 })
 export class MailModule {}

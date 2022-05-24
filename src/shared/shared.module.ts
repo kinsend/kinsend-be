@@ -5,11 +5,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from 'src/configs/config.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
+import { MulterModule } from '@nestjs/platform-express';
 import { MongodbConfigService } from '../configs/mongodb.config.service';
 import { MailModule } from '../modules/mail/mail.module';
 import { SmsService } from './services/sms.service';
 import { StripeService } from './services/stripe.service';
-import { MulterModule } from '@nestjs/platform-express';
 import { VCardService } from './services/vCard.service';
 import { S3Service } from './services/s3.service';
 
