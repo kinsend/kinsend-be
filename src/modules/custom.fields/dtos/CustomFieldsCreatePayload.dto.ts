@@ -14,6 +14,11 @@ export class Options {
   tag: string;
 }
 export class CustomFieldsCreatePayload {
+  @ApiProperty({ example: 'What is today?', required: true, type: String })
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
   @ApiProperty({ example: 'SINGLE_TEXT', required: true, enum: CUSTOM_FIELDS_TYPE, type: String })
   @IsString()
   @IsIn(Object.values(CUSTOM_FIELDS_TYPE))
