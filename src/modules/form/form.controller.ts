@@ -16,7 +16,14 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiExtraModels,
+  ApiTags,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/providers/guards/JwtAuthGuard.provider';
 import { AppRequest } from 'src/utils/AppRequest';
 import MongooseClassSerializerInterceptor from 'src/utils/interceptors/MongooseClassSerializer.interceptor';
@@ -47,6 +54,22 @@ export class FormController {
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
   @UsePipes(new ValidationPipe({ whitelist: true }))
+  @ApiExtraModels(FormCreatePayload)
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(FormCreatePayload) },
+        {
+          properties: {
+            file: {
+              type: 'string',
+              format: 'binary',
+            },
+          },
+        },
+      ],
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   createForm(
     @Req() request: AppRequest,
@@ -59,6 +82,23 @@ export class FormController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @ApiConsumes('multipart/form-data')
+  @ApiExtraModels(FormUpdatePayload)
+  @ApiBody({
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(FormUpdatePayload) },
+        {
+          properties: {
+            file: {
+              type: 'string',
+              format: 'binary',
+            },
+          },
+        },
+      ],
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @Put('/:id')

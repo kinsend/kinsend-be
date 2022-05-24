@@ -58,6 +58,9 @@ export class Form {
   @Prop({ required: false })
   isVcardSend?: boolean;
 
+  @Prop({ required: false })
+  message?: string;
+
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
 

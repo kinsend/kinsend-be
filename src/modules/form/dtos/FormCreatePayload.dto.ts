@@ -62,4 +62,9 @@ export class FormCreatePayload {
   @IsBoolean()
   @IsOptional()
   isVcardSend?: string;
+
+  @ApiProperty({ example: 'Lorem', required: false, type: String })
+  @IsBoolean()
+  @IsOptional()
+  message?: string;
 }
