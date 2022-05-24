@@ -24,9 +24,6 @@ export class CustomFields {
   @Prop({ enum: CUSTOM_FIELDS_TYPE })
   type: string;
 
-  @Prop({ type: [String] })
-  tags: [string];
-
   @Prop()
   label: string;
 

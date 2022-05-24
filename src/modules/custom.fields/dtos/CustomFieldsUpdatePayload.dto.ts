@@ -1,23 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsBoolean, IsArray, IsOptional } from 'class-validator';
-
-export class Options {
-  @IsString()
-  @IsNotEmpty()
-  key: string;
-
-  @IsString()
-  @IsNotEmpty()
-  label: string;
-}
+import { IsString, IsBoolean, IsArray, IsOptional } from 'class-validator';
+import { Options } from './CustomFieldsCreatePayload.dto';
 
 export class CustomFieldsUpdatePayload {
-  @ApiProperty()
-  @IsArray()
-  @IsOptional()
-  tag?: string[];
-
   @ApiProperty({ example: 'What is today?', required: false, type: String })
   @IsString()
   @IsOptional()
