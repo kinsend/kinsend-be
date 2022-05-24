@@ -24,9 +24,6 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/providers/guards/JwtAuthGuard.provider';
-import { AppRequest } from 'src/utils/AppRequest';
-import MongooseClassSerializerInterceptor from 'src/utils/interceptors/MongooseClassSerializer.interceptor';
 import { FormCreatePayload } from './dtos/FormCreatePayload.dto';
 import { FormModule } from './form.module';
 import { FormCreateAction } from './services/FormCreateAction.service';
@@ -36,6 +33,9 @@ import { FormGetByIdAction } from './services/FormGetByIdAction.service';
 import { FormUpdateAction } from './services/FormUpdateAction.service ';
 import { FormUpdatePayload } from './dtos/FormUpdatePayload.dto';
 import { FormDeleteByIdAction } from './services/FormDeleteByIdAction.service';
+import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
+import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
+import { AppRequest } from '../../utils/AppRequest';
 
 @ApiTags('Forms')
 @ApiBearerAuth()

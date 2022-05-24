@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { SharedModule } from 'src/shared/shared.module';
+import { SharedModule } from '../../shared/shared.module';
 import { VCardCreateAction } from './services/VCardCreateAction.service';
 import { VCardGetByUserContextAction } from './services/VCardGetByUserContextAction.service';
 import { VCardUpdateByUserContextAction } from './services/VCardUpdateByUserContextAction.service';

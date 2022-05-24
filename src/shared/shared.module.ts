@@ -2,7 +2,6 @@ import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from 'src/configs/config.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { MulterModule } from '@nestjs/platform-express';
@@ -12,6 +11,7 @@ import { SmsService } from './services/sms.service';
 import { StripeService } from './services/stripe.service';
 import { VCardService } from './services/vCard.service';
 import { S3Service } from './services/s3.service';
+import { ConfigService } from '../configs/config.service';
 
 const configService = new ConfigService();
 const { jwtSecret, accessTokenExpiry } = configService;

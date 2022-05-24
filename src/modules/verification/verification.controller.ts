@@ -17,7 +17,6 @@ import {
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AppRequest } from 'src/utils/AppRequest';
 import { VerificationConfirmEmailAction } from './services/VerificationConfirmEmailAction.service';
 import { VerificationConfirmEmailQueryDto } from './dtos/VerificationConfirmEmailQuery.dto';
 import { VerificationRequestPhoneNumberDto } from './dtos/VerificationRequestPhoneNumber.dto';
@@ -26,6 +25,7 @@ import MongooseClassSerializerInterceptor from '../../utils/interceptors/Mongoos
 import { User as UserModel } from '../user/user.schema';
 import { VerificationVerifyPhoneNumberAction } from './services/VerificationVerifyPhoneNumberAction.service';
 import { VerificationConfirmPhoneNumberAction } from './services/VerificationConfirmPhoneNumberAction.service';
+import { AppRequest } from '../../utils/AppRequest';
 
 @ApiTags('Verifications')
 @Controller('verifications')

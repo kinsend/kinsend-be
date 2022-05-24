@@ -7,16 +7,16 @@ import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import omit from 'lodash';
 import * as mongoose from 'mongoose';
-import { RequestContext } from 'src/utils/RequestContext';
 import { JwtService } from '@nestjs/jwt';
-import { User, UserDocument } from 'src/modules/user/user.schema';
-import { UserConfirmationTokenDto } from 'src/modules/user/dtos/UserConfirmationToken.dto';
-import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
-import { STATUS } from 'src/domain/const';
 import { ConfigService } from '../../../configs/config.service';
 import { VerificationConfirmEmailQueryDto } from '../dtos/VerificationConfirmEmailQuery.dto';
 import { StripeService } from '../../../shared/services/stripe.service';
 import { ForbiddenException } from '../../../utils/exceptions/ForbiddenException';
+import { RequestContext } from '../../../utils/RequestContext';
+import { STATUS } from '../../../domain/const';
+import { User, UserDocument } from '../../user/user.schema';
+import { UserConfirmationTokenDto } from '../../user/dtos/UserConfirmationToken.dto';
+import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 
 @Injectable()
 export class VerificationConfirmEmailAction {

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { RequestContext } from 'src/utils/RequestContext';
-import { VCardService } from 'src/shared/services/vCard.service';
-import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
+import { VCardService } from '../../../shared/services/vCard.service';
+import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
+import { RequestContext } from '../../../utils/RequestContext';
 import { VCardUpdatePayloadDto } from '../dtos/VCardUpdatePayload.dto';
 import { VCard, VCardDocument } from '../vcard.schema';
 import { VCardCreateAction } from './VCardCreateAction.service';

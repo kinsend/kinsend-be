@@ -14,8 +14,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/providers/guards/JwtAuthGuard.provider';
-import { AppRequest } from 'src/utils/AppRequest';
+import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
+import { AppRequest } from '../../utils/AppRequest';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { VCardCreatePayloadDto } from './dtos/VCardCreatePayload.dto';
 import { VCardUpdatePayloadDto } from './dtos/VCardUpdatePayload.dto';

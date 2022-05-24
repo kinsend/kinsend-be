@@ -10,13 +10,13 @@ import * as handlebars from 'handlebars';
 import * as fs from 'fs';
 import * as path from 'path';
 import { JwtService } from '@nestjs/jwt';
-import { RequestContext } from 'src/utils/RequestContext';
-import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
 import { User, UserDocument } from '../user.schema';
 import { ConfigService } from '../../../configs/config.service';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
 import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 import { STATUS } from '../../../domain/const';
+import { RequestContext } from '../../../utils/RequestContext';
+import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 
 @Injectable()
 export class UserResendEmailAction {

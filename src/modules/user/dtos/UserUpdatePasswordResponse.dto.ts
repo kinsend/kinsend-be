@@ -1,4 +1,4 @@
-import { AuthAccessTokenResponseDto } from 'src/modules/auth/dtos/AuthTokenResponseDto';
+import { AuthAccessTokenResponseDto } from '../../auth/dtos/AuthTokenResponseDto';
 
 export class UserUpdatePasswordResponse {
   user!: AuthAccessTokenResponseDto;

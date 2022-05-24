@@ -1,10 +1,10 @@
 /* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@nestjs/common';
-import { UserFindByStripeCustomerUserIdAction } from 'src/modules/user/services/UserFindByStripeCustomerUserIdAction.service';
 import Stripe from 'stripe';
 import { StripeService } from '../../../shared/services/stripe.service';
 import { RequestContext } from '../../../utils/RequestContext';
+import { UserFindByStripeCustomerUserIdAction } from '../../user/services/UserFindByStripeCustomerUserIdAction.service';
 import { CreateSubscriptionByCustomerIdDto } from '../dtos/CreateSubscriptionByCustomerId.dto';
 
 @Injectable()

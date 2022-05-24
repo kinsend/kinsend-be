@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BadRequestException } from 'src/utils/exceptions/BadRequestException';
+import { BadRequestException } from '../../../utils/exceptions/BadRequestException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { UserUpdateProfilePayloadDto } from '../dtos/UserUpdateProfilePayload.dto';
 import { User } from '../user.schema';

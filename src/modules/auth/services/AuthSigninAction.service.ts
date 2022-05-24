@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { S3Service } from 'src/shared/services/s3.service';
 import { ConfigService } from '../../../configs/config.service';
+import { S3Service } from '../../../shared/services/s3.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { User, UserDocument } from '../../user/user.schema';

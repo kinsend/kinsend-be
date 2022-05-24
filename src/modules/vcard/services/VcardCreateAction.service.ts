@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { RequestContext } from 'src/utils/RequestContext';
-import { VCardService } from 'src/shared/services/vCard.service';
 import { VCard, VCardDocument } from '../vcard.schema';
 import { VCardCreatePayloadDto } from '../dtos/VCardCreatePayload.dto';
 import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
+import { VCardService } from '../../../shared/services/vCard.service';
+import { RequestContext } from '../../../utils/RequestContext';
 
 @Injectable()
 export class VCardCreateAction {

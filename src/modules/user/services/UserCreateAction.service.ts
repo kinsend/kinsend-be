@@ -8,8 +8,6 @@ import * as handlebars from 'handlebars';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { JwtService } from '@nestjs/jwt';
-import { RequestContext } from 'src/utils/RequestContext';
-import { STATUS } from 'src/domain/const';
 import { VCardCreateAction } from '../../vcard/services/VCardCreateAction.service';
 import { UserCreatePayloadDto } from '../dtos/UserCreateRequest.dto';
 import { User, UserDocument } from '../user.schema';
@@ -20,6 +18,8 @@ import { MailService } from '../../mail/mail.service';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
 import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 import { USER_PROVIDER } from '../interfaces/user.interface';
+import { RequestContext } from '../../../utils/RequestContext';
+import { STATUS } from '../../../domain/const';
 
 @Injectable()
 export class UserCreateAction {

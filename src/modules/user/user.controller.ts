@@ -18,8 +18,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiTags } from '@nestjs/swagger';
-import { AppRequest } from 'src/utils/AppRequest';
-import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
 import { Multer } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
@@ -36,6 +34,8 @@ import { UserPasswordUpdatePayload } from './dtos/UserUpdatePasswordPayload.dto'
 import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.service';
 import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service';
 import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
+import { AppRequest } from '../../utils/AppRequest';
+import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 
 @ApiTags('Users')
 @ApiBearerAuth()

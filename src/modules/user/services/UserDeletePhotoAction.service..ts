@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { S3Service } from 'src/shared/services/s3.service';
+import { S3Service } from '../../../shared/services/s3.service';
 import { RequestContext } from '../../../utils/RequestContext';
 import { UserFindByIdAction } from './UserFindByIdAction.service';
 

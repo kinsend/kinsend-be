@@ -1,8 +1,8 @@
+/* eslint-disable import/newline-after-import */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId } from 'mongoose';
-import { Exclude, Transform } from 'class-transformer';
-import { STATUS } from 'src/domain/const';
-
+import { Transform } from 'class-transformer';
+import { STATUS } from '../../domain/const';
 export type PaymentDocument = Payment & Document;
 
 @Schema({

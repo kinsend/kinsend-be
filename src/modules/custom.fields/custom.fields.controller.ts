@@ -15,8 +15,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AppRequest } from 'src/utils/AppRequest';
-import MongooseClassSerializerInterceptor from 'src/utils/interceptors/MongooseClassSerializer.interceptor';
 import { CustomFieldsCreatePayload } from './dtos/CustomFieldsCreatePayload.dto';
 import { CustomFieldsUpdatePayload } from './dtos/CustomFieldsUpdatePayload.dto';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
@@ -27,6 +25,8 @@ import { CustomFieldsGetByIdAction } from './services/CustomFieldsGetByIdAction.
 import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
 import { CustomFieldsUpdateAction } from './services/CustomFieldsUpdateAction.service';
 import { CustomFieldsDeleteByIdAction } from './services/CustomFieldsDeleteByIdAction.service';
+import { AppRequest } from '../../utils/AppRequest';
+import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 
 @ApiTags('CustomFields')
 @ApiBearerAuth()

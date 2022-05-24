@@ -6,11 +6,11 @@ import {
   S3Client as AwsS3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { NotFoundException } from 'src/utils/exceptions/NotFoundException';
-import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
-import { ConfigService } from 'src/configs/config.service';
-import { RequestContext } from 'src/utils/RequestContext';
-import { BadRequestException } from 'src/utils/exceptions/BadRequestException';
+import { ConfigService } from '../../configs/config.service';
+import { RequestContext } from '../../utils/RequestContext';
+import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
+import { NotFoundException } from '../../utils/exceptions/NotFoundException';
+import { BadRequestException } from '../../utils/exceptions/BadRequestException';
 
 @Injectable()
 export class S3Service {

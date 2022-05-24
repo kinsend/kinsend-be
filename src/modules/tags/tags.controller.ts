@@ -16,7 +16,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AppRequest } from 'src/utils/AppRequest';
 import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { TagsModule } from './tags.module';
@@ -28,6 +27,7 @@ import { TagsGetByIdAction } from './services/TagsGetByIdAction.service';
 import { TagsUpdateByIdAction } from './services/TagsUpdateByIdAction.service';
 import { TagsUpdatePayloadDto } from './dtos/TagsUpdateRequest.dto';
 import { TagsDeleteByIdAction } from './services/TagsDeleteByIdAction.service';
+import { AppRequest } from '../../utils/AppRequest';
 
 @ApiTags('Tags')
 @ApiBearerAuth()

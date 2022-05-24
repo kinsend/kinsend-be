@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RequestContext } from 'src/utils/RequestContext';
-import { AuthAccessTokenResponseDto } from 'src/modules/auth/dtos/AuthTokenResponseDto';
-import { UnauthorizedException } from 'src/utils/exceptions/UnauthorizedException';
 import { ConfigService } from '../../../configs/config.service';
 import { hashAndValidatePassword, verify } from '../../../utils/hashUser';
 import { UserPasswordUpdatePayload } from '../dtos/UserUpdatePasswordPayload.dto';
 import { UserFindByIdAction } from './UserFindByIdAction.service';
 import { UserUpdatePasswordResponse } from '../dtos/UserUpdatePasswordResponse.dto';
+import { RequestContext } from '../../../utils/RequestContext';
+import { UnauthorizedException } from '../../../utils/exceptions/UnauthorizedException';
+import { AuthAccessTokenResponseDto } from '../../auth/dtos/AuthTokenResponseDto';
 
 @Injectable()
 export class UserUpdatePasswordAction {

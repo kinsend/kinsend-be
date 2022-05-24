@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RequestContext } from 'src/utils/RequestContext';
 import vCardsJS = require('vcards-js');
 import * as fs from 'node:fs';
-import { VCard } from 'src/modules/vcard/vcard.schema';
 import { S3Service } from './s3.service';
+import { RequestContext } from '../../utils/RequestContext';
+import { VCard } from '../../modules/vcard/vcard.schema';
 
 @Injectable()
 export class VCardService {

@@ -8,9 +8,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { AppRequest } from 'src/utils/AppRequest';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageUploadAction } from './services/ImageUploadAction.service';
+import { AppRequest } from '../../utils/AppRequest';
 
 @ApiTags('Images')
 @Controller('images')
