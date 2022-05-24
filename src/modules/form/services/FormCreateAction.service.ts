@@ -1,5 +1,5 @@
 /* eslint-disable new-cap */
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { TagsGetByIdAction } from 'src/modules/tags/services/TagsGetByIdAction.service';
 import { CustomFieldsGetByIdAction } from 'src/modules/custom.fields/services/CustomFieldsGetByIdAction.service';
 import { InjectModel } from '@nestjs/mongoose';
@@ -24,6 +24,13 @@ export class FormCreateAction {
     payload: FormCreatePayload,
   ): Promise<FormDocument> {
     const { user } = context;
+    const formExist = await this.formModel.findOne({
+      url: payload.url,
+    });
+    if (formExist) {
+      throw new ConflictException('Form url already exist');
+    }
+
     const tagsExist = await this.tagsGetByIdAction.execute(context, payload.tagId);
     const customFieldsExist = await this.customFieldsGetByIdAction.execute(
       context,

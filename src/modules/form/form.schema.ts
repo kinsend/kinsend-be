@@ -46,8 +46,8 @@ export class Form {
   @Prop({ required: false })
   description?: string;
 
-  @Prop({ type: String, enum: OPTIONAL_FIELDS, required: false })
-  optionalFields?: OPTIONAL_FIELDS;
+  @Prop({ type: [String], enum: OPTIONAL_FIELDS, required: false })
+  optionalFields?: [OPTIONAL_FIELDS];
 
   @Prop({ required: false })
   submisstion?: string;
@@ -70,6 +70,6 @@ export class Form {
 
 const FormSchema = SchemaFactory.createForClass(Form);
 
-FormSchema.index({ userId: 'text', tagId: 'text', customFieldsId: 'text' });
+FormSchema.index({ userId: 'text', tagId: 'text', customFieldsId: 'text', url: 'text' });
 
 export { FormSchema };

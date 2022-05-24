@@ -1,9 +1,10 @@
-/* eslint-disable new-cap */
+/* eslint-disable no-param-reassign */
 import { Injectable } from '@nestjs/common';
 import { TagsGetByIdAction } from 'src/modules/tags/services/TagsGetByIdAction.service';
 import { CustomFieldsGetByIdAction } from 'src/modules/custom.fields/services/CustomFieldsGetByIdAction.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { dynamicUpdateModel } from '../../../utils/dynamicUpdateModel';
 import { Form, FormDocument } from '../form.schema';
 import { RequestContext } from '../../../utils/RequestContext';
 import { ImageUploadAction } from '../../image/services/ImageUploadAction.service';
@@ -28,24 +29,30 @@ export class FormUpdateAction {
   ): Promise<FormDocument> {
     const { user } = context;
     const { tagId, customFieldsId } = payload;
-    const formUpdate = await this.formGetByIdAction.execute(context, id);
+    const formExist = await this.formGetByIdAction.execute(context, id);
     if (tagId) {
       const tagsExist = await this.tagsGetByIdAction.execute(context, tagId);
-      formUpdate.tags = tagsExist;
+      formExist.tags = tagsExist;
+      delete payload.tagId;
     }
     if (customFieldsId) {
       const customFieldsExist = await this.customFieldsGetByIdAction.execute(
         context,
         customFieldsId,
       );
-      formUpdate.customFields = customFieldsExist;
+      formExist.customFields = customFieldsExist;
+
+      delete payload.customFieldsId;
     }
     if (file) {
       const fileKey = `${user.id}.form`;
       const imageUrl = await this.imageUploadAction.execute(context, file, fileKey);
-      formUpdate.image = imageUrl;
+      formExist.image = imageUrl;
     }
-    await formUpdate.save();
-    return formUpdate;
+
+    const formUpdated = dynamicUpdateModel<FormDocument>(payload, formExist);
+    formUpdated.updatedAt = new Date();
+    await formUpdated.save();
+    return formUpdated;
   }
 }

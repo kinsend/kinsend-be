@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prevent-abbreviations */
 /* eslint-disable @typescript-eslint/naming-convention */
 
 export enum OPTIONAL_FIELDS {
@@ -11,3 +12,5 @@ export enum OPTIONAL_FIELDS {
   COMPANY = 'COMPANY',
   INDUSTRY = 'INDUSTRY',
 }
+
+export const BOOLEAN_ARR = ['true', 'false'];
