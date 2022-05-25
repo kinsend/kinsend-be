@@ -17,29 +17,30 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import { AppRequest } from '../../utils/AppRequest';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
-import { VCardCreatePayloadDto } from './dtos/VCardCreatePayload.dto';
-import { VCardUpdatePayloadDto } from './dtos/VCardUpdatePayload.dto';
-import { VCardCreateAction } from './services/VCardCreateAction.service';
-import { VCardGetByUserContextAction } from './services/VCardGetByUserContextAction.service';
-import { VCardUpdateByUserContextAction } from './services/VCardUpdateByUserContextAction.service';
-import { VCardModule } from './vcard.module';
+import { VirtualCardCreatePayloadDto } from './dtos/VirtualCardCreatePayload.dto';
+import { VirtualCardUpdatePayloadDto } from './dtos/VirtualCardUpdatePayload.dto';
+import { VirtualCardCreateAction } from './services/VirtualCardCreateAction.service';
+import { VirtualCardGetByUserContextAction } from './services/VirtualCardGetByUserContextAction.service';
+import { VirtualCardUpdateByUserContextAction } from './services/VirtualCardUpdateByUserContextAction.service';
+
+import { VirtualCardModule } from './virtual.card.module';
 
 @ApiTags('vcards')
 @ApiBearerAuth()
 @Controller('vcards')
-@UseInterceptors(MongooseClassSerializerInterceptor(VCardModule))
-export class VCardController {
+@UseInterceptors(MongooseClassSerializerInterceptor(VirtualCardModule))
+export class VirtualCardController {
   constructor(
-    private vCardCreateAction: VCardCreateAction,
-    private vCardGetByUserContextAction: VCardGetByUserContextAction,
-    private vCardUpdateByUserContextAction: VCardUpdateByUserContextAction,
+    private vCardCreateAction: VirtualCardCreateAction,
+    private vCardGetByUserContextAction: VirtualCardGetByUserContextAction,
+    private vCardUpdateByUserContextAction: VirtualCardUpdateByUserContextAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   @Post()
-  async create(@Req() request: AppRequest, @Body() payload: VCardCreatePayloadDto) {
+  async create(@Req() request: AppRequest, @Body() payload: VirtualCardCreatePayloadDto) {
     return this.vCardCreateAction.execute(request, payload);
   }
 
@@ -54,7 +55,7 @@ export class VCardController {
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @Put()
-  async updateVCard(@Req() request: AppRequest, @Body() payload: VCardUpdatePayloadDto) {
+  async updateVCard(@Req() request: AppRequest, @Body() payload: VirtualCardUpdatePayloadDto) {
     return this.vCardUpdateByUserContextAction.execute(request, payload);
   }
 }

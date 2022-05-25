@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { VCardService } from '../../../shared/services/vCard.service';
+import { VirtualCardService } from '../../../shared/services/virtual.card.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
-import { VCardUpdatePayloadDto } from '../dtos/VCardUpdatePayload.dto';
-import { VCard, VCardDocument } from '../vcard.schema';
-import { VCardCreateAction } from './VCardCreateAction.service';
+import { VirtualCardUpdatePayloadDto } from '../dtos/VirtualCardUpdatePayload.dto';
+import { VCard, VCardDocument } from '../virtual.card.schema';
+import { VirtualCardCreateAction } from './VirtualCardCreateAction.service';
 
 @Injectable()
-export class VCardUpdateByUserContextAction {
+export class VirtualCardUpdateByUserContextAction {
   constructor(
     @InjectModel(VCard.name) private vCardModel: Model<VCardDocument>,
-    private vCardService: VCardService,
-    private vCardCreateAction: VCardCreateAction,
+    private vCardService: VirtualCardService,
+    private vCardCreateAction: VirtualCardCreateAction,
   ) {}
 
-  async execute(context: RequestContext, payload: VCardUpdatePayloadDto): Promise<VCard> {
+  async execute(context: RequestContext, payload: VirtualCardUpdatePayloadDto): Promise<VCard> {
     const { user } = context;
     const vcard = await this.vCardModel.findOne({ $or: [{ userId: user.id }] });
 

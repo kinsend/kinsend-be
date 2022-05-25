@@ -8,7 +8,6 @@ import * as handlebars from 'handlebars';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { JwtService } from '@nestjs/jwt';
-import { VCardCreateAction } from '../../vcard/services/VCardCreateAction.service';
 import { UserCreatePayloadDto } from '../dtos/UserCreateRequest.dto';
 import { User, UserDocument } from '../user.schema';
 import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
@@ -20,6 +19,7 @@ import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 import { USER_PROVIDER } from '../interfaces/user.interface';
 import { RequestContext } from '../../../utils/RequestContext';
 import { STATUS } from '../../../domain/const';
+import { VirtualCardCreateAction } from '../../virtualcard/services/VirtualCardCreateAction.service';
 
 @Injectable()
 export class UserCreateAction {
@@ -30,7 +30,7 @@ export class UserCreateAction {
     private mailService: MailService,
     private jwtService: JwtService,
     private mailSendGridService: MailSendGridService,
-    private vCardCreateAction: VCardCreateAction,
+    private vCardCreateAction: VirtualCardCreateAction,
   ) {}
 
   async execute(context: RequestContext, payload: UserCreatePayloadDto): Promise<User> {

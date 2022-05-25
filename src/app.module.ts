@@ -9,7 +9,7 @@ import { LoggerMiddleware } from './utils/middlewares/Logger.middleware';
 import { PaymentModule } from './modules/payment/payment.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
-import { VCardModule } from './modules/vcard/vcard.module';
+import { VirtualCardModule } from './modules/virtualcard/virtual.card.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { ImageModule } from './modules/image/image.module';
 import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module';
@@ -24,7 +24,7 @@ import { FormModule } from './modules/form/form.module';
     PaymentModule,
     ResourceModule,
     SubscriptionModule,
-    VCardModule,
+    VirtualCardModule,
     TagsModule,
     ImageModule,
     CustomFieldsModule,

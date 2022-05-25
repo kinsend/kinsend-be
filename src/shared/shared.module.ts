@@ -9,7 +9,7 @@ import { MongodbConfigService } from '../configs/mongodb.config.service';
 import { MailModule } from '../modules/mail/mail.module';
 import { SmsService } from './services/sms.service';
 import { StripeService } from './services/stripe.service';
-import { VCardService } from './services/vCard.service';
+import { VirtualCardService } from './services/virtual.card.service';
 import { S3Service } from './services/s3.service';
 import { ConfigService } from '../configs/config.service';
 
@@ -42,8 +42,8 @@ const { jwtSecret, accessTokenExpiry } = configService;
     CacheModule,
     HttpModule,
     S3Service,
-    VCardService,
+    VirtualCardService,
   ],
-  providers: [ConfigService, SmsService, StripeService, HttpModule, S3Service, VCardService],
+  providers: [ConfigService, SmsService, StripeService, HttpModule, S3Service, VirtualCardService],
 })
 export class SharedModule {}

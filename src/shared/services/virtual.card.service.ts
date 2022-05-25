@@ -5,10 +5,10 @@ import vCardsJS = require('vcards-js');
 import * as fs from 'node:fs';
 import { S3Service } from './s3.service';
 import { RequestContext } from '../../utils/RequestContext';
-import { VCard } from '../../modules/vcard/vcard.schema';
+import { VCard } from '../../modules/virtualcard/virtual.card.schema';
 
 @Injectable()
-export class VCardService {
+export class VirtualCardService {
   constructor(
     private readonly configService: ConfigService,
     private readonly s3Service: S3Service,

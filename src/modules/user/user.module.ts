@@ -12,7 +12,7 @@ import { UserUpdateProfileAction } from './services/UserUpdateProfileAction.serv
 import { UserUpdatePasswordAction } from './services/UserUpdatePasswordAction.service';
 import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service';
 import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
-import { VCardModule } from '../vcard/vcard.module';
+import { VirtualCardModule } from '../virtualcard/virtual.card.module';
 import { ImageModule } from '../image/image.module';
 
 @Module({
@@ -20,7 +20,7 @@ import { ImageModule } from '../image/image.module';
   imports: [
     SharedModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    VCardModule,
+    VirtualCardModule,
     ImageModule,
   ],
   providers: [

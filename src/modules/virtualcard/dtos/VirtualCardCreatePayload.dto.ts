@@ -1,32 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsLowercase, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEmail, IsLowercase, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
-export class VCardUpdatePayloadDto {
+export class VirtualCardCreatePayloadDto {
   @ApiProperty({ example: 'lorem@gmail.com', type: String, required: false })
   @IsLowercase()
   @MaxLength(50)
   @IsEmail()
-  @IsOptional()
   email?: string;
 
   @ApiProperty({ example: 'Lo', required: false, type: String })
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   firstName?: string;
 
   @ApiProperty({ example: 'Rem', required: false, type: String })
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   lastName?: string;
 
   @ApiProperty({ example: 'title', required: false, type: String })
   @IsString()
-  @IsOptional()
   title?: string;
 
   @ApiProperty({ example: 'organization', required: false, type: String })
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   organization?: string;
 
   @ApiProperty({ example: 'facebook.com/name', required: false, type: String })

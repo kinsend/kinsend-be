@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { VCard, VCardDocument } from '../vcard.schema';
-import { VCardCreatePayloadDto } from '../dtos/VCardCreatePayload.dto';
+import { VCard, VCardDocument } from '../virtual.card.schema';
 import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
-import { VCardService } from '../../../shared/services/vCard.service';
+import { VirtualCardService } from '../../../shared/services/virtual.card.service';
 import { RequestContext } from '../../../utils/RequestContext';
+import { VirtualCardCreatePayloadDto } from '../dtos/VirtualCardCreatePayload.dto';
 
 @Injectable()
-export class VCardCreateAction {
+export class VirtualCardCreateAction {
   constructor(
     @InjectModel(VCard.name) private vcardModel: Model<VCardDocument>,
-    private vcardService: VCardService,
+    private vcardService: VirtualCardService,
   ) {}
 
-  async execute(context: RequestContext, payload: VCardCreatePayloadDto): Promise<VCard> {
+  async execute(context: RequestContext, payload: VirtualCardCreatePayloadDto): Promise<VCard> {
     const { email } = payload;
     // Check case vCard not default
     if (email) {
