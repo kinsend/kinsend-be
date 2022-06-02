@@ -50,7 +50,7 @@ export class Form {
   optionalFields?: [OPTIONAL_FIELDS];
 
   @Prop({ required: false })
-  submisstion?: string;
+  submission?: string;
 
   @Prop({ required: false })
   isEnabled?: boolean;

@@ -53,7 +53,7 @@ export class FormCreatePayload {
   @ApiProperty({ example: 'Lorem', required: false, type: String })
   @IsString()
   @IsOptional()
-  submisstion?: string;
+  submission?: string;
 
   @ApiProperty({ example: 'false', required: false, type: String })
   @IsString()

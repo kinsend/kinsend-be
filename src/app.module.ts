@@ -14,6 +14,7 @@ import { TagsModule } from './modules/tags/tags.module';
 import { ImageModule } from './modules/image/image.module';
 import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module';
 import { FormModule } from './modules/form/form.module';
+import { FormSubmissionModule } from './modules/form.submission/form.submission.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { FormModule } from './modules/form/form.module';
     ImageModule,
     CustomFieldsModule,
     FormModule,
+    FormSubmissionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

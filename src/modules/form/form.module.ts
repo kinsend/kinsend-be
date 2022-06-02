@@ -28,6 +28,6 @@ import { FormUpdateAction } from './services/FormUpdateAction.service ';
     FormUpdateAction,
     FormDeleteByIdAction,
   ],
-  exports: [],
+  exports: [FormGetByIdAction],
 })
 export class FormModule {}

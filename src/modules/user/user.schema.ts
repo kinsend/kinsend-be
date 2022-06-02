@@ -4,6 +4,7 @@ import { Exclude, Transform } from 'class-transformer';
 import { PhoneNumber } from './dtos/UserResponse.dto';
 import { USER_PROVIDER } from './interfaces/user.interface';
 import { STATUS } from '../../domain/const';
+import { VCard } from '../virtualcard/virtual.card.schema';
 
 export type UserDocument = User & Document;
 
@@ -53,6 +54,9 @@ export class User {
 
   @Prop({ required: false })
   image?: string;
+
+  @Prop({ required: false })
+  vCard?: VCard;
 
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
