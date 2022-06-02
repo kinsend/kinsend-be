@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "kinsend-api",
+      "script": "npm",
+      "args": "start:prod"
+    }
+  ]
+}
