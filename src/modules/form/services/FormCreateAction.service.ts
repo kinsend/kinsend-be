@@ -7,14 +7,14 @@ import { RequestContext } from '../../../utils/RequestContext';
 import { ImageUploadAction } from '../../image/services/ImageUploadAction.service';
 import { FormCreatePayload } from '../dtos/FormCreatePayload.dto';
 import { TagsGetByIdAction } from '../../tags/services/TagsGetByIdAction.service';
-import { CustomFieldsGetByIdAction } from '../../custom.fields/services/CustomFieldsGetByIdAction.service';
+import { CustomFieldsGetByIdsAction } from '../../custom.fields/services/CustomFieldsGetByIdsAction.service';
 
 @Injectable()
 export class FormCreateAction {
   constructor(
     @InjectModel(Form.name) private formModel: Model<FormDocument>,
     private tagsGetByIdAction: TagsGetByIdAction,
-    private customFieldsGetByIdAction: CustomFieldsGetByIdAction,
+    private customFieldsGetByIdsAction: CustomFieldsGetByIdsAction,
     private imageUploadAction: ImageUploadAction,
   ) {}
 
@@ -32,18 +32,19 @@ export class FormCreateAction {
     }
 
     const tagsExist = await this.tagsGetByIdAction.execute(context, payload.tagId);
-    const customFieldsExist = await this.customFieldsGetByIdAction.execute(
+    const customFieldsExist = await this.customFieldsGetByIdsAction.execute(
       context,
-      payload.customFieldsId,
+      payload.customFieldsIds,
     );
     const fileKey = `${user.id}.form`;
     const imageUrl = await this.imageUploadAction.execute(context, file, fileKey);
-    return new this.formModel({
+    const response = await new this.formModel({
       ...payload,
       image: imageUrl,
       tags: tagsExist,
       customFields: customFieldsExist,
       userId: user.id,
     }).save();
+    return response.populate(['tags', 'customFields']);
   }
 }

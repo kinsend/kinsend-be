@@ -9,14 +9,15 @@ import { ImageUploadAction } from '../../image/services/ImageUploadAction.servic
 import { FormGetByIdAction } from './FormGetByIdAction.service';
 import { FormUpdatePayload } from '../dtos/FormUpdatePayload.dto';
 import { TagsGetByIdAction } from '../../tags/services/TagsGetByIdAction.service';
-import { CustomFieldsGetByIdAction } from '../../custom.fields/services/CustomFieldsGetByIdAction.service';
+import { CustomFieldsGetByIdsAction } from '../../custom.fields/services/CustomFieldsGetByIdsAction.service';
+import { CustomFields } from '../../custom.fields/custom.fields.schema';
 
 @Injectable()
 export class FormUpdateAction {
   constructor(
     @InjectModel(Form.name) private formModel: Model<FormDocument>,
     private tagsGetByIdAction: TagsGetByIdAction,
-    private customFieldsGetByIdAction: CustomFieldsGetByIdAction,
+    private customFieldsGetByIdsAction: CustomFieldsGetByIdsAction,
     private imageUploadAction: ImageUploadAction,
     private formGetByIdAction: FormGetByIdAction,
   ) {}
@@ -28,21 +29,21 @@ export class FormUpdateAction {
     file?: Express.Multer.File,
   ): Promise<FormDocument> {
     const { user } = context;
-    const { tagId, customFieldsId } = payload;
+    const { tagId, customFieldsIds } = payload;
     const formExist = await this.formGetByIdAction.execute(context, id);
     if (tagId) {
       const tagsExist = await this.tagsGetByIdAction.execute(context, tagId);
       formExist.tags = tagsExist;
       delete payload.tagId;
     }
-    if (customFieldsId) {
-      const customFieldsExist = await this.customFieldsGetByIdAction.execute(
+    if (customFieldsIds) {
+      const customFieldsExist = await this.customFieldsGetByIdsAction.execute(
         context,
-        customFieldsId,
+        customFieldsIds,
       );
-      formExist.customFields = customFieldsExist;
+      formExist.customFields = customFieldsExist as [CustomFields];
 
-      delete payload.customFieldsId;
+      delete payload.customFieldsIds;
     }
     if (file) {
       const fileKey = `${user.id}.form`;
@@ -53,6 +54,6 @@ export class FormUpdateAction {
     const formUpdated = dynamicUpdateModel<FormDocument>(payload, formExist);
     formUpdated.updatedAt = new Date();
     await formUpdated.save();
-    return formUpdated;
+    return formUpdated.populate(['tags', 'customFields']);
   }
 }

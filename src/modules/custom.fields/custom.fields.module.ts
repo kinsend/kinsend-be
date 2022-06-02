@@ -8,6 +8,7 @@ import { CustomFieldsGetAction } from './services/CustomFieldsGetAction.service'
 import { CustomFieldsGetByIdAction } from './services/CustomFieldsGetByIdAction.service';
 import { CustomFieldsUpdateAction } from './services/CustomFieldsUpdateAction.service';
 import { CustomFieldsDeleteByIdAction } from './services/CustomFieldsDeleteByIdAction.service';
+import { CustomFieldsGetByIdsAction } from './services/CustomFieldsGetByIdsAction.service';
 
 @Module({
   controllers: [CustomFieldsController],
@@ -21,7 +22,8 @@ import { CustomFieldsDeleteByIdAction } from './services/CustomFieldsDeleteByIdA
     CustomFieldsGetByIdAction,
     CustomFieldsUpdateAction,
     CustomFieldsDeleteByIdAction,
+    CustomFieldsGetByIdsAction,
   ],
-  exports: [CustomFieldsGetByIdAction],
+  exports: [CustomFieldsGetByIdAction, CustomFieldsGetByIdsAction],
 })
 export class CustomFieldsModule {}

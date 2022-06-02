@@ -28,8 +28,8 @@ export class Form {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Tags' })
   tags: Tags;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'CustomFields' })
-  customFields: CustomFields;
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'CustomFields' })
+  customFields: [CustomFields];
 
   @Prop({ unique: true })
   url: string;

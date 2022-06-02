@@ -8,10 +8,10 @@ export class FormUpdatePayload {
   @IsOptional()
   tagId?: string;
 
-  @ApiProperty({ example: '123456789', required: false, type: String })
-  @IsString()
+  @ApiProperty({ example: ['123456789'], required: false, type: [String] })
+  @IsArray()
   @IsOptional()
-  customFieldsId?: string;
+  customFieldsIds?: string[];
 
   @ApiProperty({ example: 'Lorem', required: false, type: String })
   @IsString()

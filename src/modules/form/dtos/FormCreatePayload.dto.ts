@@ -8,10 +8,10 @@ export class FormCreatePayload {
   @IsNotEmpty()
   tagId: string;
 
-  @ApiProperty({ example: '123456789', required: true, type: String })
-  @IsString()
+  @ApiProperty({ example: ['123456'], required: true, type: [String] })
+  @IsArray()
   @IsNotEmpty()
-  customFieldsId: string;
+  customFieldsIds: string[];
 
   @ApiProperty({ example: 'Lorem', required: false, type: String })
   @IsString()
