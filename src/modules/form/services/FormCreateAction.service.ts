@@ -34,7 +34,7 @@ export class FormCreateAction {
     const tagsExist = await this.tagsGetByIdAction.execute(context, payload.tagId);
     const customFieldsExist = await this.customFieldsGetByIdsAction.execute(
       context,
-      payload.customFieldsIds,
+      payload.customFieldsIds || [],
     );
     const fileKey = `${user.id}.form`;
     const imageUrl = await this.imageUploadAction.execute(context, file, fileKey);

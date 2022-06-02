@@ -12,6 +12,7 @@ import {
 export class FormSubmissionCreatePayload {
   @ApiProperty({ example: '12345678o', type: String, required: true })
   @IsMongoId()
+  @IsNotEmpty()
   formId: string;
 
   @ApiProperty({ example: 'lorem@gmail.com', type: String, required: true })

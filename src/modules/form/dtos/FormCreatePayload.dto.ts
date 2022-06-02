@@ -1,17 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsIn, IsOptional, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsIn, IsOptional, IsArray, IsMongoId } from 'class-validator';
 import { BOOLEAN_ARR, OPTIONAL_FIELDS } from '../interfaces/form.interface';
 
 export class FormCreatePayload {
   @ApiProperty({ example: '123456789', required: true, type: String })
-  @IsString()
+  @IsMongoId()
   @IsNotEmpty()
   tagId: string;
 
-  @ApiProperty({ example: ['123456'], required: true, type: [String] })
+  @ApiProperty({ example: ['123456'], required: false, type: [String] })
   @IsArray()
-  @IsNotEmpty()
-  customFieldsIds: string[];
+  @IsOptional()
+  customFieldsIds?: string[];
 
   @ApiProperty({ example: 'Lorem', required: false, type: String })
   @IsString()
