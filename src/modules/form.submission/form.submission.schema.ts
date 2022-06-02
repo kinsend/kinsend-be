@@ -4,6 +4,7 @@ import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { Transform } from 'class-transformer';
 import { User } from '../user/user.schema';
 import { Form } from '../form/form.schema';
+import { PhoneNumber } from '../user/dtos/UserResponse.dto';
 
 export type FormSubmissionDocument = FormSubmission & Document;
 
@@ -36,7 +37,7 @@ export class FormSubmission {
   location?: string;
 
   @Prop()
-  phoneNumber: string;
+  phoneNumber: PhoneNumber;
 
   @Prop({ required: false })
   metaData?: string;

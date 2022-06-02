@@ -7,7 +7,9 @@ import {
   IsLowercase,
   IsEmail,
   IsMongoId,
+  IsObject,
 } from 'class-validator';
+import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 
 export class FormSubmissionCreatePayload {
   @ApiProperty({ example: '12345678o', type: String, required: true })
@@ -31,10 +33,9 @@ export class FormSubmissionCreatePayload {
   @IsNotEmpty()
   lastName: string;
 
-  @ApiProperty({ example: '0123456789', required: true, type: String })
-  @IsString()
-  @IsNotEmpty()
-  phoneNumber: string;
+  @ApiProperty({ example: PhoneNumber, required: true, type: PhoneNumber })
+  @IsObject()
+  phoneNumber: PhoneNumber;
 
   @ApiProperty({ example: 'Location lorem', required: false, type: String })
   @IsString()
