@@ -3,7 +3,7 @@
     {
       "name": "kinsend-api",
       "script": "npm",
-      "args": "start:prod"
+      "args": "run start:prod"
     }
   ]
 }
