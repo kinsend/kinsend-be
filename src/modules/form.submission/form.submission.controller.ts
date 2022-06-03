@@ -19,8 +19,6 @@ import { FormSubmissionCreatePayload } from './dtos/FormSubmissionCreatePayload.
 import { FormSubmissionCreateAction } from './services/FormSubmissionCreateAction.service';
 
 @ApiTags('FormSubmission')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(MongooseClassSerializerInterceptor(FormSubmissionModule))
 @Controller('form-submission')
 export class FormSubmissionController {
