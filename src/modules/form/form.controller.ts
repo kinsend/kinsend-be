@@ -38,8 +38,6 @@ import MongooseClassSerializerInterceptor from '../../utils/interceptors/Mongoos
 import { AppRequest } from '../../utils/AppRequest';
 
 @ApiTags('Forms')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(MongooseClassSerializerInterceptor(FormModule))
 @Controller('forms')
 export class FormController {
@@ -51,6 +49,8 @@ export class FormController {
     private formDeleteByIdAction: FormDeleteByIdAction,
   ) {}
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
   @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -81,6 +81,8 @@ export class FormController {
     return this.formCreateAction.execute(request, file, payload);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiConsumes('multipart/form-data')
   @ApiExtraModels(FormUpdatePayload)
@@ -112,6 +114,8 @@ export class FormController {
     return this.formUpdateAction.execute(request, id, payload, file);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/')
   getForms(@Req() request: AppRequest) {
@@ -124,6 +128,8 @@ export class FormController {
     return this.formGetByIdAction.execute(request, id);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
   deleteFormById(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) tagsId: string) {
