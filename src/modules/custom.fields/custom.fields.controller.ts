@@ -30,6 +30,7 @@ import MongooseClassSerializerInterceptor from '../../utils/interceptors/Mongoos
 
 @ApiTags('CustomFields')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @UseInterceptors(MongooseClassSerializerInterceptor(CustomFieldsModule))
 @Controller('custom-fields')
 export class CustomFieldsController {
@@ -41,7 +42,6 @@ export class CustomFieldsController {
     private customFieldsDeleteByIdAction: CustomFieldsDeleteByIdAction,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
   createCustomFields(
@@ -52,9 +52,7 @@ export class CustomFieldsController {
     return this.customFieldsCreateAction.execute(request, payload);
   }
 
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe({ whitelist: true }))
   @Put('/:id')
   async updateProfile(
@@ -65,7 +63,6 @@ export class CustomFieldsController {
     return this.customFieldsUpdateAction.execute(request, tagsId, payload);
   }
 
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/')
   getCustomFields(@Req() request: AppRequest) {
@@ -78,10 +75,8 @@ export class CustomFieldsController {
     return this.customFieldsGetByIdAction.execute(request, id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
-  @UseGuards(JwtAuthGuard)
   deleteTagsById(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) tagsId: string) {
     return this.customFieldsDeleteByIdAction.execute(request, tagsId);
   }
