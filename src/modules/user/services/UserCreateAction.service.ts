@@ -81,10 +81,6 @@ export class UserCreateAction {
     };
 
     this.mailSendGridService.sendUserConfirmation(mail);
-
-    // Create vCard defaul
-    context.user = user;
-    await this.vCardCreateAction.execute(context, {});
     return user;
   }
 }
