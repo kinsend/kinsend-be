@@ -45,7 +45,7 @@ export class CNAMEController {
     return this.cnameCreateAction.execute(request, payload);
   }
 
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   @Put('/:id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   updateCNAME(
