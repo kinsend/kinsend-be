@@ -10,7 +10,7 @@ import * as path from 'node:path';
 import { JwtService } from '@nestjs/jwt';
 import { UserCreatePayloadDto } from '../dtos/UserCreateRequest.dto';
 import { User, UserDocument } from '../user.schema';
-import { EmailConflictException } from '../../../utils/exceptions/UsernameConflictException';
+import { ConflictException } from '../../../utils/exceptions/ConflictException';
 import { ConfigService } from '../../../configs/config.service';
 import { hashAndValidatePassword } from '../../../utils/hashUser';
 import { MailService } from '../../mail/mail.service';
@@ -39,7 +39,7 @@ export class UserCreateAction {
     const checkExistedUser = await this.userModel.findOne({ $or: [{ email }] });
 
     if (checkExistedUser) {
-      throw new EmailConflictException('User has already conflicted');
+      throw new ConflictException('User has already conflicted');
     }
 
     const { saltRounds, mailForm, baseUrl } = this.configService;
