@@ -1,4 +1,3 @@
-import { LeanDocument, Document } from 'mongoose';
 import { CNAME } from '../../cname/cname.schema';
 import { User } from '../user.schema';
 
@@ -23,6 +22,6 @@ export type UserSocial = {
   profileImageUrl: string;
 };
 
-export interface UserProfileResponse extends LeanDocument<User & Document<any, any, any>> {
-  cname: CNAME | null;
+export interface UserProfileResponse extends User {
+  cname?: CNAME | null;
 }
