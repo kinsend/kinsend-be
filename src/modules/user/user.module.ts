@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
 import { UserController } from './user.controller';
@@ -14,6 +14,7 @@ import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service'
 import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
 import { VirtualCardModule } from '../virtualcard/virtual.card.module';
 import { ImageModule } from '../image/image.module';
+import { CNAMEModule } from '../cname/cname.module';
 
 @Module({
   controllers: [UserController],
@@ -22,6 +23,7 @@ import { ImageModule } from '../image/image.module';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     VirtualCardModule,
     ImageModule,
+    forwardRef(() => CNAMEModule),
   ],
   providers: [
     UserCreateAction,

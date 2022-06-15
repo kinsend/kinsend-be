@@ -1,3 +1,7 @@
+import { LeanDocument, Document } from 'mongoose';
+import { CNAME } from '../../cname/cname.schema';
+import { User } from '../user.schema';
+
 /* eslint-disable @typescript-eslint/naming-convention */
 export enum USER_PROVIDER {
   PASSWORD = 'password',
@@ -18,3 +22,7 @@ export type UserSocial = {
   providerId: string | null;
   profileImageUrl: string;
 };
+
+export interface UserProfileResponse extends LeanDocument<User & Document<any, any, any>> {
+  cname: CNAME | null;
+}
