@@ -193,4 +193,14 @@ export class ConfigService {
   get awsBucket(): string {
     return process.env.BUCKET_NAME ?? '';
   }
+
+  get ruote53HostedZoneId(): string {
+    return (
+      process.env.HOSTED_ZONE_ID || this.envConfig['HOSTED_ZONE_ID'] || 'Z05122741BD0FFH2L9I77'
+    );
+  }
+
+  get domain(): string {
+    return process.env.DOMAIN || this.envConfig['DOMAIN'] || 'dmas2j6gb6r1n.cloudfront.net';
+  }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { RequestContext } from '../../../utils/RequestContext';
@@ -28,8 +29,8 @@ export class UserGetProfileAction {
     userProfile: UserDocument,
     cname: CNAMEDocument | null,
   ): UserProfileResponse {
-    const response: UserProfileResponse = plainToClass(User, userProfile.toJSON());
-    response.cname = cname ? plainToClass(CNAME, cname.toJSON()) : cname;
+    const response: UserProfileResponse = plainToClass<User, Object>(User, userProfile.toJSON());
+    response.cname = cname ? plainToClass<CNAME, Object>(CNAME, cname.toJSON()) : cname;
     return response;
   }
 }

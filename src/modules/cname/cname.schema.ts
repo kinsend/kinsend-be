@@ -19,10 +19,10 @@ export class CNAME {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', index: true })
   user: User;
 
-  @Prop()
+  @Prop({ unique: true })
   title: string;
 
-  @Prop({ unique: true })
+  @Prop()
   value: string;
 
   @Prop({ default: Date.now(), type: Date })
@@ -34,6 +34,6 @@ export class CNAME {
 
 const CNAMESchema = SchemaFactory.createForClass(CNAME);
 
-CNAMESchema.index({ value: 'text' });
+CNAMESchema.index({ title: 'text' });
 
 export { CNAMESchema };

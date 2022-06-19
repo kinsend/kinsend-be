@@ -1,43 +1,77 @@
 import { Injectable } from '@nestjs/common';
-import { Stack, Construct, StackProps, ConstructNode } from '@aws-cdk/core';
-import * as route53 from '@aws-cdk/aws-route53';
+import { Route53Client, ChangeResourceRecordSetsCommand } from '@aws-sdk/client-route-53';
+import { ConfigService } from '../../configs/config.service';
+import { InternalServerErrorException } from '../../utils/exceptions/InternalServerErrorException';
 
 @Injectable()
-export class Route53Service extends Stack {
-  private readonly awsRoute53Client: any;
+export class Route53Service {
+  private readonly route53Client: Route53Client;
 
-  async createSubDomain() {
-    const myDomainName = 'dev.kinsend.io';
-    // const certificate = new acm.Certificate(this, 'cert', { domainName: myDomainName });
-    const hostedZoneId = 'Z05122741BD0FFH2L9I77';
-    const zoneName = 'dev.kinsend.io';
-    // hosted zone for adding appsync domain
-    const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
-      hostedZoneId,
-      zoneName,
-    });
+  constructor(private readonly configService: ConfigService) {
+    this.route53Client = new Route53Client({ region: this.configService.awsRegion });
+  }
 
-    // create a cname to the appsync domain. will map to something like xxxx.cloudfront.net
-    const response = new route53.CnameRecord(this, 'CnameApiRecord', {
-      recordName: 'test',
-      zone,
-      domainName: myDomainName,
-    });
-    console.log('response :>>', response);
-    // const a = new CnameRecord(this, '123', {
-    //   domainName: 'hi',
-    //   recordName: 'user-subdomain',
-    //   zone: {
-    //     zoneName: '',
-    //     hostedZoneId: '',
-    //     stack: this,
-    //     node: this.constructNode,
-    //     hostedZoneArn: 'arn:aws:route53:::hostedzone/Z148QEXAMPLE8V',
-    //     env: {
-    //       account: '',
-    //       region: '',
-    //     },
-    //   },
-    // });
+  async createSubDomain(
+    hostedZoneId: string,
+    subDomainName: string,
+    domainName: string,
+  ): Promise<void> {
+    try {
+      const command = new ChangeResourceRecordSetsCommand({
+        HostedZoneId: hostedZoneId,
+        ChangeBatch: {
+          Changes: [
+            {
+              Action: 'CREATE',
+              ResourceRecordSet: {
+                Name: subDomainName,
+                Type: 'CNAME',
+                ResourceRecords: [
+                  {
+                    Value: domainName,
+                  },
+                ],
+                TTL: 60,
+              },
+            },
+          ],
+        },
+      });
+      await this.route53Client.send(command);
+    } catch (error) {
+      throw new InternalServerErrorException('Create subdomain error', error);
+    }
+  }
+
+  async deleteSubDomain(
+    hostedZoneId: string,
+    subDomainName: string,
+    domainName: string,
+  ): Promise<void> {
+    try {
+      const command = new ChangeResourceRecordSetsCommand({
+        HostedZoneId: hostedZoneId,
+        ChangeBatch: {
+          Changes: [
+            {
+              Action: 'DELETE',
+              ResourceRecordSet: {
+                Name: subDomainName,
+                Type: 'CNAME',
+                ResourceRecords: [
+                  {
+                    Value: domainName,
+                  },
+                ],
+                TTL: 60,
+              },
+            },
+          ],
+        },
+      });
+      await this.route53Client.send(command);
+    } catch (error) {
+      throw new InternalServerErrorException('Create subdomain error', error);
+    }
   }
 }
