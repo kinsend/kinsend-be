@@ -18,6 +18,7 @@ export class Route53Service {
     subDomainName: string,
     domainName: string,
   ): Promise<void> {
+    const { logger, correlationId } = context;
     try {
       const command = new ChangeResourceRecordSetsCommand({
         HostedZoneId: hostedZoneId,
@@ -40,13 +41,13 @@ export class Route53Service {
         },
       });
       const response = await this.route53Client.send(command);
-      context.logger.info('Create subdomain successfull', {
-        requestId: context.correlationId,
+      logger.info('Create subdomain successfull', {
+        requestId: correlationId,
         ...response,
       });
     } catch (error) {
-      context.logger.info('Create subdomain fail', {
-        requestId: context.correlationId,
+      logger.info('Create subdomain fail', {
+        requestId: correlationId,
         ...error,
       });
       throw new InternalServerErrorException('Create subdomain error', error);
@@ -59,6 +60,7 @@ export class Route53Service {
     subDomainName: string,
     domainName: string,
   ): Promise<void> {
+    const { logger, correlationId } = context;
     try {
       const command = new ChangeResourceRecordSetsCommand({
         HostedZoneId: hostedZoneId,
@@ -81,13 +83,13 @@ export class Route53Service {
         },
       });
       const response = await this.route53Client.send(command);
-      context.logger.info('Delete subdomain successfull', {
-        requestId: context.correlationId,
+      logger.info('Delete subdomain successfull', {
+        requestId: correlationId,
         ...response,
       });
     } catch (error) {
-      context.logger.info('Delete subdomain failed', {
-        requestId: context.correlationId,
+      logger.info('Delete subdomain failed', {
+        requestId: correlationId,
         ...error,
       });
       throw new InternalServerErrorException('Delete subdomain error', error);
