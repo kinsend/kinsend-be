@@ -1,23 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { Stack, Construct, StackProps, ConstructNode } from '@aws-cdk/core';
-import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as route53 from '@aws-cdk/aws-route53';
 
 @Injectable()
 export class Route53Service extends Stack {
   private readonly awsRoute53Client: any;
 
-  private constructNode: ConstructNode;
-
-  // constructor(private readonly configService: ConfigService) {
-  //   this.awsRoute53Client = Route53.HostedZone;
-  // }
-
   async createSubDomain() {
-    const myDomainName = 'api.example.com';
-    const certificate = new acm.Certificate(this, 'cert', { domainName: myDomainName });
-    const hostedZoneId = '123';
-    const zoneName = 'example.com';
+    const myDomainName = 'dev.kinsend.io';
+    // const certificate = new acm.Certificate(this, 'cert', { domainName: myDomainName });
+    const hostedZoneId = 'Z05122741BD0FFH2L9I77';
+    const zoneName = 'dev.kinsend.io';
     // hosted zone for adding appsync domain
     const zone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
       hostedZoneId,
@@ -26,10 +19,11 @@ export class Route53Service extends Stack {
 
     // create a cname to the appsync domain. will map to something like xxxx.cloudfront.net
     const response = new route53.CnameRecord(this, 'CnameApiRecord', {
-      recordName: 'api',
+      recordName: 'test',
       zone,
       domainName: myDomainName,
     });
+    console.log('response :>>', response);
     // const a = new CnameRecord(this, '123', {
     //   domainName: 'hi',
     //   recordName: 'user-subdomain',
