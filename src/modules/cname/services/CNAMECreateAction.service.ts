@@ -21,26 +21,28 @@ export class CNAMECreateAction {
   ) {}
 
   async execute(context: RequestContext, payload: CNAMECreatePayload): Promise<CNAMEDocument> {
+    const { user } = context;
     // Check user already has a cname
     const cnameByUser = await this.cnameModel.findOne({
-      user: context.user.id,
+      user: user.id,
     });
     if (cnameByUser) {
       throw new ConflictException('User already has a name!');
     }
     // Check cname exist
-    const [isExistCNAME, user] = await Promise.all([
+    const [isExistCNAME, userExist] = await Promise.all([
       this.cnameModel.findOne({
         value: payload.title,
       }),
-      this.userFindByIdAction.execute(context, context.user.id),
+      this.userFindByIdAction.execute(context, user.id),
     ]);
     if (isExistCNAME) {
       throw new ConflictException('CNAME already exist');
     }
 
-    const response = await new this.cnameModel({ ...payload, user }).save();
+    const response = await new this.cnameModel({ ...payload, user: userExist }).save();
     await this.route53Service.createSubDomain(
+      context,
       this.configService.ruote53HostedZoneId,
       response.title,
       response.value,

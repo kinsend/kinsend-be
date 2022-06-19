@@ -39,11 +39,13 @@ export class CNAMEUpdateAction {
 
     await Promise.all([
       this.route53Service.deleteSubDomain(
+        context,
         this.configService.ruote53HostedZoneId,
         oldTitle,
         oldValue,
       ),
       this.route53Service.createSubDomain(
+        context,
         this.configService.ruote53HostedZoneId,
         cnameUpdated.title,
         cnameUpdated.value,

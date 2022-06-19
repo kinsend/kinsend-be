@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Route53Client, ChangeResourceRecordSetsCommand } from '@aws-sdk/client-route-53';
 import { ConfigService } from '../../configs/config.service';
 import { InternalServerErrorException } from '../../utils/exceptions/InternalServerErrorException';
+import { RequestContext } from '../../utils/RequestContext';
 
 @Injectable()
 export class Route53Service {
@@ -12,6 +13,7 @@ export class Route53Service {
   }
 
   async createSubDomain(
+    context: RequestContext,
     hostedZoneId: string,
     subDomainName: string,
     domainName: string,
@@ -37,13 +39,22 @@ export class Route53Service {
           ],
         },
       });
-      await this.route53Client.send(command);
+      const response = await this.route53Client.send(command);
+      context.logger.info('Create subdomain successfull', {
+        requestId: context.correlationId,
+        ...response,
+      });
     } catch (error) {
+      context.logger.info('Create subdomain fail', {
+        requestId: context.correlationId,
+        ...error,
+      });
       throw new InternalServerErrorException('Create subdomain error', error);
     }
   }
 
   async deleteSubDomain(
+    context: RequestContext,
     hostedZoneId: string,
     subDomainName: string,
     domainName: string,
@@ -69,9 +80,17 @@ export class Route53Service {
           ],
         },
       });
-      await this.route53Client.send(command);
+      const response = await this.route53Client.send(command);
+      context.logger.info('Delete subdomain successfull', {
+        requestId: context.correlationId,
+        ...response,
+      });
     } catch (error) {
-      throw new InternalServerErrorException('Create subdomain error', error);
+      context.logger.info('Delete subdomain failed', {
+        requestId: context.correlationId,
+        ...error,
+      });
+      throw new InternalServerErrorException('Delete subdomain error', error);
     }
   }
 }
