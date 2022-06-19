@@ -21,6 +21,14 @@ export class CNAMECreateAction {
   ) {}
 
   async execute(context: RequestContext, payload: CNAMECreatePayload): Promise<CNAMEDocument> {
+    // Check user already has a cname
+    const cnameByUser = await this.cnameModel.findOne({
+      user: context.user.id,
+    });
+    if (cnameByUser) {
+      throw new ConflictException('User already has a name!');
+    }
+    // Check cname exist
     const [isExistCNAME, user] = await Promise.all([
       this.cnameModel.findOne({
         value: payload.title,
