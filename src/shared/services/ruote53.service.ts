@@ -3,6 +3,7 @@ import { Route53Client, ChangeResourceRecordSetsCommand } from '@aws-sdk/client-
 import { ConfigService } from '../../configs/config.service';
 import { InternalServerErrorException } from '../../utils/exceptions/InternalServerErrorException';
 import { RequestContext } from '../../utils/RequestContext';
+import { TTL } from '../../domain/const';
 
 @Injectable()
 export class Route53Service {
@@ -34,7 +35,7 @@ export class Route53Service {
                     Value: domainName,
                   },
                 ],
-                TTL: 60,
+                TTL,
               },
             },
           ],
@@ -42,13 +43,13 @@ export class Route53Service {
       });
       const response = await this.route53Client.send(command);
       logger.info('Create subdomain successfull', {
-        requestId: correlationId,
-        ...response,
+        correlationId,
+        response,
       });
     } catch (error) {
       logger.info('Create subdomain fail', {
-        requestId: correlationId,
-        ...error,
+        correlationId,
+        error,
       });
       throw new InternalServerErrorException('Create subdomain error', error);
     }
@@ -76,7 +77,7 @@ export class Route53Service {
                     Value: domainName,
                   },
                 ],
-                TTL: 60,
+                TTL,
               },
             },
           ],
@@ -84,13 +85,13 @@ export class Route53Service {
       });
       const response = await this.route53Client.send(command);
       logger.info('Delete subdomain successfull', {
-        requestId: correlationId,
-        ...response,
+        correlationId,
+        response,
       });
     } catch (error) {
       logger.info('Delete subdomain failed', {
-        requestId: correlationId,
-        ...error,
+        correlationId,
+        error,
       });
       throw new InternalServerErrorException('Delete subdomain error', error);
     }

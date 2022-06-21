@@ -21,3 +21,5 @@ export enum CUSTOM_FIELDS_TYPE {
   RADIO = 'RADIO',
   SELECT = 'SELECT',
 }
+
+export const TTL = 60;
