@@ -33,7 +33,7 @@ export class CNAMEUpdateAction {
     if (!cnameExist) {
       throw new NotFoundException('CNAME', 'CNAME does not exist');
     }
-    const { title: oldTitle, value: oldValue } = cnameExist;
+    const { title: oldTitle, domain, value: oldValue } = cnameExist;
     const cnameUpdated = dynamicUpdateModel<CNAMEDocument>(payload, cnameExist);
     cnameUpdated.updatedAt = new Date();
 
@@ -41,13 +41,13 @@ export class CNAMEUpdateAction {
       this.route53Service.deleteSubDomain(
         context,
         this.configService.ruote53HostedZoneId,
-        oldTitle,
+        `${oldTitle}.${domain}`,
         oldValue,
       ),
       this.route53Service.createSubDomain(
         context,
         this.configService.ruote53HostedZoneId,
-        cnameUpdated.title,
+        `${cnameUpdated.title}.${domain}`,
         cnameUpdated.value,
       ),
     ]);

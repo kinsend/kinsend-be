@@ -200,7 +200,11 @@ export class ConfigService {
     );
   }
 
+  get originDomain(): string {
+    return process.env.DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dmas2j6gb6r1n.cloudfront.net';
+  }
+
   get domain(): string {
-    return process.env.DOMAIN || this.envConfig['DOMAIN'] || 'dmas2j6gb6r1n.cloudfront.net';
+    return process.env.DOMAIN || this.envConfig['DOMAIN'] || 'dev.kinsend.io';
   }
 }

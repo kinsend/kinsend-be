@@ -1,6 +1,7 @@
 /* eslint-disable unicorn/filename-case */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsLowercase, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsLowercase, IsOptional, Validate } from 'class-validator';
+import { ValidateDomainService } from '../../../shared/services/validate.domain.service';
 
 export class CNAMEUpdatePayload {
   @ApiProperty({ example: 'cname-title', type: String, required: false })
@@ -8,11 +9,6 @@ export class CNAMEUpdatePayload {
   @IsNotEmpty()
   @IsLowercase()
   @IsOptional()
+  @Validate(ValidateDomainService)
   title?: string;
-
-  @ApiProperty({ example: 'domain.com', required: false, type: String })
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  value?: string;
 }

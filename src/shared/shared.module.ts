@@ -12,6 +12,7 @@ import { VirtualCardService } from './services/virtual.card.service';
 import { S3Service } from './services/s3.service';
 import { ConfigService } from '../configs/config.service';
 import { Route53Service } from './services/ruote53.service';
+import { ValidateDomainService } from './services/validate.domain.service';
 
 const configService = new ConfigService();
 const { jwtSecret, accessTokenExpiry } = configService;
@@ -44,6 +45,7 @@ const { jwtSecret, accessTokenExpiry } = configService;
     S3Service,
     VirtualCardService,
     Route53Service,
+    ValidateDomainService,
   ],
   providers: [
     ConfigService,
@@ -53,6 +55,7 @@ const { jwtSecret, accessTokenExpiry } = configService;
     S3Service,
     VirtualCardService,
     Route53Service,
+    ValidateDomainService,
   ],
 })
 export class SharedModule {}

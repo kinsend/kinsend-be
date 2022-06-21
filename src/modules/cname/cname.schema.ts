@@ -23,6 +23,9 @@ export class CNAME {
   title: string;
 
   @Prop()
+  domain: string;
+
+  @Prop()
   value: string;
 
   @Prop({ default: Date.now(), type: Date })

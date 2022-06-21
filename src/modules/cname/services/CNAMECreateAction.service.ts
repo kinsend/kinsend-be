@@ -40,11 +40,17 @@ export class CNAMECreateAction {
       throw new ConflictException('CNAME already exist');
     }
 
-    const response = await new this.cnameModel({ ...payload, user: userExist }).save();
+    const { originDomain, domain, ruote53HostedZoneId } = this.configService;
+    const response = await new this.cnameModel({
+      ...payload,
+      user: userExist,
+      domain,
+      value: originDomain,
+    }).save();
     await this.route53Service.createSubDomain(
       context,
-      this.configService.ruote53HostedZoneId,
-      response.title,
+      ruote53HostedZoneId,
+      `${response.title}.${response.domain}`,
       response.value,
     );
 
