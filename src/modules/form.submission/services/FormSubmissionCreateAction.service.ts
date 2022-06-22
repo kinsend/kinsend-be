@@ -40,7 +40,7 @@ export class FormSubmissionCreateAction {
 
     if (formExist.isVcardSend && formExist.isEnabled) {
       const { code, phone } = payload.phoneNumber;
-      const to = `${code}${phone}`;
+      const to = `+${code}${phone}`;
       await this.smsService.sendVitualCardToSubscriber(context, vCard.url || '', to);
     }
     await response.save();
