@@ -37,17 +37,13 @@ export class FormSubmissionCreateAction {
       form: formExist,
       owner,
     });
-    if (formExist.isVcardSend) {
-      // TODO send vcard to subscriber
-      console.log('owner :>> ', owner);
+
+    if (formExist.isVcardSend && formExist.isEnabled) {
       const { code, phone } = payload.phoneNumber;
-      const { code: codeFrom, phone: phoneFrom } = owner.phoneNumber[0];
       const to = `${code}${phone}`;
-      // const from = `+${codeFrom}${phoneFrom}`;
-      const from = '*16502649680';
-      await this.smsService.sendVitualCardToSubscriber(context, vCard.url || '', from, to);
+      await this.smsService.sendVitualCardToSubscriber(context, vCard.url || '', to);
     }
-    // await response.save();
+    await response.save();
 
     return response;
   }

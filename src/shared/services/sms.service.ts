@@ -149,28 +149,21 @@ export class SmsService {
   async sendVitualCardToSubscriber(
     context: RequestContext,
     vCardUrl: string,
-    from: string,
     to: string,
-  ): Promise<string> {
+  ): Promise<void> {
     const { logger, correlationId } = context;
     try {
-      logger.info('Request confirm phone number');
-      console.log('vCardUrl :>> ', vCardUrl);
-
       const result = await this.twilioClient.messages.create({
-        body: 'Hi there',
-        from: '+19124204933',
-        to: '+16502649680',
+        from: this.configService.twilioPhoneNumber,
+        mediaUrl: vCardUrl,
+        to,
       });
-      // .create({
-      //   from '16502649680',
-      //   mediaUrl: vCardUrl,
-      //   to,
-      // });
-      console.log('result :>> ', result);
-      return 'result';
+      logger.info({
+        correlationId,
+        message: 'Send VCard to subscriber successful!',
+        result,
+      });
     } catch (error: unknown) {
-      console.log('error :>> ', error);
       logger.error({
         correlationId,
         message: 'Send VCard to subscriber fail!',

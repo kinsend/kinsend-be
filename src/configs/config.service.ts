@@ -157,6 +157,11 @@ export class ConfigService {
   get mailForm(): string {
     return process.env.MAIL_FROM || this.envConfig['MAIL_FROM'] || '';
   }
+  get twilioPhoneNumber(): string {
+    return (
+      process.env.TWILIO_PHONE_NUMBER || this.envConfig['TWILIO_PHONE_NUMBER'] || '+19124204933'
+    );
+  }
   get twilioAccountSid(): string {
     return process.env.TWILIO_ACCOUNT_SID || this.envConfig['TWILIO_ACCOUNT_SID'] || '';
   }
