@@ -145,4 +145,38 @@ export class SmsService {
       throw new IllegalStateException('Request rent numbers error');
     }
   }
+
+  async sendVitualCardToSubscriber(
+    context: RequestContext,
+    vCardUrl: string,
+    from: string,
+    to: string,
+  ): Promise<string> {
+    const { logger, correlationId } = context;
+    try {
+      logger.info('Request confirm phone number');
+      console.log('vCardUrl :>> ', vCardUrl);
+
+      const result = await this.twilioClient.messages.create({
+        body: 'Hi there',
+        from: '+13133129595',
+        to: '+16502649680',
+      });
+      // .create({
+      //   from '16502649680',
+      //   mediaUrl: vCardUrl,
+      //   to,
+      // });
+      console.log('result :>> ', result);
+      return 'result';
+    } catch (error: unknown) {
+      console.log('error :>> ', error);
+      logger.error({
+        correlationId,
+        message: 'Send VCard to subscriber fail!',
+        error,
+      });
+      throw new IllegalStateException('Send VCard to subscriber fail!');
+    }
+  }
 }

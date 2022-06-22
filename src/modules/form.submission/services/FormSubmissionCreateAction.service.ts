@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,6 +9,7 @@ import { FormSubmissionCreatePayload } from '../dtos/FormSubmissionCreatePayload
 import { FormGetByIdAction } from '../../form/services/FormGetByIdAction.service';
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
 import { VirtualCardGetByUserIdAction } from '../../virtualcard/services/VirtualCardGetByUserIdAction.service';
+import { SmsService } from '../../../shared/services/sms.service';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -16,6 +18,7 @@ export class FormSubmissionCreateAction {
     private formGetByIdAction: FormGetByIdAction,
     private userFindByIdAction: UserFindByIdAction,
     private virtualCardGetByUserIdAction: VirtualCardGetByUserIdAction,
+    private smsService: SmsService,
   ) {}
 
   async execute(
@@ -34,7 +37,17 @@ export class FormSubmissionCreateAction {
       form: formExist,
       owner,
     });
-    await response.save();
+    if (formExist.isVcardSend) {
+      // TODO send vcard to subscriber
+      console.log('owner :>> ', owner);
+      const { code, phone } = payload.phoneNumber;
+      const { code: codeFrom, phone: phoneFrom } = owner.phoneNumber[0];
+      const to = `${code}${phone}`;
+      // const from = `+${codeFrom}${phoneFrom}`;
+      const from = '*16502649680';
+      await this.smsService.sendVitualCardToSubscriber(context, vCard.url || '', from, to);
+    }
+    // await response.save();
 
     return response;
   }
