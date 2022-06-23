@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '../../../configs/config.service';
-import { Route53Service } from '../../../shared/services/ruote53.service';
+import { AmplifyClientService } from '../../../shared/services/ amplify.client.service';
 import { ConflictException } from '../../../utils/exceptions/ConflictException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
@@ -16,7 +16,7 @@ export class CNAMECreateAction {
   constructor(
     @InjectModel(CNAME.name) private cnameModel: Model<CNAMEDocument>,
     private userFindByIdAction: UserFindByIdAction,
-    private route53Service: Route53Service,
+    private route53Service: AmplifyClientService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -40,20 +40,15 @@ export class CNAMECreateAction {
       throw new ConflictException('CNAME already exist');
     }
 
-    const { originDomain, domain, ruote53HostedZoneId } = this.configService;
+    const { originDomain, domain } = this.configService;
     const response = await new this.cnameModel({
       ...payload,
       user: userExist,
       domain,
       value: originDomain,
     }).save();
-    await this.route53Service.createSubDomain(
-      context,
-      ruote53HostedZoneId,
-      `${response.title}.${response.domain}`,
-      response.value,
-    );
+    await this.route53Service.createSubDomain(context, response.title);
 
-    return response;
+    return response.populate({ path: 'user', select: ['-password'] });
   }
 }

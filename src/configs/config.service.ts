@@ -199,17 +199,19 @@ export class ConfigService {
     return process.env.BUCKET_NAME ?? '';
   }
 
-  get ruote53HostedZoneId(): string {
-    return (
-      process.env.HOSTED_ZONE_ID || this.envConfig['HOSTED_ZONE_ID'] || 'Z05122741BD0FFH2L9I77'
-    );
-  }
-
   get originDomain(): string {
-    return process.env.DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dmas2j6gb6r1n.cloudfront.net';
+    return process.env.DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dxjxo84zunoqc.cloudfront.net';
   }
 
   get domain(): string {
     return process.env.DOMAIN || this.envConfig['DOMAIN'] || 'dev.kinsend.io';
+  }
+
+  get amplifyBrand(): string {
+    return process.env.AMPLIFY_BRAND || this.envConfig['AMPLIFY_BRAND'] || 'develop';
+  }
+
+  get amplifyAppId(): string {
+    return process.env.AMPLIFY_APP_ID || this.envConfig['AMPLIFY_APP_ID'] || 'd2yvpp1imqxni5';
   }
 }

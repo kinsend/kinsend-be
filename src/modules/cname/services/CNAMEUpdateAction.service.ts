@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '../../../configs/config.service';
-import { Route53Service } from '../../../shared/services/ruote53.service';
+import { AmplifyClientService } from '../../../shared/services/ amplify.client.service';
 import { dynamicUpdateModel } from '../../../utils/dynamicUpdateModel';
 import { BadRequestException } from '../../../utils/exceptions/BadRequestException';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
@@ -17,8 +17,7 @@ import { CNAMEUpdatePayload } from '../dtos/CNAMEUpdatePayload.dto';
 export class CNAMEUpdateAction {
   constructor(
     @InjectModel(CNAME.name) private cnameModel: Model<CNAMEDocument>,
-    private route53Service: Route53Service,
-    private readonly configService: ConfigService,
+    private route53Service: AmplifyClientService,
   ) {}
 
   async execute(
@@ -33,25 +32,12 @@ export class CNAMEUpdateAction {
     if (!cnameExist) {
       throw new NotFoundException('CNAME', 'CNAME does not exist');
     }
-    const { title: oldTitle, domain, value: oldValue } = cnameExist;
+    const { title: oldTitle } = cnameExist;
     const cnameUpdated = dynamicUpdateModel<CNAMEDocument>(payload, cnameExist);
     cnameUpdated.updatedAt = new Date();
 
-    await Promise.all([
-      this.route53Service.deleteSubDomain(
-        context,
-        this.configService.ruote53HostedZoneId,
-        `${oldTitle}.${domain}`,
-        oldValue,
-      ),
-      this.route53Service.createSubDomain(
-        context,
-        this.configService.ruote53HostedZoneId,
-        `${cnameUpdated.title}.${domain}`,
-        cnameUpdated.value,
-      ),
-    ]);
+    await this.route53Service.replaceSubDomain(context, oldTitle, cnameUpdated.title);
     await cnameUpdated.save();
-    return cnameUpdated;
+    return cnameUpdated.populate({ path: 'user', select: ['-password'] });
   }
 }

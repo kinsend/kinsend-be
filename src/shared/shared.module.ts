@@ -11,7 +11,7 @@ import { StripeService } from './services/stripe.service';
 import { VirtualCardService } from './services/virtual.card.service';
 import { S3Service } from './services/s3.service';
 import { ConfigService } from '../configs/config.service';
-import { Route53Service } from './services/ruote53.service';
+import { AmplifyClientService } from './services/ amplify.client.service';
 import { ValidateDomainService } from './services/validate.domain.service';
 
 const configService = new ConfigService();
@@ -44,7 +44,7 @@ const { jwtSecret, accessTokenExpiry } = configService;
     HttpModule,
     S3Service,
     VirtualCardService,
-    Route53Service,
+    AmplifyClientService,
     ValidateDomainService,
   ],
   providers: [
@@ -54,7 +54,7 @@ const { jwtSecret, accessTokenExpiry } = configService;
     HttpModule,
     S3Service,
     VirtualCardService,
-    Route53Service,
+    AmplifyClientService,
     ValidateDomainService,
   ],
 })
