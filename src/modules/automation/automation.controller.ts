@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -20,11 +21,12 @@ import { AutomationModule } from './automation.module';
 import { AutomationCreateAction } from './services/AutomationCreateAction.service';
 import { AutomationCreatePayload } from './dtos/AutomationCreatePayload.dto';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
-import { AutomationGetAction } from './services/AutomationGetAction.service';
+import { AutomationGetByIdAction } from './services/AutomationGetByIdAction.service';
 import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
 import { AutomationsGetAction } from './services/AutomationsGetAction.service';
 import { AutomationUpdateAction } from './services/AutomationUpdateAction.service';
 import { AutomationUpdatePayload } from './dtos/AutomationUpdatePayload.dto';
+import { AutomationDeleteByIdAction } from './services/AutomationDeleteByIdAction.service';
 
 @ApiTags('Automation')
 @UseInterceptors(MongooseClassSerializerInterceptor(AutomationModule))
@@ -35,8 +37,9 @@ export class AutomationController {
   constructor(
     private automationCreateAction: AutomationCreateAction,
     private automationsGetAction: AutomationsGetAction,
-    private automationGetAction: AutomationGetAction,
+    private automationGetAction: AutomationGetByIdAction,
     private automationUpdateAction: AutomationUpdateAction,
+    private automationDeleteByIdAction: AutomationDeleteByIdAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -72,5 +75,11 @@ export class AutomationController {
     payload: AutomationUpdatePayload,
   ) {
     return this.automationUpdateAction.execute(request, id, payload);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/:id')
+  deleteAutomation(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
+    return this.automationDeleteByIdAction.execute(request, id);
   }
 }

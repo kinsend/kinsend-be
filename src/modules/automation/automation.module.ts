@@ -7,7 +7,8 @@ import { UserModule } from '../user/user.module';
 import { AutomationController } from './automation.controller';
 import { Automation, AutomationSchema } from './automation.schema';
 import { AutomationCreateAction } from './services/AutomationCreateAction.service';
-import { AutomationGetAction } from './services/AutomationGetAction.service';
+import { AutomationDeleteByIdAction } from './services/AutomationDeleteByIdAction.service';
+import { AutomationGetByIdAction } from './services/AutomationGetByIdAction.service';
 import { AutomationsGetAction } from './services/AutomationsGetAction.service';
 import { AutomationUpdateAction } from './services/AutomationUpdateAction.service';
 import { Task, TaskSchema } from './task.schema';
@@ -27,8 +28,9 @@ import { Task, TaskSchema } from './task.schema';
   providers: [
     AutomationCreateAction,
     AutomationsGetAction,
-    AutomationGetAction,
+    AutomationGetByIdAction,
     AutomationUpdateAction,
+    AutomationDeleteByIdAction,
   ],
   exports: [],
 })

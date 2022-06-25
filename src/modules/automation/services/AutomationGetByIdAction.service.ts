@@ -6,7 +6,7 @@ import { RequestContext } from '../../../utils/RequestContext';
 import { Automation, AutomationDocument } from '../automation.schema';
 
 @Injectable()
-export class AutomationGetAction {
+export class AutomationGetByIdAction {
   constructor(@InjectModel(Automation.name) private automatonModel: Model<AutomationDocument>) {}
 
   async execute(context: RequestContext, id: string): Promise<AutomationDocument> {
@@ -23,7 +23,7 @@ export class AutomationGetAction {
         { path: 'user', select: ['_id'] },
       ]);
     if (!response) {
-      throw new NotFoundException('Automation', 'Automation does not exist');
+      throw new NotFoundException('Automation', 'Automation not found');
     }
     return response;
   }

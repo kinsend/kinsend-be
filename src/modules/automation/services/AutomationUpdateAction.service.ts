@@ -15,7 +15,7 @@ import { AutomationUpdatePayload } from '../dtos/AutomationUpdatePayload.dto';
 import { AutomationUnsave } from '../interfaces/automation.interface';
 import { TRIGGER_TYPE } from '../interfaces/const';
 import { Task, TaskDocument } from '../task.schema';
-import { AutomationGetAction } from './AutomationGetAction.service';
+import { AutomationGetByIdAction } from './AutomationGetByIdAction.service';
 
 @Injectable()
 export class AutomationUpdateAction {
@@ -24,7 +24,7 @@ export class AutomationUpdateAction {
     @InjectModel(Task.name) private taskModel: Model<TaskDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private tagsGetByIdsAction: TagsGetByIdsAction,
-    private automationGetAction: AutomationGetAction,
+    private automationGetAction: AutomationGetByIdAction,
     private tagsDeleteByIdsAction: TagsDeleteByIdsAction,
   ) {}
 
