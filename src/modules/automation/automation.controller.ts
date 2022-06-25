@@ -1,24 +1,30 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
+  Put,
   Req,
-  UploadedFile,
   UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags, getSchemaPath } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { AppRequest } from '../../utils/AppRequest';
 import { AutomationModule } from './automation.module';
 import { AutomationCreateAction } from './services/AutomationCreateAction.service';
 import { AutomationCreatePayload } from './dtos/AutomationCreatePayload.dto';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
+import { AutomationGetAction } from './services/AutomationGetAction.service';
+import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
+import { AutomationsGetAction } from './services/AutomationsGetAction.service';
+import { AutomationUpdateAction } from './services/AutomationUpdateAction.service';
+import { AutomationUpdatePayload } from './dtos/AutomationUpdatePayload.dto';
 
 @ApiTags('Automation')
 @UseInterceptors(MongooseClassSerializerInterceptor(AutomationModule))
@@ -26,13 +32,13 @@ import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 @UseGuards(JwtAuthGuard)
 @Controller('automations')
 export class AutomationController {
-  constructor(private automationCreateAction: AutomationCreateAction) {}
+  constructor(
+    private automationCreateAction: AutomationCreateAction,
+    private automationsGetAction: AutomationsGetAction,
+    private automationGetAction: AutomationGetAction,
+    private automationUpdateAction: AutomationUpdateAction,
+  ) {}
 
-  @ApiBody({
-    schema: {
-      allOf: [{ $ref: getSchemaPath(AutomationCreatePayload) }],
-    },
-  })
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
   @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -42,5 +48,29 @@ export class AutomationController {
     payload: AutomationCreatePayload,
   ) {
     return this.automationCreateAction.execute(request, payload);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('/')
+  getAutomations(@Req() request: AppRequest) {
+    return this.automationsGetAction.execute(request);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('/:id')
+  getAutomation(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
+    return this.automationGetAction.execute(request, id);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put('/:id')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  updateAutomation(
+    @Req() request: AppRequest,
+    @Param('id', TranformObjectIdPipe) id: string,
+    @Body()
+    payload: AutomationUpdatePayload,
+  ) {
+    return this.automationUpdateAction.execute(request, id, payload);
   }
 }

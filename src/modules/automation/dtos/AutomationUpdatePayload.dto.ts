@@ -83,16 +83,17 @@ export class TaskPayload {
   @Type(() => Delay)
   delay?: Delay;
 }
-export class AutomationCreatePayload {
+export class AutomationUpdatePayload {
   @ApiProperty({
     example: TRIGGER_TYPE.CONTACT_CREATED,
-    required: true,
+    required: false,
     enum: TRIGGER_TYPE,
     type: String,
   })
   @IsIn(Object.values(TRIGGER_TYPE), { each: true })
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   triggerType: TRIGGER_TYPE;
 
   @ApiProperty({
@@ -122,8 +123,9 @@ export class AutomationCreatePayload {
   @IsOptional()
   stopTaggedTagIds?: string[];
 
-  @ApiProperty({ example: [TaskPayload], type: [TaskPayload], required: true })
+  @ApiProperty({ example: [TaskPayload], type: [TaskPayload], required: false })
   @IsArray()
+  @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => TaskPayload)
   tasks: TaskPayload[];

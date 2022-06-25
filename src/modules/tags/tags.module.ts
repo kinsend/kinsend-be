@@ -4,6 +4,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { VirtualCardModule } from '../virtualcard/virtual.card.module';
 import { TagsCreateAction } from './services/TagsCreateAction.service';
 import { TagsDeleteByIdAction } from './services/TagsDeleteByIdAction.service';
+import { TagsDeleteByIdsAction } from './services/TagsDeleteByIdsAction.service';
 import { TagsGetAction } from './services/TagsGetAction.service';
 import { TagsGetByIdAction } from './services/TagsGetByIdAction.service';
 import { TagsGetByIdsAction } from './services/TagsGetByIdsAction.service';
@@ -25,7 +26,8 @@ import { Tags, TagsSchema } from './tags.schema';
     TagsUpdateByIdAction,
     TagsDeleteByIdAction,
     TagsGetByIdsAction,
+    TagsDeleteByIdsAction,
   ],
-  exports: [TagsGetByIdAction, TagsGetByIdsAction],
+  exports: [TagsGetByIdAction, TagsGetByIdsAction, TagsDeleteByIdsAction],
 })
 export class TagsModule {}

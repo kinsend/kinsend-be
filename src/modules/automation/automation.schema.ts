@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { Transform } from 'class-transformer';
 import { TRIGGER_TYPE } from './interfaces/const';
-import { Task } from './task.schema';
+import { Task, TaskDocument } from './task.schema';
 import { Tags } from '../tags/tags.schema';
 import { User } from '../user/user.schema';
 
@@ -35,7 +35,7 @@ export class Automation {
   stopTaggedTags?: [Tags];
 
   @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Task' })
-  tasks: [Task];
+  tasks: [TaskDocument];
 
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;

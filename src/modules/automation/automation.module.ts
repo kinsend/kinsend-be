@@ -7,6 +7,9 @@ import { UserModule } from '../user/user.module';
 import { AutomationController } from './automation.controller';
 import { Automation, AutomationSchema } from './automation.schema';
 import { AutomationCreateAction } from './services/AutomationCreateAction.service';
+import { AutomationGetAction } from './services/AutomationGetAction.service';
+import { AutomationsGetAction } from './services/AutomationsGetAction.service';
+import { AutomationUpdateAction } from './services/AutomationUpdateAction.service';
 import { Task, TaskSchema } from './task.schema';
 
 @Module({
@@ -21,7 +24,12 @@ import { Task, TaskSchema } from './task.schema';
     ImageModule,
     TagsModule,
   ],
-  providers: [AutomationCreateAction],
+  providers: [
+    AutomationCreateAction,
+    AutomationsGetAction,
+    AutomationGetAction,
+    AutomationUpdateAction,
+  ],
   exports: [],
 })
 export class AutomationModule {}

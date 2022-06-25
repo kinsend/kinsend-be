@@ -12,6 +12,7 @@ export type NotFoundResourceTypes =
   | 'Tags'
   | 'CustomFileds'
   | 'Form'
+  | 'Automation'
   | 'CNAME';
 export class NotFoundException extends HttpException {
   constructor(resourceType: NotFoundResourceTypes, debugMessage: string) {

@@ -4,7 +4,7 @@
 /* eslint-disable new-cap */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RequestContext } from '../../../utils/RequestContext';
 import { TagsGetByIdsAction } from '../../tags/services/TagsGetByIdsAction.service';
 import { User, UserDocument } from '../../user/user.schema';
@@ -28,7 +28,6 @@ export class AutomationCreateAction {
     payload: AutomationCreatePayload,
   ): Promise<AutomationDocument> {
     this.checkTaggedTypePayload(payload);
-
     const automationUnsave: AutomationUnsave = this.sanityTaggedType(payload);
     const tasks = await this.taskModel.insertMany(
       payload.tasks.map((task) => new this.taskModel(task)),
@@ -46,16 +45,18 @@ export class AutomationCreateAction {
         payload.stopTaggedTagIds,
       );
     }
-    const user = new this.userModel(context.user);
+    const { user } = context;
+    const userModel = new this.userModel({ ...user, _id: new mongoose.Types.ObjectId(user.id) });
     const automation = await new this.automatonModel({
       ...automationUnsave,
       tasks,
-      user,
+      user: userModel,
     }).save();
     return automation.populate([
       { path: 'tasks' },
       { path: 'taggedTags', select: ['_id'] },
       { path: 'stopTaggedTags', select: ['_id'] },
+      { path: 'user', select: ['_id'] },
     ]);
   }
   private checkTaggedTypePayload(payload: AutomationCreatePayload) {
