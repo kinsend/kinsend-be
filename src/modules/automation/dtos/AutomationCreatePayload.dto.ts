@@ -8,12 +8,30 @@ import {
   MaxLength,
   IsMongoId,
   IsIn,
-  IsBoolean,
   IsArray,
   ValidateNested,
-  IsDateString,
+  IsNumber,
+  Validate,
 } from 'class-validator';
 import { DURATION, TRIGGER_TYPE } from '../interfaces/const';
+
+export class DateTimeFromTrigger {
+  @IsNumber()
+  @IsOptional()
+  days?: number;
+
+  @IsNumber()
+  @IsOptional()
+  hours?: number;
+
+  @IsNumber()
+  @IsOptional()
+  minutes?: number;
+
+  @IsNumber()
+  @IsOptional()
+  seconds?: number;
+}
 
 export class Delay {
   @ApiProperty({
@@ -27,21 +45,25 @@ export class Delay {
   @IsNotEmpty()
   duration: DURATION;
 
-  @IsString()
   @IsNotEmpty()
-  @IsDateString()
-  datetime: Date;
+  datetime: Date | DateTimeFromTrigger;
 
   @IsString()
   @IsOptional()
   timeZone?: string;
 }
+
 export class TaskPayload {
   @ApiProperty({ example: 'Say something....', required: true, type: String, maxLength: 260 })
   @IsString()
   @MaxLength(260)
   @IsNotEmpty()
   message: string;
+
+  @ApiProperty({ example: 'https://aws.com/s3/bucket/file.png', required: false, type: String })
+  @IsOptional()
+  @IsString()
+  fileAttached?: string;
 
   @ApiProperty({ example: Delay, required: false, type: Delay })
   @IsOptional()
@@ -63,15 +85,22 @@ export class AutomationCreatePayload {
   @IsNotEmpty()
   triggerType: TRIGGER_TYPE;
 
-  @ApiProperty({ example: '12345678o', type: String, required: false })
-  @IsMongoId()
+  @ApiProperty({ example: ['12345678o'], type: [String], required: false })
+  @IsMongoId({ each: true })
   @IsOptional()
-  userTaggedId?: string;
+  @IsArray()
+  taggedTagIds?: string[];
 
   @ApiProperty({ example: 'CONTACT_CREATED', type: String, required: false })
   @IsIn(Object.values(TRIGGER_TYPE), { each: true })
   @IsOptional()
   stopTriggerType?: TRIGGER_TYPE;
+
+  @ApiProperty({ example: ['12345678o'], type: [String], required: false })
+  @IsMongoId({ each: true })
+  @IsArray()
+  @IsOptional()
+  stopTaggedTagIds?: string[];
 
   @ApiProperty({ example: [TaskPayload], type: [TaskPayload], required: true })
   @IsArray()

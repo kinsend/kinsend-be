@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
 import { ImageModule } from '../image/image.module';
+import { TagsModule } from '../tags/tags.module';
 import { UserModule } from '../user/user.module';
 import { AutomationController } from './automation.controller';
 import { Automation, AutomationSchema } from './automation.schema';
@@ -18,6 +19,7 @@ import { Task, TaskSchema } from './task.schema';
     ]),
     UserModule,
     ImageModule,
+    TagsModule,
   ],
   providers: [AutomationCreateAction],
   exports: [],

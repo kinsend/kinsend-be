@@ -4,6 +4,7 @@ import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { Transform } from 'class-transformer';
 import { TRIGGER_TYPE } from './interfaces/const';
 import { Task } from './task.schema';
+import { Tags } from '../tags/tags.schema';
 import { User } from '../user/user.schema';
 
 export type AutomationDocument = Automation & Document;
@@ -18,15 +19,20 @@ export class Automation {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'User', index: true })
-  subscribers?: [User];
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', index: true })
+  user: User;
 
   @Prop()
   triggerType: TRIGGER_TYPE;
 
   @Prop({ required: false })
-  @Transform(({ value }) => value.toString())
-  userTaggedId?: string;
+  stopTriggerType?: TRIGGER_TYPE;
+
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Tags', index: true, required: false })
+  taggedTags?: [Tags];
+
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Tags', index: true, required: false })
+  stopTaggedTags?: [Tags];
 
   @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Task' })
   tasks: [Task];

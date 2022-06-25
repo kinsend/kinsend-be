@@ -19,6 +19,9 @@ export class Task {
   @Prop({ type: String, length: 160 })
   message: string;
 
+  @Prop({ type: String, required: false })
+  fileAttached?: string;
+
   @Prop({ required: false })
   delay?: Delay;
 }
