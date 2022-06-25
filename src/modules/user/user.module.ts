@@ -36,6 +36,11 @@ import { CNAMEModule } from '../cname/cname.module';
     UserUpdatePhotoAction,
     UserDeletePhotoAction,
   ],
-  exports: [UserCreateAction, UserFindByIdAction, UserFindByStripeCustomerUserIdAction],
+  exports: [
+    UserCreateAction,
+    UserFindByIdAction,
+    UserFindByStripeCustomerUserIdAction,
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+  ],
 })
 export class UserModule {}

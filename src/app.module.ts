@@ -16,6 +16,7 @@ import { CustomFieldsModule } from './modules/custom.fields/custom.fields.module
 import { FormModule } from './modules/form/form.module';
 import { FormSubmissionModule } from './modules/form.submission/form.submission.module';
 import { CNAMEModule } from './modules/cname/cname.module';
+import { AutomationModule } from './modules/automation/automation.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CNAMEModule } from './modules/cname/cname.module';
     FormModule,
     FormSubmissionModule,
     CNAMEModule,
+    AutomationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
