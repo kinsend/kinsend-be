@@ -2,8 +2,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { Transform } from 'class-transformer';
+import { TRIGGER_TYPE } from './interfaces/const';
+import { Task } from './task.schema';
 import { User } from '../user/user.schema';
-import { DURATION, STATUS, TRIGGER_TYPE } from './interfaces/const';
 
 export type AutomationDocument = Automation & Document;
 
@@ -17,36 +18,18 @@ export class Automation {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', index: true })
-  owner: User;
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'User', index: true })
+  subscribers?: [User];
 
   @Prop()
   triggerType: TRIGGER_TYPE;
 
-  @Prop({ default: STATUS.PENDING })
-  status: STATUS;
-
-  @Prop()
+  @Prop({ required: false })
   @Transform(({ value }) => value.toString())
-  userTaggedId: string;
+  userTaggedId?: string;
 
-  @Prop({ default: false })
-  isStopTrigger: boolean;
-
-  @Prop({ type: Date })
-  dateTrigger: Date;
-
-  @Prop({ required: false })
-  timeZone?: string;
-
-  @Prop({ required: false })
-  imageUrl?: string;
-
-  @Prop({ type: String, length: 160 })
-  message: string;
-
-  @Prop()
-  duration: DURATION;
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Task' })
+  tasks: [Task];
 
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
@@ -56,7 +39,6 @@ export class Automation {
 }
 
 const AutomationSchema = SchemaFactory.createForClass(Automation);
-
-AutomationSchema.index({ email: 'text' });
+AutomationSchema.index({ triggerType: 'text' });
 
 export { AutomationSchema };

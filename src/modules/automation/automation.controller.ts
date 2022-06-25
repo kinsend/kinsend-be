@@ -30,32 +30,17 @@ export class AutomationController {
 
   @ApiBody({
     schema: {
-      allOf: [
-        { $ref: getSchemaPath(AutomationCreatePayload) },
-        {
-          properties: {
-            file: {
-              type: 'string',
-              format: 'binary',
-              nullable: true,
-            },
-          },
-        },
-      ],
+      allOf: [{ $ref: getSchemaPath(AutomationCreatePayload) }],
     },
   })
-  @ApiConsumes('multipart/form-data')
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
-  @UseInterceptors(FileInterceptor('file'))
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  createForm(
+  createAutomation(
     @Req() request: AppRequest,
-    @UploadedFile()
-    file: Express.Multer.File,
     @Body()
     payload: AutomationCreatePayload,
   ) {
-    return this.automationCreateAction.execute(request, file, payload);
+    return this.automationCreateAction.execute(request, payload);
   }
 }

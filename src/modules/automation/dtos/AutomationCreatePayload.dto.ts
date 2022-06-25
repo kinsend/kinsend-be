@@ -1,4 +1,6 @@
+/* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -7,9 +9,48 @@ import {
   IsMongoId,
   IsIn,
   IsBoolean,
+  IsArray,
+  ValidateNested,
+  IsDateString,
 } from 'class-validator';
 import { DURATION, TRIGGER_TYPE } from '../interfaces/const';
 
+export class Delay {
+  @ApiProperty({
+    example: DURATION.UNTIL_DATE,
+    required: true,
+    enum: DURATION,
+    type: String,
+  })
+  @IsIn(Object.values(DURATION), { each: true })
+  @IsString()
+  @IsNotEmpty()
+  duration: DURATION;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsDateString()
+  datetime: Date;
+
+  @IsString()
+  @IsOptional()
+  timeZone?: string;
+}
+export class TaskPayload {
+  @ApiProperty({ example: 'Say something....', required: true, type: String, maxLength: 260 })
+  @IsString()
+  @MaxLength(260)
+  @IsNotEmpty()
+  message: string;
+
+  @ApiProperty({ example: Delay, required: false, type: Delay })
+  @IsOptional()
+  @ValidateNested({
+    message: 'must be object',
+  })
+  @Type(() => Delay)
+  delay?: Delay;
+}
 export class AutomationCreatePayload {
   @ApiProperty({
     example: TRIGGER_TYPE.CONTACT_CREATED,
@@ -27,34 +68,14 @@ export class AutomationCreatePayload {
   @IsOptional()
   userTaggedId?: string;
 
-  @ApiProperty({ example: false, type: String, required: false })
-  @IsBoolean()
+  @ApiProperty({ example: 'CONTACT_CREATED', type: String, required: false })
+  @IsIn(Object.values(TRIGGER_TYPE), { each: true })
   @IsOptional()
-  isStopTrigger?: boolean;
+  stopTriggerType?: TRIGGER_TYPE;
 
-  @ApiProperty({ example: 'Los Angeles (GMT-7)', required: false, type: String })
-  @IsString()
-  @IsOptional()
-  timeZone?: string;
-
-  @ApiProperty({ example: 'Fri Jun 17 2022 14:07:49', required: true, type: Date })
-  @IsString()
-  dateTrigger: string;
-
-  @ApiProperty({ example: 'Say something....', required: true, type: String, maxLength: 260 })
-  @IsString()
-  @MaxLength(260)
-  @IsNotEmpty()
-  message: string;
-
-  @ApiProperty({
-    example: DURATION.UNTIL_DATE,
-    required: true,
-    enum: DURATION,
-    type: String,
-  })
-  @IsIn(Object.values(DURATION), { each: true })
-  @IsString()
-  @IsNotEmpty()
-  duration: DURATION;
+  @ApiProperty({ example: [TaskPayload], type: [TaskPayload], required: true })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TaskPayload)
+  tasks: TaskPayload[];
 }

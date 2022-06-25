@@ -1,30 +1,19 @@
-/* eslint-disable @typescript-eslint/dot-notation */
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as schedule from 'node-schedule';
+import { sleep } from '../../utils/sleep';
 
 @Injectable()
 export class BackgroudJobService {
   constructor(private readonly configService: ConfigService) {}
 
-  public async job(
-    time: string,
-    delay: number | undefined,
-    callback: () => Promise<any>,
-  ): Promise<any> {
-    const job = schedule.scheduleJob(time, (fireDate) => {
+  public job(date: Date, delay: number | undefined, callback: () => Promise<void>) {
+    const job1 = new schedule.Job(async () => {
       if (delay) {
-        console.log('Delay');
-        this.sleep(delay);
+        await (() => sleep(delay))();
       }
-      console.log(`This job was supposed to run at ${fireDate}, but actually ran at ${new Date()}`);
       callback();
     });
-  }
-
-  private sleep(ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
+    job1.schedule(date);
   }
 }

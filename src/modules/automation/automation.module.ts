@@ -6,12 +6,16 @@ import { UserModule } from '../user/user.module';
 import { AutomationController } from './automation.controller';
 import { Automation, AutomationSchema } from './automation.schema';
 import { AutomationCreateAction } from './services/AutomationCreateAction.service';
+import { Task, TaskSchema } from './task.schema';
 
 @Module({
   controllers: [AutomationController],
   imports: [
     SharedModule,
-    MongooseModule.forFeature([{ name: Automation.name, schema: AutomationSchema }]),
+    MongooseModule.forFeature([
+      { name: Automation.name, schema: AutomationSchema },
+      { name: Task.name, schema: TaskSchema },
+    ]),
     UserModule,
     ImageModule,
   ],
