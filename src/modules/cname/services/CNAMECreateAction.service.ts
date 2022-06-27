@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '../../../configs/config.service';
-import { AmplifyClientService } from '../../../shared/services/ amplify.client.service';
+import { AmplifyClientService } from '../../../shared/services/amplify.client.service';
 import { ConflictException } from '../../../utils/exceptions/ConflictException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';

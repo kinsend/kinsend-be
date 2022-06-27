@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '../../../configs/config.service';
-import { AmplifyClientService } from '../../../shared/services/ amplify.client.service';
+import { AmplifyClientService } from '../../../shared/services/amplify.client.service';
 import { dynamicUpdateModel } from '../../../utils/dynamicUpdateModel';
 import { BadRequestException } from '../../../utils/exceptions/BadRequestException';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
