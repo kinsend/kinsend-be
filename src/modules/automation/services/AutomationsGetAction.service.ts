@@ -8,11 +8,11 @@ import { Automation, AutomationDocument } from '../automation.schema';
 export class AutomationsGetAction {
   constructor(@InjectModel(Automation.name) private automatonModel: Model<AutomationDocument>) {}
 
-  async execute(context: RequestContext): Promise<AutomationDocument[]> {
+  async execute(context: RequestContext, userId?: string): Promise<AutomationDocument[]> {
     const { user } = context;
     return this.automatonModel
       .find({
-        user: user.id,
+        user: userId || user.id,
       })
       .populate([
         { path: 'tasks' },

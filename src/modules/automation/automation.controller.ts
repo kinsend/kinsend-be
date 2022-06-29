@@ -67,7 +67,7 @@ export class AutomationController {
 
   @HttpCode(HttpStatus.OK)
   @Put('/:id')
-  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   updateAutomation(
     @Req() request: AppRequest,
     @Param('id', TranformObjectIdPipe) id: string,

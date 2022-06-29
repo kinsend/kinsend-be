@@ -11,10 +11,57 @@ import {
   IsArray,
   ValidateNested,
   IsNumber,
+  Min,
+  Max,
+  IsDate,
 } from 'class-validator';
-import { DURATION, TRIGGER_TYPE } from '../interfaces/const';
+import { DURATION, TASK_TYPE, TRIGGER_TYPE } from '../interfaces/const';
 
-export class DateTimeFromTrigger {
+export class Delay {
+  @ApiProperty({
+    example: DURATION.UNTIL_DATE,
+    required: true,
+    enum: DURATION,
+    type: String,
+  })
+  @IsIn(Object.values(DURATION), { each: true })
+  @IsString()
+  @IsNotEmpty()
+  duration: DURATION;
+
+  @ApiProperty({
+    example: '2022-06-24T08:45:41.711Z',
+    required: true,
+    type: Date,
+    description: 'Date',
+  })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  datetime?: Date;
+
+  @ApiProperty({ example: 1, required: false, type: String })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  @Max(31)
+  dayOfMonth?: number;
+
+  @ApiProperty({ example: 'Jan', required: false, type: String })
+  @IsString()
+  @IsOptional()
+  month?: string;
+
+  @ApiProperty({ example: 'Sunday', required: false, type: String })
+  @IsString()
+  @IsOptional()
+  dayOfWeek?: string;
+
+  @ApiProperty({ example: '9:00 AM', required: false, type: String })
+  @IsString()
+  @IsOptional()
+  time?: string;
+
   @ApiProperty({ example: 1, required: false })
   @IsNumber()
   @IsOptional()
@@ -34,28 +81,6 @@ export class DateTimeFromTrigger {
   @IsNumber()
   @IsOptional()
   seconds?: number;
-}
-
-export class Delay {
-  @ApiProperty({
-    example: DURATION.UNTIL_DATE,
-    required: true,
-    enum: DURATION,
-    type: String,
-  })
-  @IsIn(Object.values(DURATION), { each: true })
-  @IsString()
-  @IsNotEmpty()
-  duration: DURATION;
-
-  @ApiProperty({
-    example: '2022-06-24T08:45:41.711Z',
-    required: true,
-    type: DateTimeFromTrigger,
-    description: 'Date or DateTimeFromTrigger',
-  })
-  @IsNotEmpty()
-  datetime: Date | DateTimeFromTrigger;
 
   @ApiProperty({ example: 'GMT+0700', required: false, type: String })
   @IsString()
@@ -64,11 +89,23 @@ export class Delay {
 }
 
 export class TaskPayload {
-  @ApiProperty({ example: 'Say something....', required: true, type: String, maxLength: 260 })
+  @ApiProperty({
+    example: TRIGGER_TYPE.CONTACT_CREATED,
+    required: true,
+    enum: TRIGGER_TYPE,
+    type: String,
+  })
+  @IsIn(Object.values(TASK_TYPE), { each: true })
+  @IsString()
+  @IsNotEmpty()
+  type: TASK_TYPE;
+
+  @ApiProperty({ example: 'Say something....', required: false, type: String, maxLength: 260 })
   @IsString()
   @MaxLength(260)
   @IsNotEmpty()
-  message: string;
+  @IsOptional()
+  message?: string;
 
   @ApiProperty({ example: 'https://aws.com/s3/bucket/file.png', required: false, type: String })
   @IsOptional()
@@ -84,6 +121,15 @@ export class TaskPayload {
   delay?: Delay;
 }
 export class AutomationCreatePayload {
+  @ApiProperty({
+    example: 'Title',
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
   @ApiProperty({
     example: TRIGGER_TYPE.CONTACT_CREATED,
     required: true,

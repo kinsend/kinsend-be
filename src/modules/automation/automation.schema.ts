@@ -19,6 +19,9 @@ export class Automation {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
+  @Prop({ type: String })
+  title: string;
+
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', index: true })
   user: User;
 

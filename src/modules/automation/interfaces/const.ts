@@ -17,3 +17,8 @@ export enum STATUS {
   PENDING = 'PENDING',
   FINISHED = 'FINISHED',
 }
+
+export enum TASK_TYPE {
+  DELAY = 'DELAY',
+  ACTION = 'ACTION',
+}

@@ -1,3 +1,8 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-useless-return */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
+/* eslint-disable no-await-in-loop */
 /* eslint-disable unicorn/no-lonely-if */
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/lines-between-class-members */
@@ -5,13 +10,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { convertDateToDateObject } from '../../../utils/convertDateToDateObject';
+import { DayEnum, getNextDayOfWeek, MonthNumberEnum } from '../../../utils/getDayOfNextWeek';
 import { RequestContext } from '../../../utils/RequestContext';
 import { TagsGetByIdsAction } from '../../tags/services/TagsGetByIdsAction.service';
 import { User, UserDocument } from '../../user/user.schema';
 import { Automation, AutomationDocument } from '../automation.schema';
-import { AutomationCreatePayload } from '../dtos/AutomationCreatePayload.dto';
+import { AutomationCreatePayload, Delay, TaskPayload } from '../dtos/AutomationCreatePayload.dto';
 import { AutomationUnsave } from '../interfaces/automation.interface';
-import { TRIGGER_TYPE } from '../interfaces/const';
+import { DURATION, TASK_TYPE, TRIGGER_TYPE } from '../interfaces/const';
 import { Task, TaskDocument } from '../task.schema';
 
 @Injectable()
@@ -27,12 +34,13 @@ export class AutomationCreateAction {
     context: RequestContext,
     payload: AutomationCreatePayload,
   ): Promise<AutomationDocument> {
+    // Validate casse tagged type
     this.checkTaggedTypePayload(payload);
-    const automationUnsave: AutomationUnsave = this.sanityTaggedType(payload);
-    const tasks = await this.taskModel.insertMany(
-      payload.tasks.map((task) => new this.taskModel(task)),
-    );
 
+    // Sanity TaggedType
+    const automationUnsave: AutomationUnsave = this.sanityTaggedType(payload);
+
+    const tasks = await this.saveTasks(payload.tasks);
     if (payload.triggerType === TRIGGER_TYPE.CONTACT_TAGGED && payload.taggedTagIds) {
       automationUnsave.taggedTags = await this.tagsGetByIdsAction.execute(
         context,
@@ -86,18 +94,66 @@ export class AutomationCreateAction {
     return payload;
   }
 
-  // TODO: update later
-  // private excuteTasks(automation: AutomationDocument): any {
-  //   return () => {
-  //     automation.tasks.map(async (task) => {
-  //       if (task.delay) {
-  //         const milisecond = new Date(task.delay.datetime).getTime() - Date.now();
-  //         await sleep(milisecond);
-  //       }
-  //       console.log('Starting......');
-  //       // TODO: send sms to subscriber
-  //       // TODO: check Stop trigger for filter subscriber
-  //     });
-  //   };
-  // }
+  private handleDelayDatetime(delay: Delay) {
+    switch (delay.duration) {
+      case DURATION.UNTIL_DATE: {
+        return delay;
+      }
+      case DURATION.TIME_FROM_TRIGGER: {
+        return delay;
+      }
+      case DURATION.UNTIL_NEXT_DAY: {
+        if (!delay.time) {
+          throw new BadRequestException('time required with duration UNTIL_NEXT_DAY');
+        }
+        const datetime = new Date();
+        datetime.setDate(datetime.getDate() + 1);
+        const dateConvert = convertDateToDateObject(delay.time);
+        datetime.setHours(dateConvert.hours, dateConvert.minutes);
+        delay.datetime = datetime;
+        return delay;
+      }
+      case DURATION.UNTIL_NEXT_DAY_OF_WEEK: {
+        if (!delay.time || !delay.dayOfWeek) {
+          throw new BadRequestException('Invalid data with duration UNTIL_NEXT_DAY_OF_WEEK');
+        }
+        const datetime = new Date(getNextDayOfWeek(delay.dayOfWeek as DayEnum));
+        const dateConvert = convertDateToDateObject(delay.time);
+        datetime.setHours(dateConvert.hours, dateConvert.minutes);
+        delay.datetime = datetime;
+        return delay;
+      }
+      case DURATION.UNTIL_NEXT_DAY_OF_MONTH: {
+        if (!delay.time || !delay.dayOfMonth || !delay.month) {
+          throw new BadRequestException('Invalid data with duration UNTIL_NEXT_DAY_OF_MONTH');
+        }
+        const datetime = new Date();
+        datetime.setMonth(MonthNumberEnum.get(delay.month) || 0, delay.dayOfMonth);
+        const dateConvert = convertDateToDateObject(delay.time);
+        datetime.setHours(dateConvert.hours, dateConvert.minutes);
+        delay.datetime = datetime;
+        return delay;
+      }
+
+      default: {
+        console.log(`${delay.duration} invalid type`);
+        return;
+      }
+    }
+  }
+
+  private async saveTasks(tasks: TaskPayload[]): Promise<TaskDocument[]> {
+    const response: TaskDocument[] = [];
+    for (const task of tasks) {
+      if (task.type === TASK_TYPE.DELAY && task.delay) {
+        task.delay = this.handleDelayDatetime(task.delay);
+      }
+      const taskSaved = await new this.taskModel({
+        ...task,
+        createdAt: new Date(),
+      }).save();
+      response.push(taskSaved);
+    }
+    return response;
+  }
 }

@@ -1,3 +1,5 @@
+/* eslint-disable unicorn/no-array-for-each */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable new-cap */
 /* eslint-disable unicorn/prefer-module */
 import { Injectable } from '@nestjs/common';
@@ -13,13 +15,18 @@ import { User, UserDocument } from '../user.schema';
 import { ConflictException } from '../../../utils/exceptions/ConflictException';
 import { ConfigService } from '../../../configs/config.service';
 import { hashAndValidatePassword } from '../../../utils/hashUser';
-import { MailService } from '../../mail/mail.service';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
 import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 import { USER_PROVIDER } from '../interfaces/user.interface';
 import { RequestContext } from '../../../utils/RequestContext';
 import { STATUS } from '../../../domain/const';
-import { VirtualCardCreateAction } from '../../virtualcard/services/VirtualCardCreateAction.service';
+import {
+  FormSubmission,
+  FormSubmissionDocument,
+} from '../../form.submission/form.submission.schema';
+import { AutomationsGetByUserIdsAction } from '../../automation/services/AutomationsGetByUserIdsAction.service';
+import { TRIGGER_TYPE } from '../../automation/interfaces/const';
+import { AutomationTriggerContactCreatedAction } from '../../automation/services/AutomationTriggerAction/AutomationTriggerContactCreatedAction.service';
 
 @Injectable()
 export class UserCreateAction {
@@ -27,13 +34,14 @@ export class UserCreateAction {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectConnection() private readonly connection: mongoose.Connection,
     private configService: ConfigService,
-    private mailService: MailService,
     private jwtService: JwtService,
     private mailSendGridService: MailSendGridService,
-    private vCardCreateAction: VirtualCardCreateAction,
+    @InjectModel(FormSubmission.name) private formSubmissionModel: Model<FormSubmissionDocument>,
+    private automationsGetByUserIdsAction: AutomationsGetByUserIdsAction,
+    private automationTriggerContactCreatedAction: AutomationTriggerContactCreatedAction,
   ) {}
 
-  async execute(context: RequestContext, payload: UserCreatePayloadDto): Promise<User> {
+  async execute(context: RequestContext, payload: UserCreatePayloadDto): Promise<any> {
     const { email, password } = payload;
     const { correlationId } = context;
     const checkExistedUser = await this.userModel.findOne({ $or: [{ email }] });
@@ -81,6 +89,29 @@ export class UserCreateAction {
     };
 
     this.mailSendGridService.sendUserConfirmation(mail);
+    this.checkTriggerAutomation(context, user as UserDocument);
     return user;
+  }
+
+  private async checkTriggerAutomation(context: RequestContext, user: UserDocument) {
+    const formSubmissions = await this.formSubmissionModel
+      .find({
+        email: user.email,
+      })
+      .populate([{ path: 'owner', select: ['_id'] }]);
+    const ownerId = formSubmissions.map((formSub) => formSub.owner._id.toString());
+    const automations = await this.automationsGetByUserIdsAction.execute(
+      context,
+      ownerId,
+      TRIGGER_TYPE.CONTACT_CREATED,
+    );
+    automations.forEach(async (automation) => {
+      this.automationTriggerContactCreatedAction.execute(
+        context,
+        automation,
+        user.email,
+        user.phoneNumber[0],
+      );
+    });
   }
 }

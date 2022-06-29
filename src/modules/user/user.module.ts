@@ -15,15 +15,22 @@ import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.
 import { VirtualCardModule } from '../virtualcard/virtual.card.module';
 import { ImageModule } from '../image/image.module';
 import { CNAMEModule } from '../cname/cname.module';
+import { UserFindByEmailWithoutThrowExceptionAction } from './services/UserFindByEmailWithoutThrowExceptionAction.service';
+import { FormSubmission, FormSubmissionSchema } from '../form.submission/form.submission.schema';
+import { AutomationModule } from '../automation/automation.module';
 
 @Module({
   controllers: [UserController],
   imports: [
     SharedModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: FormSubmission.name, schema: FormSubmissionSchema },
+    ]),
     VirtualCardModule,
     ImageModule,
     forwardRef(() => CNAMEModule),
+    forwardRef(() => AutomationModule),
   ],
   providers: [
     UserCreateAction,
@@ -35,12 +42,14 @@ import { CNAMEModule } from '../cname/cname.module';
     UserUpdatePasswordAction,
     UserUpdatePhotoAction,
     UserDeletePhotoAction,
+    UserFindByEmailWithoutThrowExceptionAction,
   ],
   exports: [
     UserCreateAction,
     UserFindByIdAction,
     UserFindByStripeCustomerUserIdAction,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    UserFindByEmailWithoutThrowExceptionAction,
   ],
 })
 export class UserModule {}

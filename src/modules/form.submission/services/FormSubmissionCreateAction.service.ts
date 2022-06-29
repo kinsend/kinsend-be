@@ -10,6 +10,7 @@ import { FormGetByIdAction } from '../../form/services/FormGetByIdAction.service
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
 import { VirtualCardGetByUserIdAction } from '../../virtualcard/services/VirtualCardGetByUserIdAction.service';
 import { SmsService } from '../../../shared/services/sms.service';
+import { AutomationCreateTriggerAutomationAction } from '../../automation/services/AutomationCreateTriggerAutomationAction.service';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -19,6 +20,7 @@ export class FormSubmissionCreateAction {
     private userFindByIdAction: UserFindByIdAction,
     private virtualCardGetByUserIdAction: VirtualCardGetByUserIdAction,
     private smsService: SmsService,
+    private automationCreateTriggerAutomationAction: AutomationCreateTriggerAutomationAction,
   ) {}
 
   async execute(
@@ -43,7 +45,15 @@ export class FormSubmissionCreateAction {
       const to = `+${code}${phone}`;
       await this.smsService.sendVitualCardToSubscriber(context, vCard.url || '', to);
     }
+
     await response.save();
+    this.automationCreateTriggerAutomationAction.execute(
+      context,
+      owner,
+      formExist,
+      payload.email,
+      payload.phoneNumber,
+    );
 
     return response;
   }

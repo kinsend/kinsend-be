@@ -12,7 +12,7 @@ import { TagsGetByIdsAction } from '../../tags/services/TagsGetByIdsAction.servi
 import { User, UserDocument } from '../../user/user.schema';
 import { Automation, AutomationDocument } from '../automation.schema';
 import { AutomationUpdatePayload } from '../dtos/AutomationUpdatePayload.dto';
-import { AutomationUnsave } from '../interfaces/automation.interface';
+import { AutomationUpdateUnsave } from '../interfaces/automation.interface';
 import { TRIGGER_TYPE } from '../interfaces/const';
 import { Task, TaskDocument } from '../task.schema';
 import { AutomationGetByIdAction } from './AutomationGetByIdAction.service';
@@ -37,7 +37,10 @@ export class AutomationUpdateAction {
     this.validateTriggerType(payload);
     this.validateStopTriggerType(payload);
 
-    const automationUnsave: AutomationUnsave = this.sanityTaggedType(automationExist, payload);
+    const automationUnsave: AutomationUpdateUnsave = this.sanityTaggedType(
+      automationExist,
+      payload,
+    );
     if (payload.taggedTagIds) {
       automationUnsave.taggedTags = await this.tagsGetByIdsAction.execute(
         context,

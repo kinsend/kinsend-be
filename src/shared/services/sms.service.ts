@@ -172,4 +172,34 @@ export class SmsService {
       throw new IllegalStateException('Send VCard to subscriber fail!');
     }
   }
+
+  async sendMessage(
+    context: RequestContext,
+    message: string,
+    fileUrl: string | undefined,
+    to: string,
+  ): Promise<void> {
+    const { logger, correlationId } = context;
+    try {
+      // const result = await this.twilioClient.messages.create({
+      //   from: this.configService.twilioPhoneNumber,
+      //   body: message,
+      //   mediaUrl: fileUrl,
+      //   to,
+      // });
+      logger.info({
+        correlationId,
+        message: 'Send message successful!',
+        result: 'result',
+        to,
+      });
+    } catch (error: unknown) {
+      logger.error({
+        correlationId,
+        message: 'Send message fail!',
+        error,
+        to,
+      });
+    }
+  }
 }
