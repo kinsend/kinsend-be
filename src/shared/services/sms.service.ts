@@ -181,16 +181,16 @@ export class SmsService {
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
-      // const result = await this.twilioClient.messages.create({
-      //   from: this.configService.twilioPhoneNumber,
-      //   body: message,
-      //   mediaUrl: fileUrl,
-      //   to,
-      // });
+      const result = await this.twilioClient.messages.create({
+        from: this.configService.twilioPhoneNumber,
+        body: message,
+        mediaUrl: fileUrl,
+        to,
+      });
       logger.info({
         correlationId,
         message: 'Send message successful!',
-        result: 'result',
+        result,
         to,
       });
     } catch (error: unknown) {

@@ -12,6 +12,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { convertDateToDateObject } from '../../../utils/convertDateToDateObject';
 import { DayEnum, getNextDayOfWeek, MonthNumberEnum } from '../../../utils/getDayOfNextWeek';
+import { Logger } from '../../../utils/Logger';
 import { RequestContext } from '../../../utils/RequestContext';
 import { TagsGetByIdsAction } from '../../tags/services/TagsGetByIdsAction.service';
 import { User, UserDocument } from '../../user/user.schema';
@@ -34,13 +35,14 @@ export class AutomationCreateAction {
     context: RequestContext,
     payload: AutomationCreatePayload,
   ): Promise<AutomationDocument> {
+    const { logger } = context;
     // Validate casse tagged type
     this.checkTaggedTypePayload(payload);
 
     // Sanity TaggedType
     const automationUnsave: AutomationUnsave = this.sanityTaggedType(payload);
 
-    const tasks = await this.saveTasks(payload.tasks);
+    const tasks = await this.saveTasks(logger, payload.tasks);
     if (payload.triggerType === TRIGGER_TYPE.CONTACT_TAGGED && payload.taggedTagIds) {
       automationUnsave.taggedTags = await this.tagsGetByIdsAction.execute(
         context,
@@ -94,7 +96,7 @@ export class AutomationCreateAction {
     return payload;
   }
 
-  private handleDelayDatetime(delay: Delay) {
+  private handleDelayDatetime(logger: Logger, delay: Delay) {
     switch (delay.duration) {
       case DURATION.UNTIL_DATE: {
         return delay;
@@ -136,17 +138,17 @@ export class AutomationCreateAction {
       }
 
       default: {
-        console.log(`${delay.duration} invalid type`);
+        logger.warn(`${delay.duration} invalid type`);
         return;
       }
     }
   }
 
-  private async saveTasks(tasks: TaskPayload[]): Promise<TaskDocument[]> {
+  private async saveTasks(logger: Logger, tasks: TaskPayload[]): Promise<TaskDocument[]> {
     const response: TaskDocument[] = [];
     for (const task of tasks) {
       if (task.type === TASK_TYPE.DELAY && task.delay) {
-        task.delay = this.handleDelayDatetime(task.delay);
+        task.delay = this.handleDelayDatetime(logger, task.delay);
       }
       const taskSaved = await new this.taskModel({
         ...task,

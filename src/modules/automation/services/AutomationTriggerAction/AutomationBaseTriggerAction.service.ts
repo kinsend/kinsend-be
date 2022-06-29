@@ -38,14 +38,16 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
         if (task.delay) {
           const delayDatetime = this.handleCaculateDatetimeDelay(startTimeTrigger, task.delay);
           if (delayDatetime > 0) {
-            console.log('\n*******************************************\n');
+            logger.info('\n*******************************************\n');
             logger.info(`Being delayed to ${delayDatetime} ms`);
+
             await sleep(delayDatetime);
-            console.log('\n*******************************************\n');
+
+            logger.info('\n*******************************************\n');
             logger.info('delayed');
           }
         } else {
-          console.log('\n*******************************************\n');
+          logger.info('\n*******************************************\n');
           logger.info({
             description: 'Sending task message to subscriber',
             message: task.message,
