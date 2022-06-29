@@ -21,7 +21,7 @@ export class AutomationTriggerContactCreatedAction extends AutomationBaseTriggeA
     subscriberPhoneNumber: PhoneNumber,
   ): Promise<void> {
     const { logger } = context;
-    console.log('\n*******************************************\n');
+    logger.info('\n*******************************************\n');
     logger.info({
       title: 'Start trigger CONTACT_CREATED automation',
       automationId: automation.id,
@@ -43,7 +43,7 @@ export class AutomationTriggerContactCreatedAction extends AutomationBaseTriggeA
       ),
     );
 
-    console.log('\n*******************************************\n');
+    logger.info('\n*******************************************\n');
     logger.info({
       title: 'Finish trigger CONTACT_CREATED automation',
       automationId: automation.id,

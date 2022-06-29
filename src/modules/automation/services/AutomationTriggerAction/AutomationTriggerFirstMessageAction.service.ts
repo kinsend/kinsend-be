@@ -21,7 +21,7 @@ export class AutomationTriggerFirstMessageAction extends AutomationBaseTriggeAct
     subscriberPhoneNumber: PhoneNumber,
   ): Promise<void> {
     const { logger } = context;
-    console.log('\n*******************************************\n');
+    logger.info('\n*******************************************\n');
     logger.info({
       title: 'Start trigger FIRST_MESSAGE automation',
       automationId: automation.id,
@@ -43,7 +43,7 @@ export class AutomationTriggerFirstMessageAction extends AutomationBaseTriggeAct
       ),
     );
 
-    console.log('\n*******************************************\n');
+    logger.info('\n*******************************************\n');
     logger.info({
       title: 'Finish trigger FIRST_MESSAGE automation',
       automationId: automation.id,

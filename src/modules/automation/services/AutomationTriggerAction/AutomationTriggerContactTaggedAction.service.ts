@@ -52,7 +52,7 @@ export class AutomationTriggerContactTaggedAction extends AutomationBaseTriggeAc
       return;
     }
 
-    console.log('\n*******************************************\n');
+    logger.info('\n*******************************************\n');
     logger.info({
       title: 'Start trigger CONTACT_CREATED automation',
       automationId: id,
@@ -74,7 +74,7 @@ export class AutomationTriggerContactTaggedAction extends AutomationBaseTriggeAc
       ),
     );
 
-    console.log('\n*******************************************\n');
+    logger.info('\n*******************************************\n');
     logger.info({
       title: 'Finish trigger CONTACT_CREATED automation',
       automationId: id,
