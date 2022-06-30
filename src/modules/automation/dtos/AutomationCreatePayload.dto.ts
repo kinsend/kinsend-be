@@ -17,6 +17,51 @@ import {
 } from 'class-validator';
 import { DURATION, TASK_TYPE, TRIGGER_TYPE } from '../interfaces/const';
 
+export class Timezone {
+  @ApiProperty({
+    example: 'HAST',
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  abbrev: string;
+
+  @ApiProperty({
+    example: 'Hawaii-Aleutian Standard Time',
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  altName: string;
+
+  @ApiProperty({
+    example: '(GMT-10:00) Hawaii',
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
+  @ApiProperty({
+    example: 'Pacific/Honolulu',
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  value: string;
+
+  @ApiProperty({
+    example: -10,
+    required: true,
+  })
+  @IsNumber()
+  offset: string;
+}
+
 export class Delay {
   @ApiProperty({
     example: DURATION.UNTIL_DATE,
@@ -82,10 +127,9 @@ export class Delay {
   @IsOptional()
   seconds?: number;
 
-  @ApiProperty({ example: 'GMT+0700', required: false, type: String })
-  @IsString()
+  @ApiProperty({ example: Timezone, type: Timezone, required: false })
   @IsOptional()
-  timeZone?: string;
+  timezone: Timezone;
 }
 
 export class TaskPayload {
@@ -120,6 +164,7 @@ export class TaskPayload {
   @Type(() => Delay)
   delay?: Delay;
 }
+
 export class AutomationCreatePayload {
   @ApiProperty({
     example: 'Title',

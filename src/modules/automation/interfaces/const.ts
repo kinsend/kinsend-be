@@ -22,3 +22,8 @@ export enum TASK_TYPE {
   DELAY = 'DELAY',
   ACTION = 'ACTION',
 }
+
+export enum AUTOMATION_STATUS {
+  ENABLE = 'ENABLE',
+  DISABLE = 'DISABLE',
+}

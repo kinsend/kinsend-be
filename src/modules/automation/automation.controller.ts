@@ -27,6 +27,8 @@ import { AutomationsGetAction } from './services/AutomationsGetAction.service';
 import { AutomationUpdateAction } from './services/AutomationUpdateAction.service';
 import { AutomationUpdatePayload } from './dtos/AutomationUpdatePayload.dto';
 import { AutomationDeleteByIdAction } from './services/AutomationDeleteByIdAction.service';
+import { AutomationUpdateStatusPayload } from './dtos/AutomationUpdateStatusPayload.dto';
+import { AutomationUpdateStatusAction } from './services/AutomationUpdateStatusAction.service';
 
 @ApiTags('Automation')
 @UseInterceptors(MongooseClassSerializerInterceptor(AutomationModule))
@@ -40,6 +42,7 @@ export class AutomationController {
     private automationGetAction: AutomationGetByIdAction,
     private automationUpdateAction: AutomationUpdateAction,
     private automationDeleteByIdAction: AutomationDeleteByIdAction,
+    private automationUpdateStatusAction: AutomationUpdateStatusAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -81,5 +84,17 @@ export class AutomationController {
   @Delete('/:id')
   deleteAutomation(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
     return this.automationDeleteByIdAction.execute(request, id);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put('/status/:id')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  updateEnableAutomation(
+    @Req() request: AppRequest,
+    @Param('id', TranformObjectIdPipe) id: string,
+    @Body()
+    payload: AutomationUpdateStatusPayload,
+  ) {
+    return this.automationUpdateStatusAction.execute(request, id, payload);
   }
 }

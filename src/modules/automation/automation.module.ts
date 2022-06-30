@@ -16,6 +16,7 @@ import { AutomationTriggerContactCreatedAction } from './services/AutomationTrig
 import { AutomationTriggerContactTaggedAction } from './services/AutomationTriggerAction/AutomationTriggerContactTaggedAction.service';
 import { AutomationTriggerFirstMessageAction } from './services/AutomationTriggerAction/AutomationTriggerFirstMessageAction.service';
 import { AutomationUpdateAction } from './services/AutomationUpdateAction.service';
+import { AutomationUpdateStatusAction } from './services/AutomationUpdateStatusAction.service';
 import { Task, TaskSchema } from './task.schema';
 
 @Module({
@@ -41,6 +42,7 @@ import { Task, TaskSchema } from './task.schema';
     AutomationTriggerContactCreatedAction,
     AutomationTriggerContactTaggedAction,
     AutomationsGetByUserIdsAction,
+    AutomationUpdateStatusAction,
   ],
   exports: [
     AutomationCreateTriggerAutomationAction,

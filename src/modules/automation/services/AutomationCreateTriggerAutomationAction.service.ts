@@ -5,17 +5,15 @@ import { FormDocument } from '../../form/form.schema';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { UserDocument } from '../../user/user.schema';
 import { AutomationDocument } from '../automation.schema';
-import { TRIGGER_TYPE } from '../interfaces/const';
+import { AUTOMATION_STATUS, TRIGGER_TYPE } from '../interfaces/const';
 import { AutomationsGetAction } from './AutomationsGetAction.service';
 import { AutomationTriggerContactCreatedAction } from './AutomationTriggerAction/AutomationTriggerContactCreatedAction.service';
 import { AutomationTriggerContactTaggedAction } from './AutomationTriggerAction/AutomationTriggerContactTaggedAction.service';
-import { AutomationTriggerFirstMessageAction } from './AutomationTriggerAction/AutomationTriggerFirstMessageAction.service';
 
 @Injectable()
 export class AutomationCreateTriggerAutomationAction {
   constructor(
     private automationsGetAction: AutomationsGetAction,
-    private automationTriggerFirstMessageAction: AutomationTriggerFirstMessageAction,
     private automationTriggerContactCreatedAction: AutomationTriggerContactCreatedAction,
     private automationTriggerContactTaggedAction: AutomationTriggerContactTaggedAction,
   ) {}
@@ -48,9 +46,13 @@ export class AutomationCreateTriggerAutomationAction {
     subscriberPhoneNumber: PhoneNumber,
   ) {
     automations.forEach(async (automation) => {
+      if (automation.status === AUTOMATION_STATUS.DISABLE) {
+        return;
+      }
+
       switch (automation.triggerType) {
-        case TRIGGER_TYPE.FIRST_MESSAGE: {
-          this.automationTriggerFirstMessageAction.execute(
+        case TRIGGER_TYPE.CONTACT_CREATED: {
+          this.automationTriggerContactCreatedAction.execute(
             context,
             automation,
             subscriberEmail,
@@ -58,7 +60,6 @@ export class AutomationCreateTriggerAutomationAction {
           );
           break;
         }
-
         case TRIGGER_TYPE.CONTACT_TAGGED: {
           this.automationTriggerContactTaggedAction.execute(
             context,

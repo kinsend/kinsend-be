@@ -16,21 +16,15 @@ import { VirtualCardModule } from '../virtualcard/virtual.card.module';
 import { ImageModule } from '../image/image.module';
 import { CNAMEModule } from '../cname/cname.module';
 import { UserFindByEmailWithoutThrowExceptionAction } from './services/UserFindByEmailWithoutThrowExceptionAction.service';
-import { FormSubmission, FormSubmissionSchema } from '../form.submission/form.submission.schema';
-import { AutomationModule } from '../automation/automation.module';
 
 @Module({
   controllers: [UserController],
   imports: [
     SharedModule,
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: FormSubmission.name, schema: FormSubmissionSchema },
-    ]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     VirtualCardModule,
     ImageModule,
     forwardRef(() => CNAMEModule),
-    forwardRef(() => AutomationModule),
   ],
   providers: [
     UserCreateAction,
