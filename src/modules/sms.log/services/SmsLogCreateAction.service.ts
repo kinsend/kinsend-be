@@ -24,7 +24,7 @@ export class SmsLogCreateAction {
     const response = await new this.SmsLogModel({
       formUserId: userFrom?.id || '',
       toUserId: userTo?.id || '',
-      form: From,
+      from: From,
       to: To,
       metaData: JSON.stringify(payload),
     }).save();

@@ -1,9 +1,9 @@
-type DateObject = {
+type TimeObject = {
   hours: number;
   minutes: number;
 };
 // day is 9:33 PM
-export function convertDateToDateObject(day: string): DateObject {
+export function convertTimeToTimeObject(day: string): TimeObject {
   const reg = /( AM| PM)/;
   const daysplit = day.split(':');
   const response = {

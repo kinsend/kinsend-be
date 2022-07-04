@@ -24,7 +24,7 @@ export class SmsLog {
 
   @Prop()
   @Transform(({ value }) => value.toString())
-  form: string;
+  from: string;
 
   @Prop()
   @Transform(({ value }) => value.toString())

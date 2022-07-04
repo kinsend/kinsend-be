@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { SmsService } from '../../../shared/services/sms.service';
 import { RequestContext } from '../../../utils/RequestContext';
+import { SmsLogsGetByFromAction } from '../../sms.log/services/SmsLogsGetByFromAction.service';
 import { Tags } from '../../tags/tags.schema';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { AutomationDocument } from '../automation.schema';
@@ -20,6 +21,8 @@ export abstract class AutomationBaseTriggerAction {
   public abstract excuteTasks(
     context: RequestContext,
     smsService: SmsService,
+    smsLogsGetByFromAction: SmsLogsGetByFromAction,
+    from: string,
     startTimeTrigger: Date,
     automation: AutomationDocument,
     subscriberPhoneNumber: PhoneNumber,

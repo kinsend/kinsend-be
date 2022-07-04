@@ -16,6 +16,7 @@ export class AutomationTriggerContactCreatedAction extends AutomationBaseTriggeA
 
   async execute(
     context: RequestContext,
+    from: string,
     automation: AutomationDocument,
     subscriberEmail: string,
     subscriberPhoneNumber: PhoneNumber,
@@ -37,6 +38,8 @@ export class AutomationTriggerContactCreatedAction extends AutomationBaseTriggeA
       this.excuteTasks(
         context,
         this.smsService,
+        undefined,
+        from,
         startTimeTrigger,
         automation,
         subscriberPhoneNumber,

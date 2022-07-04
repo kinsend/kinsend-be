@@ -9,6 +9,7 @@ import { AUTOMATION_STATUS, TRIGGER_TYPE } from '../interfaces/const';
 import { AutomationsGetAction } from './AutomationsGetAction.service';
 import { AutomationTriggerContactCreatedAction } from './AutomationTriggerAction/AutomationTriggerContactCreatedAction.service';
 import { AutomationTriggerContactTaggedAction } from './AutomationTriggerAction/AutomationTriggerContactTaggedAction.service';
+import { AutomationTriggerFirstMessageAction } from './AutomationTriggerAction/AutomationTriggerFirstMessageAction.service';
 
 @Injectable()
 export class AutomationCreateTriggerAutomationAction {
@@ -16,12 +17,13 @@ export class AutomationCreateTriggerAutomationAction {
     private automationsGetAction: AutomationsGetAction,
     private automationTriggerContactCreatedAction: AutomationTriggerContactCreatedAction,
     private automationTriggerContactTaggedAction: AutomationTriggerContactTaggedAction,
+    private automationTriggerFirstMessageAction: AutomationTriggerFirstMessageAction,
   ) {}
 
   async execute(
     context: RequestContext,
     owner: UserDocument,
-    form: FormDocument,
+    form: FormDocument | undefined,
     subscriberEmail: string,
     subscriberPhoneNumber: PhoneNumber,
   ): Promise<void> {
@@ -29,9 +31,19 @@ export class AutomationCreateTriggerAutomationAction {
     if (automations.length === 0) {
       return;
     }
+
+    if (!owner.phoneSystem || (owner.phoneSystem as PhoneNumber[]).length === 0) {
+      context.logger.info('Owner no phone number for send sms feature!');
+      return;
+    }
+
+    const phoneNumberOwner = owner.phoneSystem[0];
+
+    const from = `+${phoneNumberOwner.code}${phoneNumberOwner.phone}`;
     await this.handleTriggerAutomation(
       context,
       form,
+      from,
       automations,
       subscriberEmail,
       subscriberPhoneNumber,
@@ -40,7 +52,8 @@ export class AutomationCreateTriggerAutomationAction {
 
   async handleTriggerAutomation(
     context: RequestContext,
-    form: FormDocument,
+    form: FormDocument | undefined,
+    from: string,
     automations: AutomationDocument[],
     subscriberEmail: string,
     subscriberPhoneNumber: PhoneNumber,
@@ -54,6 +67,7 @@ export class AutomationCreateTriggerAutomationAction {
         case TRIGGER_TYPE.CONTACT_CREATED: {
           this.automationTriggerContactCreatedAction.execute(
             context,
+            from,
             automation,
             subscriberEmail,
             subscriberPhoneNumber,
@@ -64,13 +78,23 @@ export class AutomationCreateTriggerAutomationAction {
           this.automationTriggerContactTaggedAction.execute(
             context,
             form,
+            from,
             automation,
             subscriberEmail,
             subscriberPhoneNumber,
           );
           break;
         }
-
+        case TRIGGER_TYPE.FIRST_MESSAGE: {
+          this.automationTriggerFirstMessageAction.execute(
+            context,
+            from,
+            automation,
+            subscriberEmail,
+            subscriberPhoneNumber,
+          );
+          break;
+        }
         default: {
           break;
         }

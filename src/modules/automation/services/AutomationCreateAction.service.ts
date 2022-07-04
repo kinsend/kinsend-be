@@ -10,7 +10,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { convertDateToDateObject } from '../../../utils/convertDateToDateObject';
+import { convertTimeToTimeObject } from '../../../utils/convertTimeToTimeObject';
 import { DayEnum, getNextDayOfWeek, MonthNumberEnum } from '../../../utils/getDayOfNextWeek';
 import { Logger } from '../../../utils/Logger';
 import { RequestContext } from '../../../utils/RequestContext';
@@ -110,7 +110,7 @@ export class AutomationCreateAction {
         }
         const datetime = new Date();
         datetime.setDate(datetime.getDate() + 1);
-        const dateConvert = convertDateToDateObject(delay.time);
+        const dateConvert = convertTimeToTimeObject(delay.time);
         datetime.setHours(dateConvert.hours, dateConvert.minutes);
         delay.datetime = datetime;
         return delay;
@@ -120,7 +120,7 @@ export class AutomationCreateAction {
           throw new BadRequestException('Invalid data with duration UNTIL_NEXT_DAY_OF_WEEK');
         }
         const datetime = new Date(getNextDayOfWeek(delay.dayOfWeek as DayEnum));
-        const dateConvert = convertDateToDateObject(delay.time);
+        const dateConvert = convertTimeToTimeObject(delay.time);
         datetime.setHours(dateConvert.hours, dateConvert.minutes);
         delay.datetime = datetime;
         return delay;
@@ -131,7 +131,7 @@ export class AutomationCreateAction {
         }
         const datetime = new Date();
         datetime.setMonth(MonthNumberEnum.get(delay.month) || 0, delay.dayOfMonth);
-        const dateConvert = convertDateToDateObject(delay.time);
+        const dateConvert = convertTimeToTimeObject(delay.time);
         datetime.setHours(dateConvert.hours, dateConvert.minutes);
         delay.datetime = datetime;
         return delay;

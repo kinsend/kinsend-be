@@ -19,7 +19,8 @@ export class AutomationTriggerContactTaggedAction extends AutomationBaseTriggeAc
 
   async execute(
     context: RequestContext,
-    form: FormDocument,
+    form: FormDocument | undefined,
+    from: string,
     automation: AutomationDocument,
     subscriberEmail: string,
     subscriberPhoneNumber: PhoneNumber,
@@ -27,6 +28,18 @@ export class AutomationTriggerContactTaggedAction extends AutomationBaseTriggeAc
     const { logger } = context;
     const { taggedTags, id, triggerType } = automation;
     if (!taggedTags || (taggedTags as Tags[]).length === 0) {
+      logger.info({
+        title: 'Skip trigger CONTACT_TAGGED automation!',
+        automationId: id,
+        triggerType,
+        subscriberPhoneNumber,
+        subscriberEmail,
+      });
+
+      return;
+    }
+
+    if (!form) {
       logger.info({
         title: 'Skip trigger CONTACT_TAGGED automation!',
         automationId: id,
@@ -68,6 +81,8 @@ export class AutomationTriggerContactTaggedAction extends AutomationBaseTriggeAc
       this.excuteTasks(
         context,
         this.smsService,
+        undefined,
+        from,
         startTimeTrigger,
         automation,
         subscriberPhoneNumber,
