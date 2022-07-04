@@ -17,6 +17,8 @@ import { FormModule } from './modules/form/form.module';
 import { FormSubmissionModule } from './modules/form.submission/form.submission.module';
 import { CNAMEModule } from './modules/cname/cname.module';
 import { AutomationModule } from './modules/automation/automation.module';
+import { SmsHookModule } from './hooks/sms/sms.hook.module';
+import { SmsLogModel } from './modules/sms.log/sms.log.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { AutomationModule } from './modules/automation/automation.module';
     FormSubmissionModule,
     CNAMEModule,
     AutomationModule,
+    SmsHookModule,
+    SmsLogModel,
   ],
   controllers: [AppController],
   providers: [AppService],

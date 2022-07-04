@@ -16,6 +16,8 @@ import { VirtualCardModule } from '../virtualcard/virtual.card.module';
 import { ImageModule } from '../image/image.module';
 import { CNAMEModule } from '../cname/cname.module';
 import { UserFindByEmailWithoutThrowExceptionAction } from './services/UserFindByEmailWithoutThrowExceptionAction.service';
+import { UserAddListPhoneCreateAction } from './services/UserAddListPhoneCreateAction.service';
+import { UserFindByPhoneSystemAction } from './services/UserFindByPhoneSystemAction.service';
 
 @Module({
   controllers: [UserController],
@@ -37,6 +39,8 @@ import { UserFindByEmailWithoutThrowExceptionAction } from './services/UserFindB
     UserUpdatePhotoAction,
     UserDeletePhotoAction,
     UserFindByEmailWithoutThrowExceptionAction,
+    UserAddListPhoneCreateAction,
+    UserFindByPhoneSystemAction,
   ],
   exports: [
     UserCreateAction,
@@ -44,6 +48,7 @@ import { UserFindByEmailWithoutThrowExceptionAction } from './services/UserFindB
     UserFindByStripeCustomerUserIdAction,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     UserFindByEmailWithoutThrowExceptionAction,
+    UserFindByPhoneSystemAction,
   ],
 })
 export class UserModule {}

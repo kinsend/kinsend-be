@@ -30,6 +30,9 @@ export class User {
   @Prop()
   phoneNumber: [PhoneNumber];
 
+  @Prop({ required: false })
+  phoneSystem?: [PhoneNumber];
+
   @Prop()
   oneSocial: string;
 

@@ -36,6 +36,8 @@ import { UserUpdatePhotoAction } from './services/UserUpdatePhotoAction.service'
 import { UserDeletePhotoAction } from './services/UserDeletePhotoAction.service.';
 import { AppRequest } from '../../utils/AppRequest';
 import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
+import { UserAddListPhonesRequest } from './dtos/UserAddListPhonesRequest.dto';
+import { UserAddListPhoneCreateAction } from './services/UserAddListPhoneCreateAction.service';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -50,6 +52,7 @@ export class UserController {
     private userUpdatePasswordAction: UserUpdatePasswordAction,
     private userUpdatePhotoAction: UserUpdatePhotoAction,
     private userDeletePhotoAction: UserDeletePhotoAction,
+    private userAddListPhoneCreateAction: UserAddListPhoneCreateAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -112,5 +115,13 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   deleteProfilePhoto(@Req() request: AppRequest) {
     return this.userDeletePhotoAction.execute(request);
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @Post('/list-phone')
+  async addListPhone(@Req() request: AppRequest, @Body() payload: UserAddListPhonesRequest) {
+    return this.userAddListPhoneCreateAction.execute(request, payload);
   }
 }

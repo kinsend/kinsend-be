@@ -1,11 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class AvailablePhoneNumberQueryDto {
   @ApiProperty({ example: 'US' })
   @IsString()
   @IsOptional()
   location: string;
+
+  @ApiProperty({ example: '18778421073', required: true })
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
 
   @ApiProperty({ example: '10' })
   @IsOptional()

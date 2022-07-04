@@ -1,8 +1,10 @@
+/* eslint-disable spaced-comment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { TollFreeInstance } from 'twilio/lib/rest/api/v2010/account/availablePhoneNumber/tollFree';
 import { VerificationInstance } from 'twilio/lib/rest/verify/v2/service/verification';
+import { IncomingPhoneNumberInstance } from 'twilio/lib/rest/api/v2010/account/incomingPhoneNumber';
 import { VerificationCheckInstance } from 'twilio/lib/rest/verify/v2/service/verificationCheck';
 import { ConfigService } from '../../configs/config.service';
 import { BadRequestException } from '../../utils/exceptions/BadRequestException';
@@ -12,6 +14,7 @@ import {
   availablePhoneNumberMockResponse,
   verifyInstaceMockResponse,
 } from '../../modules/resource/mocks/twilio.mock';
+import { PhoneNumber } from '../../modules/user/dtos/UserResponse.dto';
 
 @Injectable()
 export class SmsService {
@@ -112,6 +115,7 @@ export class SmsService {
     context: RequestContext,
     location = 'US',
     limit = 20,
+    phoneNumber?: string,
     useMock?: boolean,
   ): Promise<TollFreeInstance[]> {
     const { logger, correlationId } = context;
@@ -125,9 +129,12 @@ export class SmsService {
         });
         return [availablePhoneNumberMockResponse];
       }
-      const result = await this.twilioClient
-        .availablePhoneNumbers(location)
-        .tollFree.list({ limit });
+
+      const query: any = { limit };
+      if (phoneNumber) {
+        query.contains = `+${phoneNumber}`;
+      }
+      const result = await this.twilioClient.availablePhoneNumbers(location).tollFree.list(query);
 
       logger.info({
         correlationId,
@@ -142,7 +149,37 @@ export class SmsService {
         msg: 'Request rent numbers error',
         error,
       });
-      throw new IllegalStateException('Request rent numbers error');
+      return [];
+    }
+  }
+
+  async buyPhoneNumber(
+    context: RequestContext,
+    phoneNumber: PhoneNumber,
+  ): Promise<IncomingPhoneNumberInstance> {
+    const { logger, correlationId } = context;
+    try {
+      logger.info('Request buy phone numbers');
+      const { code, phone } = phoneNumber;
+      const result = await this.twilioClient.incomingPhoneNumbers.create({
+        phoneNumber: `+${code}${phone}`,
+        smsUrl: `https://${this.configService.domain}/api/hook/sms`,
+        smsMethod: 'POST',
+      });
+      logger.info({
+        correlationId,
+        message: 'Request buy phone numbers successful',
+        data: result,
+      });
+
+      return result;
+    } catch (error: unknown) {
+      logger.error({
+        correlationId,
+        msg: 'Request buy phone numbers error',
+        error,
+      });
+      throw new IllegalStateException('Request buy phone numbers error');
     }
   }
 
