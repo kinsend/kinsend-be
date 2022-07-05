@@ -5,7 +5,9 @@ import { UserModule } from '../user/user.module';
 import { CNAMEController } from './cname.controller';
 import { CNAME, CNAMESchema } from './cname.schema';
 import { CNAMECreateAction } from './services/CNAMECreateAction.service';
+import { CNAMEDeleteByIdAction } from './services/CNAMEDeleteByIdAction.service';
 import { CNAMEGetByUserIdAction } from './services/CNAMEGetByUserIdAction.service';
+import { CNAMEGetsAction } from './services/CNAMEsGetAction.service';
 import { CNAMEUpdateAction } from './services/CNAMEUpdateAction.service';
 
 @Module({
@@ -15,7 +17,13 @@ import { CNAMEUpdateAction } from './services/CNAMEUpdateAction.service';
     MongooseModule.forFeature([{ name: CNAME.name, schema: CNAMESchema }]),
     forwardRef(() => UserModule),
   ],
-  providers: [CNAMECreateAction, CNAMEUpdateAction, CNAMEGetByUserIdAction],
+  providers: [
+    CNAMECreateAction,
+    CNAMEUpdateAction,
+    CNAMEGetByUserIdAction,
+    CNAMEGetsAction,
+    CNAMEDeleteByIdAction,
+  ],
   exports: [CNAMEGetByUserIdAction],
 })
 export class CNAMEModule {}

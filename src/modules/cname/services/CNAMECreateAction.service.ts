@@ -16,23 +16,16 @@ export class CNAMECreateAction {
   constructor(
     @InjectModel(CNAME.name) private cnameModel: Model<CNAMEDocument>,
     private userFindByIdAction: UserFindByIdAction,
-    private route53Service: AmplifyClientService,
+    private amplifyClientService: AmplifyClientService,
     private readonly configService: ConfigService,
   ) {}
 
   async execute(context: RequestContext, payload: CNAMECreatePayload): Promise<CNAMEDocument> {
     const { user } = context;
-    // Check user already has a cname
-    const cnameByUser = await this.cnameModel.findOne({
-      user: user.id,
-    });
-    if (cnameByUser) {
-      throw new ConflictException('User already has a name!');
-    }
     // Check cname exist
     const [isExistCNAME, userExist] = await Promise.all([
       this.cnameModel.findOne({
-        value: payload.title,
+        title: payload.title,
       }),
       this.userFindByIdAction.execute(context, user.id),
     ]);
@@ -47,7 +40,7 @@ export class CNAMECreateAction {
       domain,
       value: originDomain,
     }).save();
-    await this.route53Service.createSubDomain(context, response.title);
+    await this.amplifyClientService.createSubDomain(context, response.title);
 
     return response.populate({ path: 'user', select: ['-password'] });
   }

@@ -31,9 +31,13 @@ export class AmplifyClientService {
     if (!response.domainAssociation?.subDomains) {
       return [];
     }
-    return response.domainAssociation.subDomains.map(
-      (sub) => sub.subDomainSetting as SubDomainSetting,
-    );
+    return response.domainAssociation.subDomains.map((sub) => {
+      const subResponse: SubDomainSetting = sub.subDomainSetting as SubDomainSetting;
+      if (!subResponse.prefix) {
+        subResponse.prefix = '';
+      }
+      return subResponse;
+    });
   }
 
   async updateAwsSubDomain(context: RequestContext, subDomain: SubDomainSetting[]) {
@@ -44,7 +48,6 @@ export class AmplifyClientService {
         domainName: this.configService.domain,
         subDomainSettings: subDomain,
       });
-
       const response = await this.amplifyClient.send(command);
       logger.info('Update subDomain setting successfull', {
         correlationId,
@@ -98,6 +101,20 @@ export class AmplifyClientService {
       domain,
       oldSubDomain,
       newSubDomain,
+    });
+  }
+
+  async deleteSubDomain(context: RequestContext, sub: string): Promise<void> {
+    const { logger, correlationId } = context;
+    const { amplifyAppId, domain } = this.configService;
+
+    const subDomain = await this.getsubDomainSettingDomainAssociation(amplifyAppId, domain);
+    const filterDomain = subDomain.filter((subItem) => subItem.prefix !== sub);
+    await this.updateAwsSubDomain(context, filterDomain);
+    logger.info('Delete subDomain setting successful', {
+      correlationId,
+      domain,
+      subDomainDelete: sub,
     });
   }
 }

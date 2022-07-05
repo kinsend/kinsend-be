@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -22,6 +24,8 @@ import { CNAMECreatePayload } from './dtos/CNAMECreatePayload.dto';
 import { CNAMEUpdateAction } from './services/CNAMEUpdateAction.service';
 import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
 import { CNAMEUpdatePayload } from './dtos/CNAMEUpdatePayload.dto';
+import { CNAMEGetsAction } from './services/CNAMEsGetAction.service';
+import { CNAMEDeleteByIdAction } from './services/CNAMEDeleteByIdAction.service';
 
 @ApiTags('CNAME')
 @ApiBearerAuth()
@@ -32,7 +36,15 @@ export class CNAMEController {
   constructor(
     private cnameCreateAction: CNAMECreateAction,
     private cnameUpdateAction: CNAMEUpdateAction,
+    private cnameGetsAction: CNAMEGetsAction,
+    private cnameDeleteByIdAction: CNAMEDeleteByIdAction,
   ) {}
+
+  @HttpCode(HttpStatus.OK)
+  @Get('/')
+  getCNAMEs(@Req() request: AppRequest) {
+    return this.cnameGetsAction.execute(request);
+  }
 
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
@@ -55,5 +67,11 @@ export class CNAMEController {
     payload: CNAMEUpdatePayload,
   ) {
     return this.cnameUpdateAction.execute(request, id, payload);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/:id')
+  deleteCNAME(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
+    return this.cnameDeleteByIdAction.execute(request, id);
   }
 }
