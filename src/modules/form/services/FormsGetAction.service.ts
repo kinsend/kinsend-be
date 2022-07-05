@@ -15,6 +15,10 @@ export class FormsGetAction {
       .find({
         userId: user.id,
       })
-      .populate(['tags', 'customFields']);
+      .populate([
+        { path: 'tags' },
+        { path: 'customFields' },
+        { path: 'cname', select: ['-domain', '-value'] },
+      ]);
   }
 }
