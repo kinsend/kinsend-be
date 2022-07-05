@@ -70,8 +70,16 @@ export class AuthSigninProviderAction {
     }
 
     const { jwtSecret, accessTokenExpiry } = this.configService;
-    const { id, email, phoneNumber, firstName, lastName, stripeCustomerUserId, image } =
-      checkExistedUser;
+    const {
+      id,
+      email,
+      phoneNumber,
+      firstName,
+      lastName,
+      stripeCustomerUserId,
+      image,
+      phoneSystem,
+    } = checkExistedUser;
 
     const payloadAccessToken: AuthAccessTokenResponseDto = {
       id,
@@ -82,6 +90,7 @@ export class AuthSigninProviderAction {
       sessionId: correlationId,
       stripeCustomerUserId,
       image,
+      phoneSystem,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

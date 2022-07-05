@@ -29,6 +29,7 @@ export class AuthSignInAction {
       isEnabledBuyPlan,
       isEnabledPayment,
       image,
+      phoneSystem,
     } = <UserDocument>user;
     if (!user) {
       throw new NotFoundException('User', 'Username and password are not correct');
@@ -45,6 +46,7 @@ export class AuthSignInAction {
       isEnabledBuyPlan,
       isEnabledPayment,
       image,
+      phoneSystem,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

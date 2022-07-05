@@ -72,6 +72,10 @@ export class UserResponseDto {
   @IsOptional()
   phoneNumber?: [PhoneNumber];
 
+  @ApiProperty({ example: 123456, required: false, type: [PhoneNumber] })
+  @IsOptional()
+  phoneSystem?: [PhoneNumber];
+
   @ApiProperty({ example: 123456, required: false, type: String })
   @IsOptional()
   stripeCustomerUserId?: string;
