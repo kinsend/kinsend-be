@@ -66,7 +66,7 @@ export class CNAMEController {
     @Body()
     payload: CNAMEUpdatePayload,
   ) {
-    return this.cnameUpdateAction.execute(request, id, payload);
+    return this.cnameUpdateAction.execute(request, id, undefined, payload);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -5,6 +5,7 @@ import { Transform } from 'class-transformer';
 import { OPTIONAL_FIELDS } from './interfaces/form.interface';
 import { Tags } from '../tags/tags.schema';
 import { CustomFields } from '../custom.fields/custom.fields.schema';
+import { CNAME } from '../cname/cname.schema';
 
 export type FormDocument = Form & Document;
 
@@ -30,6 +31,9 @@ export class Form {
 
   @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'CustomFields' })
   customFields: [CustomFields];
+
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'CNAME' })
+  cname: CNAME;
 
   @Prop({ unique: true })
   url: string;

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable new-cap */
 import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,6 +9,7 @@ import { ImageUploadAction } from '../../image/services/ImageUploadAction.servic
 import { FormCreatePayload } from '../dtos/FormCreatePayload.dto';
 import { TagsGetByIdAction } from '../../tags/services/TagsGetByIdAction.service';
 import { CustomFieldsGetByIdsAction } from '../../custom.fields/services/CustomFieldsGetByIdsAction.service';
+import { CNAMECreateAction } from '../../cname/services/CNAMECreateAction.service';
 
 @Injectable()
 export class FormCreateAction {
@@ -16,6 +18,7 @@ export class FormCreateAction {
     private tagsGetByIdAction: TagsGetByIdAction,
     private customFieldsGetByIdsAction: CustomFieldsGetByIdsAction,
     private imageUploadAction: ImageUploadAction,
+    private cnameCreateAction: CNAMECreateAction,
   ) {}
 
   async execute(
@@ -38,13 +41,21 @@ export class FormCreateAction {
     );
     const fileKey = `${user.id}.form`;
     const imageUrl = await this.imageUploadAction.execute(context, file, fileKey);
+    // Create cname
+    const cname = await this.cnameCreateAction.execute(context, { title: payload.cnameTitle });
+
     const response = await new this.formModel({
       ...payload,
       image: imageUrl,
       tags: tagsExist,
       customFields: customFieldsExist,
       userId: user.id,
+      cname,
     }).save();
-    return response.populate(['tags', 'customFields']);
+    return response.populate([
+      { path: 'tags' },
+      { path: 'customFields' },
+      { path: 'cname', select: ['-domain', '-value'] },
+    ]);
   }
 }

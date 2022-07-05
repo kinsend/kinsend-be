@@ -1,9 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { dynamicUpdateModel } from '../../../utils/dynamicUpdateModel';
-import { Form, FormDocument } from '../form.schema';
+import { FormDocument } from '../form.schema';
 import { RequestContext } from '../../../utils/RequestContext';
 import { ImageUploadAction } from '../../image/services/ImageUploadAction.service';
 import { FormGetByIdAction } from './FormGetByIdAction.service';
@@ -11,15 +9,16 @@ import { FormUpdatePayload } from '../dtos/FormUpdatePayload.dto';
 import { TagsGetByIdAction } from '../../tags/services/TagsGetByIdAction.service';
 import { CustomFieldsGetByIdsAction } from '../../custom.fields/services/CustomFieldsGetByIdsAction.service';
 import { CustomFields } from '../../custom.fields/custom.fields.schema';
+import { CNAMEUpdateAction } from '../../cname/services/CNAMEUpdateAction.service';
 
 @Injectable()
 export class FormUpdateAction {
   constructor(
-    @InjectModel(Form.name) private formModel: Model<FormDocument>,
     private tagsGetByIdAction: TagsGetByIdAction,
     private customFieldsGetByIdsAction: CustomFieldsGetByIdsAction,
     private imageUploadAction: ImageUploadAction,
     private formGetByIdAction: FormGetByIdAction,
+    private cnameUpdateAction: CNAMEUpdateAction,
   ) {}
 
   async execute(
@@ -29,7 +28,7 @@ export class FormUpdateAction {
     file?: Express.Multer.File,
   ): Promise<FormDocument> {
     const { user } = context;
-    const { tagId, customFieldsIds } = payload;
+    const { tagId, customFieldsIds, cnameTitle } = payload;
     const formExist = await this.formGetByIdAction.execute(context, id);
     if (tagId) {
       const tagsExist = await this.tagsGetByIdAction.execute(context, tagId);
@@ -51,9 +50,21 @@ export class FormUpdateAction {
       formExist.image = imageUrl;
     }
 
+    const { title } = formExist.cname;
+    if (cnameTitle && cnameTitle !== title) {
+      await this.cnameUpdateAction.execute(context, undefined, title, {
+        title: cnameTitle,
+      });
+    }
+
     const formUpdated = dynamicUpdateModel<FormDocument>(payload, formExist);
     formUpdated.updatedAt = new Date();
     await formUpdated.save();
-    return formUpdated.populate(['tags', 'customFields']);
+
+    return formUpdated.populate([
+      { path: 'tags' },
+      { path: 'customFields' },
+      { path: 'cname', select: ['-domain', '-value'] },
+    ]);
   }
 }

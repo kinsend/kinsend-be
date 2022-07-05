@@ -6,6 +6,7 @@ import { CNAMEController } from './cname.controller';
 import { CNAME, CNAMESchema } from './cname.schema';
 import { CNAMECreateAction } from './services/CNAMECreateAction.service';
 import { CNAMEDeleteByIdAction } from './services/CNAMEDeleteByIdAction.service';
+import { CNAMEGetByTitleAction } from './services/CNAMEGetByTitleAction.service';
 import { CNAMEGetByUserIdAction } from './services/CNAMEGetByUserIdAction.service';
 import { CNAMEGetsAction } from './services/CNAMEsGetAction.service';
 import { CNAMEUpdateAction } from './services/CNAMEUpdateAction.service';
@@ -23,7 +24,14 @@ import { CNAMEUpdateAction } from './services/CNAMEUpdateAction.service';
     CNAMEGetByUserIdAction,
     CNAMEGetsAction,
     CNAMEDeleteByIdAction,
+    CNAMEGetByTitleAction,
   ],
-  exports: [CNAMEGetByUserIdAction],
+  exports: [
+    CNAMEGetByUserIdAction,
+    CNAMECreateAction,
+    CNAMEUpdateAction,
+    CNAMEDeleteByIdAction,
+    CNAMEGetByTitleAction,
+  ],
 })
 export class CNAMEModule {}

@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsIn, IsOptional, IsArray, IsMongoId } from 'class-validator';
+import {
+  IsString,
+  IsIn,
+  IsOptional,
+  IsArray,
+  IsMongoId,
+  Validate,
+  IsLowercase,
+} from 'class-validator';
+import { ValidateDomainService } from '../../../shared/services/validate.domain.service';
 import { BOOLEAN_ARR, OPTIONAL_FIELDS } from '../interfaces/form.interface';
 
 export class FormUpdatePayload {
@@ -71,4 +80,11 @@ export class FormUpdatePayload {
   @IsString()
   @IsOptional()
   message?: string;
+
+  @ApiProperty({ example: 'cname-title', type: String, required: true })
+  @IsString()
+  @IsOptional()
+  @IsLowercase()
+  @Validate(ValidateDomainService)
+  cnameTitle?: string;
 }

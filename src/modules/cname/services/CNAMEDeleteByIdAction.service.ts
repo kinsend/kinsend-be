@@ -25,7 +25,7 @@ export class CNAMEDeleteByIdAction {
     if (!cnameExist) {
       throw new NotFoundException('CNAME', 'CNAME not found!');
     }
-    await this.amplifyClientService.deleteSubDomain(context, 'nghia-55');
+    await this.amplifyClientService.deleteSubDomain(context, cnameExist.title);
     await cnameExist.delete();
   }
 }

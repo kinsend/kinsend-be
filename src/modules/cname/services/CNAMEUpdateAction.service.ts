@@ -11,23 +11,32 @@ import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { CNAME, CNAMEDocument } from '../cname.schema';
 import { CNAMEUpdatePayload } from '../dtos/CNAMEUpdatePayload.dto';
+import { CNAMEGetByTitleAction } from './CNAMEGetByTitleAction.service';
 
 @Injectable()
 export class CNAMEUpdateAction {
   constructor(
     @InjectModel(CNAME.name) private cnameModel: Model<CNAMEDocument>,
     private amplifyClientService: AmplifyClientService,
+    private cnameGetByTitleAction: CNAMEGetByTitleAction,
   ) {}
 
   async execute(
     context: RequestContext,
-    id: string,
+    id: string | undefined,
+    title: string | undefined,
     payload: CNAMEUpdatePayload,
   ): Promise<CNAMEDocument> {
     if (Object.keys(payload).length === 0) {
       throw new BadRequestException('Payload is not empty');
     }
-    const cnameExist = await this.cnameModel.findById(id);
+    let cnameExist;
+    if (id) {
+      cnameExist = await this.cnameModel.findById(id);
+    }
+    if (title) {
+      cnameExist = await this.cnameGetByTitleAction.execute(title);
+    }
     if (!cnameExist) {
       throw new NotFoundException('CNAME', 'CNAME does not exist');
     }

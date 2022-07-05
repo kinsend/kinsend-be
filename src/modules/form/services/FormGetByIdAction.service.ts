@@ -1,20 +1,40 @@
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { Form, FormDocument } from '../form.schema';
 import { RequestContext } from '../../../utils/RequestContext';
+import { CNAMEGetByTitleAction } from '../../cname/services/CNAMEGetByTitleAction.service';
 
 @Injectable()
 export class FormGetByIdAction {
-  constructor(@InjectModel(Form.name) private formModel: Model<FormDocument>) {}
+  constructor(
+    @InjectModel(Form.name) private formModel: Model<FormDocument>,
+    private cnameGetByTitleAction: CNAMEGetByTitleAction,
+  ) {}
 
-  async execute(context: RequestContext, id: string): Promise<FormDocument> {
-    const form = await this.formModel.findById(id).populate(['tags', 'customFields']);
+  async execute(context: RequestContext, parameter: string): Promise<FormDocument> {
+    let form;
+    if (mongoose.Types.ObjectId.isValid(parameter)) {
+      form = this.formModel.findById(parameter);
+    } else {
+      const cname = await this.getCNAMEByTitle(parameter);
+      form = this.formModel.findOne({
+        cname: cname.id,
+      });
+    }
     if (!form) {
       throw new NotFoundException('Form', 'Form not found!');
     }
-    return form;
+    return form.populate([
+      { path: 'tags' },
+      { path: 'customFields' },
+      { path: 'cname', select: ['-domain', '-value'] },
+    ]);
+  }
+
+  private getCNAMEByTitle(title: string) {
+    return this.cnameGetByTitleAction.execute(title);
   }
 }

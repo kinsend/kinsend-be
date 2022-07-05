@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prevent-abbreviations */
 import {
   Body,
   Controller,
@@ -123,9 +124,9 @@ export class FormController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get('/:id')
-  getFormById(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
-    return this.formGetByIdAction.execute(request, id);
+  @Get('/:parameter')
+  getFormById(@Req() request: AppRequest, @Param('parameter') param: string) {
+    return this.formGetByIdAction.execute(request, param);
   }
 
   @ApiBearerAuth()
