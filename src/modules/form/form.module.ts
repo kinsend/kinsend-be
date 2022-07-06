@@ -10,7 +10,6 @@ import { Form, FormSchema } from './form.schema';
 import { FormCreateAction } from './services/FormCreateAction.service';
 import { FormDeleteByIdAction } from './services/FormDeleteByIdAction.service';
 import { FormGetByIdAction } from './services/FormGetByIdAction.service';
-import { FormGetCNAMETitleAction } from './services/FormGetCNAMETitleAction.service';
 import { FormsGetAction } from './services/FormsGetAction.service';
 import { FormUpdateAction } from './services/FormUpdateAction.service ';
 
@@ -30,7 +29,6 @@ import { FormUpdateAction } from './services/FormUpdateAction.service ';
     FormGetByIdAction,
     FormUpdateAction,
     FormDeleteByIdAction,
-    FormGetCNAMETitleAction,
   ],
   exports: [FormGetByIdAction],
 })
