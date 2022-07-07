@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 /* eslint-disable unicorn/prevent-abbreviations */
 /* eslint-disable @typescript-eslint/naming-convention */
-import { FormDocument } from '../form.schema';
+import { Form } from '../form.schema';
 
 export enum OPTIONAL_FIELDS {
   GENDER = 'GENDER',
@@ -17,6 +17,6 @@ export enum OPTIONAL_FIELDS {
 
 export const BOOLEAN_ARR = ['true', 'false'];
 
-export interface FormResponse extends FormDocument {
+export interface FormResponse extends Form {
   totalSubscriber?: number;
 }

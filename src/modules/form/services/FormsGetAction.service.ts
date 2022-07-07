@@ -36,9 +36,8 @@ export class FormsGetAction {
   private buildResponse(form: FormDocument[], counters: FormSubmissionsCountResponse[]) {
     const forms: FormResponse[] = form.map((formItem) => {
       const counter = counters.find((item) => item._id.toString() === formItem.id);
-      const response: FormResponse = formItem.toObject();
-      response.totalSubscriber = counter?.count || 0;
-      return response;
+      formItem.$set('totalSubscriber', counter?.count || 0, { strict: false });
+      return formItem;
     });
     return forms;
   }
