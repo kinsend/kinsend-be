@@ -185,6 +185,7 @@ export class SmsService {
 
   async sendVitualCardToSubscriber(
     context: RequestContext,
+    message: string,
     vCardUrl: string,
     from: string,
     to: string,
@@ -193,6 +194,7 @@ export class SmsService {
     try {
       const result = await this.twilioClient.messages.create({
         from,
+        body: message,
         mediaUrl: vCardUrl,
         to,
       });

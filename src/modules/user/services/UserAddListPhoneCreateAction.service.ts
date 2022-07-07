@@ -11,6 +11,7 @@ import { PhoneNumber } from '../dtos/UserResponse.dto';
 import { SmsService } from '../../../shared/services/sms.service';
 import { BadRequestException } from '../../../utils/exceptions/BadRequestException';
 import { UserFindByPhoneSystemAction } from './UserFindByPhoneSystemAction.service';
+import { VirtualCardUpdateByUserContextAction } from '../../virtualcard/services/VirtualCardUpdateByUserContextAction.service';
 
 @Injectable()
 export class UserAddListPhoneCreateAction {
@@ -18,6 +19,7 @@ export class UserAddListPhoneCreateAction {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private smsService: SmsService,
     private userFindByPhoneSystemAction: UserFindByPhoneSystemAction,
+    private virtualCardUpdateByUserContextAction: VirtualCardUpdateByUserContextAction,
   ) {}
 
   async execute(context: RequestContext, payload: UserAddListPhonesRequest): Promise<any> {
@@ -33,6 +35,11 @@ export class UserAddListPhoneCreateAction {
     await this.buyPhoneNumbersAvailable(context, phoneNumbers);
 
     const phoneNumberUpdate = [...(userExist.phoneSystem as PhoneNumber[]), ...phoneNumbers];
+    const { phoneSystem } = userExist;
+    if (!phoneSystem || (phoneSystem as PhoneNumber[]).length === 0) {
+      const cellphone = `${phoneNumberUpdate[0].code}${phoneNumberUpdate[0].phone}`;
+      await this.virtualCardUpdateByUserContextAction.execute(context, { cellphone });
+    }
     userExist.phoneSystem = phoneNumberUpdate as [PhoneNumber];
     await userExist.save();
     return userExist;

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -23,6 +24,10 @@ export class VirtualCardUpdateByUserContextAction {
     if (!vcard) {
       // Create new vCard
       return this.vCardCreateAction.execute(context, payload);
+    }
+
+    if (payload.cellphone && user.phoneSystem && user.phoneSystem.length > 0) {
+      delete payload.cellphone;
     }
 
     await vcard.updateOne({ ...payload });

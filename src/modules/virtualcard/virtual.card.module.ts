@@ -17,6 +17,10 @@ import { VCard, VCardSchema } from './virtual.card.schema';
     VirtualCardUpdateByUserContextAction,
     VirtualCardGetByUserIdAction,
   ],
-  exports: [VirtualCardCreateAction, VirtualCardGetByUserIdAction],
+  exports: [
+    VirtualCardCreateAction,
+    VirtualCardGetByUserIdAction,
+    VirtualCardUpdateByUserContextAction,
+  ],
 })
 export class VirtualCardModule {}

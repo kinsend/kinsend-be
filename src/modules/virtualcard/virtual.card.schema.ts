@@ -69,6 +69,9 @@ export class VCard {
   @Prop({ required: false })
   url?: string;
 
+  @Prop({ required: false })
+  cellphone?: string;
+
   @Prop({ default: Date.now(), type: Date })
   createdAt: Date;
 

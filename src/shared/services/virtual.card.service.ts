@@ -37,6 +37,7 @@ export class VirtualCardService {
       vCard.socialUrls['website'] = vcardPayload.website || '';
       vCard.homeAddress.postalCode = vcardPayload.zipCode || '';
       vCard.note = vcardPayload.note || '';
+      vCard.cellPhone = vcardPayload.cellphone || '';
     }
     vCard.saveToFile(`${fileKey}.vcf`);
     const fileBase64 = fs.readFileSync(`${fileKey}.vcf`, { encoding: 'base64' });

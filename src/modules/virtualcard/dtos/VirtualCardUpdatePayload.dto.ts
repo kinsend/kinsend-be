@@ -83,4 +83,9 @@ export class VirtualCardUpdatePayloadDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  @ApiProperty({ example: '+12345678', required: false, type: String })
+  @IsString()
+  @IsOptional()
+  cellphone?: string;
 }
