@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
 import { AutomationModule } from '../automation/automation.module';
@@ -8,6 +8,7 @@ import { VirtualCardModule } from '../virtualcard/virtual.card.module';
 import { FormSubmissionController } from './form.submission.controller';
 import { FormSubmission, FormSubmissionSchema } from './form.submission.schema';
 import { FormSubmissionCreateAction } from './services/FormSubmissionCreateAction.service';
+import { FormSubmissionsCountByIdsAction } from './services/FormSubmissionsCountByIdsAction.service';
 import { FormSubmissionsFindByEmailAction } from './services/FormSubmissionsFindByEmailAction.service';
 
 @Module({
@@ -15,12 +16,16 @@ import { FormSubmissionsFindByEmailAction } from './services/FormSubmissionsFind
   imports: [
     SharedModule,
     MongooseModule.forFeature([{ name: FormSubmission.name, schema: FormSubmissionSchema }]),
-    FormModule,
     VirtualCardModule,
     AutomationModule,
     UserModule,
+    forwardRef(() => FormModule),
   ],
-  providers: [FormSubmissionCreateAction, FormSubmissionsFindByEmailAction],
-  exports: [FormSubmissionsFindByEmailAction],
+  providers: [
+    FormSubmissionCreateAction,
+    FormSubmissionsFindByEmailAction,
+    FormSubmissionsCountByIdsAction,
+  ],
+  exports: [FormSubmissionsFindByEmailAction, FormSubmissionsCountByIdsAction],
 })
 export class FormSubmissionModule {}

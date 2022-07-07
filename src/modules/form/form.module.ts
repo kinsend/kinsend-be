@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
 import { CNAMEModule } from '../cname/cname.module';
 import { CustomFieldsModule } from '../custom.fields/custom.fields.module';
+import { FormSubmissionModule } from '../form.submission/form.submission.module';
 import { ImageModule } from '../image/image.module';
 import { TagsModule } from '../tags/tags.module';
 import { FormController } from './form.controller';
@@ -22,6 +23,7 @@ import { FormUpdateAction } from './services/FormUpdateAction.service ';
     CustomFieldsModule,
     TagsModule,
     CNAMEModule,
+    forwardRef(() => FormSubmissionModule),
   ],
   providers: [
     FormCreateAction,
