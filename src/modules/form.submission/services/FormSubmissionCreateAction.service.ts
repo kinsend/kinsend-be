@@ -11,6 +11,8 @@ import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.servi
 import { VirtualCardGetByUserIdAction } from '../../virtualcard/services/VirtualCardGetByUserIdAction.service';
 import { SmsService } from '../../../shared/services/sms.service';
 import { AutomationCreateTriggerAutomationAction } from '../../automation/services/AutomationCreateTriggerAutomationAction.service';
+import { UserDocument } from '../../user/user.schema';
+import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -39,11 +41,8 @@ export class FormSubmissionCreateAction {
       form: formExist,
       owner,
     });
-
     if (formExist.isVcardSend && formExist.isEnabled) {
-      const { code, phone } = payload.phoneNumber;
-      const to = `+${code}${phone}`;
-      await this.smsService.sendVitualCardToSubscriber(context, vCard.url || '', to);
+      await this.sendVcardToSubscriber(context, owner, payload.phoneNumber);
     }
 
     await response.save();
@@ -56,5 +55,24 @@ export class FormSubmissionCreateAction {
     );
 
     return response;
+  }
+
+  private async sendVcardToSubscriber(
+    context: RequestContext,
+    owner: UserDocument,
+    subPhoneNumber: PhoneNumber,
+  ) {
+    const { vCard, phoneSystem } = owner;
+    if (!vCard) {
+      return;
+    }
+    if (!phoneSystem || (phoneSystem as PhoneNumber[]).length === 0) {
+      return;
+    }
+
+    const { code, phone } = subPhoneNumber;
+    const from = `+${phoneSystem[0].code}${phoneSystem[0].phone}`;
+    const to = `+${code}${phone}`;
+    await this.smsService.sendVitualCardToSubscriber(context, vCard.url || '', from, to);
   }
 }

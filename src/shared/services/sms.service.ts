@@ -186,12 +186,13 @@ export class SmsService {
   async sendVitualCardToSubscriber(
     context: RequestContext,
     vCardUrl: string,
+    from: string,
     to: string,
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
       const result = await this.twilioClient.messages.create({
-        from: this.configService.twilioPhoneNumber,
+        from,
         mediaUrl: vCardUrl,
         to,
       });
@@ -206,7 +207,6 @@ export class SmsService {
         message: 'Send VCard to subscriber fail!',
         error,
       });
-      throw new IllegalStateException('Send VCard to subscriber fail!');
     }
   }
 

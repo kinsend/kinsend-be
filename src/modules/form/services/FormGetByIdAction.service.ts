@@ -17,10 +17,10 @@ export class FormGetByIdAction {
   async execute(context: RequestContext, parameter: string): Promise<FormDocument> {
     let form;
     if (mongoose.Types.ObjectId.isValid(parameter)) {
-      form = this.formModel.findById(parameter);
+      form = await this.formModel.findById(parameter);
     } else {
       const cname = await this.getCNAMEByTitle(parameter);
-      form = this.formModel.findOne({
+      form = await this.formModel.findOne({
         cname: cname.id,
       });
     }
