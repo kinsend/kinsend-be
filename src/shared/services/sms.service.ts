@@ -3,6 +3,7 @@
 import { Injectable } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { TollFreeInstance } from 'twilio/lib/rest/api/v2010/account/availablePhoneNumber/tollFree';
+import { MessageListInstanceCreateOptions } from 'twilio/lib/rest/api/v2010/account/message';
 import { VerificationInstance } from 'twilio/lib/rest/verify/v2/service/verification';
 import { IncomingPhoneNumberInstance } from 'twilio/lib/rest/api/v2010/account/incomingPhoneNumber';
 import { VerificationCheckInstance } from 'twilio/lib/rest/verify/v2/service/verificationCheck';
@@ -185,19 +186,24 @@ export class SmsService {
 
   async sendVitualCardToSubscriber(
     context: RequestContext,
-    message: string,
-    vCardUrl: string,
+    message: string | undefined,
+    vCardUrl: string | undefined,
     from: string,
     to: string,
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
-      const result = await this.twilioClient.messages.create({
+      const payload: MessageListInstanceCreateOptions = {
         from,
-        body: message,
-        mediaUrl: vCardUrl,
         to,
-      });
+      };
+      if (message) {
+        payload.body = message;
+      }
+      if (vCardUrl) {
+        payload.mediaUrl = vCardUrl;
+      }
+      const result = await this.twilioClient.messages.create(payload);
       logger.info({
         correlationId,
         message: 'Send VCard to subscriber successful!',

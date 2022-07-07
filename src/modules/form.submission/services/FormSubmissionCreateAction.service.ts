@@ -13,6 +13,7 @@ import { SmsService } from '../../../shared/services/sms.service';
 import { AutomationCreateTriggerAutomationAction } from '../../automation/services/AutomationCreateTriggerAutomationAction.service';
 import { UserDocument } from '../../user/user.schema';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
+import { FormDocument } from '../../form/form.schema';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -41,13 +42,8 @@ export class FormSubmissionCreateAction {
       form: formExist,
       owner,
     });
-    if (formExist.isVcardSend && formExist.isEnabled) {
-      await this.sendVcardToSubscriber(
-        context,
-        owner,
-        formExist.submission || '',
-        payload.phoneNumber,
-      );
+    if (formExist.isVcardSend || formExist.isEnabled) {
+      await this.sendVcardToSubscriber(context, owner, formExist, payload.phoneNumber);
     }
 
     await response.save();
@@ -65,7 +61,7 @@ export class FormSubmissionCreateAction {
   private async sendVcardToSubscriber(
     context: RequestContext,
     owner: UserDocument,
-    message: string,
+    form: FormDocument,
     subPhoneNumber: PhoneNumber,
   ) {
     const { vCard, phoneSystem } = owner;
@@ -79,6 +75,9 @@ export class FormSubmissionCreateAction {
     const { code, phone } = subPhoneNumber;
     const from = `+${phoneSystem[0].code}${phoneSystem[0].phone}`;
     const to = `+${code}${phone}`;
-    await this.smsService.sendVitualCardToSubscriber(context, message, vCard.url || '', from, to);
+    const { isEnabled, isVcardSend, submission } = form;
+    const message = isEnabled ? submission || '' : undefined;
+    const vcardUrl = isVcardSend ? vCard.url || '' : undefined;
+    await this.smsService.sendVitualCardToSubscriber(context, message, vcardUrl, from, to);
   }
 }
