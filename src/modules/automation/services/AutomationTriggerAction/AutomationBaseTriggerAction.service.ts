@@ -9,7 +9,7 @@ import { PhoneNumber } from '../../../user/dtos/UserResponse.dto';
 import { AutomationDocument } from '../../automation.schema';
 import { Delay } from '../../dtos/AutomationCreatePayload.dto';
 import { AutomationBaseTriggerAction } from '../../interfaces/automation.interface';
-import { DURATION } from '../../interfaces/const';
+import { DURATION, TRIGGER_TYPE } from '../../interfaces/const';
 
 export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
   public handleCaculateDatetimeDelay(startTimeTrigger: Date, delay: Delay): number {
@@ -30,7 +30,7 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
         }
 
         if (seconds) {
-          dateCaculate = date.addMinutes(dateCaculate, seconds);
+          dateCaculate = date.addSeconds(dateCaculate, seconds);
         }
 
         return date.subtract(dateCaculate, new Date()).toMilliseconds();
@@ -49,9 +49,13 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
   }
 
   private async isStopTriggerFirstMessage(
+    automation: AutomationDocument,
     smsLogsGetByFromAction: SmsLogsGetByFromAction | undefined,
     subscriberPhoneNumber: string,
   ): Promise<boolean> {
+    if (!automation.stopTriggerType || automation.stopTriggerType !== TRIGGER_TYPE.FIRST_MESSAGE) {
+      return false;
+    }
     if (!smsLogsGetByFromAction) {
       return false;
     }
@@ -62,12 +66,12 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
   private async excuteDelay(logger: Logger, startTimeTrigger: Date, delay: Delay) {
     const delayDatetime = this.handleCaculateDatetimeDelay(startTimeTrigger, delay);
     if (delayDatetime > 0) {
-      logger.info('\n*******************************************\n');
+      console.log('\n*******************************************\n');
       logger.info(`Being delayed to ${delayDatetime} ms`);
 
       await sleep(delayDatetime);
 
-      logger.info('\n*******************************************\n');
+      console.log('\n*******************************************\n');
       logger.info('delayed');
     }
   }
@@ -90,6 +94,7 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
           await this.excuteDelay(logger, startTimeTrigger, task.delay);
         } else {
           const isStopTriggerFirstMessage = await this.isStopTriggerFirstMessage(
+            automation,
             smsLogsGetByFromAction,
             to,
           );
@@ -103,7 +108,7 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
             });
             return;
           }
-          logger.info('\n*******************************************\n');
+          console.log('\n*******************************************\n');
           logger.info({
             description: 'Sending task message to subscriber',
             message: task.message,

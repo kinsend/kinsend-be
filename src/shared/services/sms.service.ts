@@ -164,7 +164,7 @@ export class SmsService {
       const { code, phone } = phoneNumber;
       const result = await this.twilioClient.incomingPhoneNumbers.create({
         phoneNumber: `+${code}${phone}`,
-        smsUrl: `https://${this.configService.domain}/api/hook/sms`,
+        smsUrl: `${this.configService.backendDomain}/api/hook/sms`,
         smsMethod: 'POST',
       });
       logger.info({
@@ -220,19 +220,24 @@ export class SmsService {
 
   async sendMessage(
     context: RequestContext,
-    form: string,
+    from: string,
     message: string,
     fileUrl: string | undefined,
     to: string,
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
-      const result = await this.twilioClient.messages.create({
-        from: this.configService.twilioPhoneNumber,
-        body: message,
-        mediaUrl: fileUrl,
+      const payload: MessageListInstanceCreateOptions = {
+        from,
         to,
-      });
+      };
+      if (message) {
+        payload.body = message;
+      }
+      if (fileUrl) {
+        payload.mediaUrl = fileUrl;
+      }
+      const result = await this.twilioClient.messages.create(payload);
       logger.info({
         correlationId,
         message: 'Send message successful!',

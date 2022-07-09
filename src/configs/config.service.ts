@@ -206,6 +206,11 @@ export class ConfigService {
   get domain(): string {
     return process.env.DOMAIN || this.envConfig['DOMAIN'] || 'dev.kinsend.io';
   }
+  get backendDomain(): string {
+    return (
+      process.env.BACKEND_DOMAIN || this.envConfig['BACKEND_DOMAIN'] || 'https://dev.api.kinsend.io'
+    );
+  }
 
   get amplifyBrand(): string {
     return process.env.AMPLIFY_BRAND || this.envConfig['AMPLIFY_BRAND'] || 'develop';

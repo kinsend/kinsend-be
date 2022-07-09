@@ -47,6 +47,7 @@ export class SmsReceiveHookAction {
       undefined,
       '',
       convertStringToPhoneNumber(payload.From),
+      true,
     );
   }
 }

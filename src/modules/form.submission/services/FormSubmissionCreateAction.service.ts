@@ -14,6 +14,7 @@ import { AutomationCreateTriggerAutomationAction } from '../../automation/servic
 import { UserDocument } from '../../user/user.schema';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { FormDocument } from '../../form/form.schema';
+import { VirtualCardGetByUserIdWithoutAction } from '../../virtualcard/services/VirtualCardGetByUserIdWithoutAction.service';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -21,7 +22,7 @@ export class FormSubmissionCreateAction {
     @InjectModel(FormSubmission.name) private formSubmissionModel: Model<FormSubmissionDocument>,
     private formGetByIdAction: FormGetByIdAction,
     private userFindByIdAction: UserFindByIdAction,
-    private virtualCardGetByUserIdAction: VirtualCardGetByUserIdAction,
+    private virtualCardGetByUserIdWithoutAction: VirtualCardGetByUserIdWithoutAction,
     private smsService: SmsService,
     private automationCreateTriggerAutomationAction: AutomationCreateTriggerAutomationAction,
   ) {}
@@ -34,9 +35,9 @@ export class FormSubmissionCreateAction {
     const { userId } = formExist;
     const [owner, vCard] = await Promise.all([
       this.userFindByIdAction.execute(context, userId),
-      this.virtualCardGetByUserIdAction.execute(context, userId),
+      this.virtualCardGetByUserIdWithoutAction.execute(context, userId),
     ]);
-    owner.vCard = vCard;
+    owner.vCard = vCard || undefined;
     const response = new this.formSubmissionModel({
       ...payload,
       form: formExist,

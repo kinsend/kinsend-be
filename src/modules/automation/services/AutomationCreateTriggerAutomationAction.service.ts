@@ -26,6 +26,7 @@ export class AutomationCreateTriggerAutomationAction {
     form: FormDocument | undefined,
     subscriberEmail: string,
     subscriberPhoneNumber: PhoneNumber,
+    isTriggerByHook = false,
   ): Promise<void> {
     const automations = await this.automationsGetAction.execute(context, owner.id);
     if (automations.length === 0) {
@@ -47,6 +48,7 @@ export class AutomationCreateTriggerAutomationAction {
       automations,
       subscriberEmail,
       subscriberPhoneNumber,
+      isTriggerByHook,
     );
   }
 
@@ -57,46 +59,57 @@ export class AutomationCreateTriggerAutomationAction {
     automations: AutomationDocument[],
     subscriberEmail: string,
     subscriberPhoneNumber: PhoneNumber,
+    isTriggerByHook = false,
   ) {
     automations.forEach(async (automation) => {
       if (automation.status === AUTOMATION_STATUS.DISABLE) {
         return;
       }
-
-      switch (automation.triggerType) {
-        case TRIGGER_TYPE.CONTACT_CREATED: {
-          this.automationTriggerContactCreatedAction.execute(
-            context,
-            from,
-            automation,
-            subscriberEmail,
-            subscriberPhoneNumber,
-          );
-          break;
+      if (!isTriggerByHook) {
+        switch (automation.triggerType) {
+          case TRIGGER_TYPE.CONTACT_CREATED: {
+            this.automationTriggerContactCreatedAction.execute(
+              context,
+              from,
+              automation,
+              subscriberEmail,
+              subscriberPhoneNumber,
+            );
+            break;
+          }
+          case TRIGGER_TYPE.CONTACT_TAGGED: {
+            this.automationTriggerContactTaggedAction.execute(
+              context,
+              form,
+              from,
+              automation,
+              subscriberEmail,
+              subscriberPhoneNumber,
+            );
+            break;
+          }
+          default: {
+            break;
+          }
         }
-        case TRIGGER_TYPE.CONTACT_TAGGED: {
-          this.automationTriggerContactTaggedAction.execute(
-            context,
-            form,
-            from,
-            automation,
-            subscriberEmail,
-            subscriberPhoneNumber,
-          );
-          break;
-        }
-        case TRIGGER_TYPE.FIRST_MESSAGE: {
-          this.automationTriggerFirstMessageAction.execute(
-            context,
-            from,
-            automation,
-            subscriberEmail,
-            subscriberPhoneNumber,
-          );
-          break;
-        }
-        default: {
-          break;
+      } else {
+        switch (automation.triggerType) {
+          case TRIGGER_TYPE.FIRST_MESSAGE: {
+            if (!isTriggerByHook) {
+              return;
+            }
+            this.automationTriggerFirstMessageAction.execute(
+              context,
+              from,
+              automation,
+              subscriberEmail,
+              subscriberPhoneNumber,
+            );
+            break;
+          }
+          default: {
+            break;
+          }
         }
       }
     });
