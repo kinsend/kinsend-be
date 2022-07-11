@@ -29,11 +29,10 @@ export class SmsReceiveHookAction {
   }
 
   private async handleTriggerAutomation(context: RequestContext, payload: any) {
-    const smsLog = await this.smsLogsGetByFromAction.execute(payload.From);
+    const smsLog = await this.smsLogsGetByFromAction.execute(payload.From, payload.To);
     if (smsLog.length > 0) {
       return;
     }
-
     const owner = await this.userFindByPhoneSystemAction.execute(
       convertStringToPhoneNumber(payload.To),
     );

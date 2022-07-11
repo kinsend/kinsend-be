@@ -52,6 +52,7 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
     automation: AutomationDocument,
     smsLogsGetByFromAction: SmsLogsGetByFromAction | undefined,
     subscriberPhoneNumber: string,
+    from: string,
   ): Promise<boolean> {
     if (!automation.stopTriggerType || automation.stopTriggerType !== TRIGGER_TYPE.FIRST_MESSAGE) {
       return false;
@@ -59,7 +60,7 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
     if (!smsLogsGetByFromAction) {
       return false;
     }
-    const smsLogs = await smsLogsGetByFromAction.execute(subscriberPhoneNumber);
+    const smsLogs = await smsLogsGetByFromAction.execute(subscriberPhoneNumber, from);
     return smsLogs.length > 1;
   }
 
@@ -97,6 +98,7 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
             automation,
             smsLogsGetByFromAction,
             to,
+            from,
           );
           if (isStopTriggerFirstMessage) {
             logger.info({

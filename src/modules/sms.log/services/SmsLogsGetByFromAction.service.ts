@@ -7,9 +7,10 @@ import { SmsLog, SmsLogDocument } from '../sms.log.schema';
 export class SmsLogsGetByFromAction {
   constructor(@InjectModel(SmsLog.name) private SmsLogModel: Model<SmsLogDocument>) {}
 
-  async execute(from: string): Promise<SmsLogDocument[]> {
+  async execute(from: string, to: string): Promise<SmsLogDocument[]> {
     return this.SmsLogModel.find({
       from,
+      to,
     });
   }
 }
