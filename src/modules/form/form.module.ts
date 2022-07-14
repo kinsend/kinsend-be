@@ -13,6 +13,7 @@ import { FormDeleteByIdAction } from './services/FormDeleteByIdAction.service';
 import { FormGetByIdAction } from './services/FormGetByIdAction.service';
 import { FormsGetAction } from './services/FormsGetAction.service';
 import { FormUpdateAction } from './services/FormUpdateAction.service ';
+import { FormUpdateStatusAction } from './services/FormUpdateStatusAction.service';
 
 @Module({
   controllers: [FormController],
@@ -31,6 +32,7 @@ import { FormUpdateAction } from './services/FormUpdateAction.service ';
     FormGetByIdAction,
     FormUpdateAction,
     FormDeleteByIdAction,
+    FormUpdateStatusAction,
   ],
   exports: [FormGetByIdAction],
 })

@@ -27,3 +27,8 @@ export enum AUTOMATION_STATUS {
   ENABLE = 'ENABLE',
   DISABLE = 'DISABLE',
 }
+
+export enum FORM_STATUS {
+  ENABLE = 'ENABLE',
+  DISABLE = 'DISABLE',
+}

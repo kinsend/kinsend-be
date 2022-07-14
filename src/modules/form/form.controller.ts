@@ -37,6 +37,8 @@ import { FormDeleteByIdAction } from './services/FormDeleteByIdAction.service';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { AppRequest } from '../../utils/AppRequest';
+import { FormUpdateStatusAction } from './services/FormUpdateStatusAction.service';
+import { FormUpdateStatusPayload } from './dtos/FormUpdateStatusPayload.dto';
 
 @ApiTags('Forms')
 @UseInterceptors(MongooseClassSerializerInterceptor(FormModule))
@@ -48,6 +50,7 @@ export class FormController {
     private formGetByIdAction: FormGetByIdAction,
     private formUpdateAction: FormUpdateAction,
     private formDeleteByIdAction: FormDeleteByIdAction,
+    private formUpdateStatusAction: FormUpdateStatusAction,
   ) {}
 
   @ApiBearerAuth()
@@ -135,5 +138,17 @@ export class FormController {
   @Delete('/:id')
   deleteFormById(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) tagsId: string) {
     return this.formDeleteByIdAction.execute(request, tagsId);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put('/status/:id')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  updateStatusForm(
+    @Req() request: AppRequest,
+    @Param('id', TranformObjectIdPipe) id: string,
+    @Body()
+    payload: FormUpdateStatusPayload,
+  ) {
+    return this.formUpdateStatusAction.execute(request, id, payload);
   }
 }

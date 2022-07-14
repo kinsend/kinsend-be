@@ -6,6 +6,7 @@ import { OPTIONAL_FIELDS } from './interfaces/form.interface';
 import { Tags } from '../tags/tags.schema';
 import { CustomFields } from '../custom.fields/custom.fields.schema';
 import { CNAME } from '../cname/cname.schema';
+import { FORM_STATUS } from '../automation/interfaces/const';
 
 export type FormDocument = Form & Document;
 
@@ -55,6 +56,9 @@ export class Form {
 
   @Prop({ required: false })
   submission?: string;
+
+  @Prop({ required: true, default: FORM_STATUS.ENABLE })
+  status: FORM_STATUS;
 
   @Prop({ required: false })
   isEnabled?: boolean;
