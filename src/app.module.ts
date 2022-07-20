@@ -19,7 +19,7 @@ import { CNAMEModule } from './modules/cname/cname.module';
 import { AutomationModule } from './modules/automation/automation.module';
 import { SmsHookModule } from './hooks/sms/sms.hook.module';
 import { SmsLogModel } from './modules/sms.log/sms.log.module';
-import { SegmentModule } from './modules/update/segment.module';
+import { SegmentModule } from './modules/segment/segment.module';
 
 @Module({
   imports: [
