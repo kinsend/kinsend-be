@@ -20,6 +20,7 @@ import { AutomationModule } from './modules/automation/automation.module';
 import { SmsHookModule } from './hooks/sms/sms.hook.module';
 import { SmsLogModel } from './modules/sms.log/sms.log.module';
 import { SegmentModule } from './modules/segment/segment.module';
+import { UpdateModule } from './modules/update/update.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { SegmentModule } from './modules/segment/segment.module';
     SmsHookModule,
     SmsLogModel,
     SegmentModule,
+    UpdateModule,
   ],
   controllers: [AppController],
   providers: [AppService],

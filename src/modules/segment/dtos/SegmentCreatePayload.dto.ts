@@ -9,19 +9,21 @@ import {
   IsNumber,
   Min,
   Max,
+  IsMongoId,
 } from 'class-validator';
 import { CONDITION, DATE_CONDITION, FILTERS_CONTACT, TEXT_CONDITION } from '../interfaces/const';
 
 export class Filter {
   @ApiProperty({
     example: 'Added This Week',
-    required: true,
+    required: false,
     type: String,
   })
   @IsIn(Object.values(FILTERS_CONTACT), { each: true })
   @IsString()
   @IsNotEmpty()
-  title: string;
+  @IsOptional()
+  title?: string;
 
   @ApiProperty({
     example: 2,
@@ -124,7 +126,7 @@ export class Filter {
     required: false,
     type: String,
   })
-  @IsString()
+  @IsMongoId()
   @IsOptional()
   formId?: string;
 
@@ -133,7 +135,7 @@ export class Filter {
     required: false,
     type: String,
   })
-  @IsString()
+  @IsMongoId()
   @IsOptional()
   updateId?: string;
 
@@ -142,7 +144,7 @@ export class Filter {
     required: false,
     type: String,
   })
-  @IsString()
+  @IsMongoId()
   @IsOptional()
   tagId?: string | string[];
 
@@ -151,7 +153,7 @@ export class Filter {
     required: false,
     type: String,
   })
-  @IsString()
+  @IsMongoId()
   @IsOptional()
   segmentId?: string;
 }

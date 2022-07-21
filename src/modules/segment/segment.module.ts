@@ -23,6 +23,6 @@ import { SegmentUpdateAction } from './services/SegmentUpdateAction.service';
     SmsLogModel,
   ],
   providers: [SegmentCreateAction, SegmentFindByIdAction, SegmentUpdateAction, SegmentFindAction],
-  exports: [],
+  exports: [SegmentFindByIdAction],
 })
 export class SegmentModule {}
