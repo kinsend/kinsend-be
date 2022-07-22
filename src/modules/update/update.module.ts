@@ -8,6 +8,8 @@ import { UpdateCreateAction } from './services/UpdateCreateAction.service';
 import { UpdateController } from './update.controller';
 import { Update, UpdateSchema } from './update.schema';
 import { UpdateFindAction } from './services/UpdateFindAction.service';
+import { UpdateSendTestAction } from './services/UpdateSendTestAction.service';
+import { FormSubmissionModule } from '../form.submission/form.submission.module';
 
 @Module({
   controllers: [UpdateController],
@@ -15,8 +17,15 @@ import { UpdateFindAction } from './services/UpdateFindAction.service';
     SharedModule,
     MongooseModule.forFeature([{ name: Update.name, schema: UpdateSchema }]),
     UserModule,
+    FormSubmissionModule,
   ],
-  providers: [UpdateCreateAction, UpdateFindByIdAction, UpdateModelUpdateAction, UpdateFindAction],
+  providers: [
+    UpdateCreateAction,
+    UpdateFindByIdAction,
+    UpdateModelUpdateAction,
+    UpdateFindAction,
+    UpdateSendTestAction,
+  ],
   exports: [],
 })
 export class UpdateModule {}

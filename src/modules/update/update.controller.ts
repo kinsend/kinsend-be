@@ -27,6 +27,8 @@ import { UpdateModelUpdatePayload } from './dtos/UpdateModelUpdatePayload.dto';
 import { UpdateFindAction } from './services/UpdateFindAction.service';
 import { UpdateFindQueryQueryDto } from './dtos/UpdateFindQueryDto';
 import { UpdateFindByIdAction } from './services/UpdateFindByIdAction.service';
+import { UpdateSendTestAction } from './services/UpdateSendTestAction.service';
+import { UpdateSendTestPayload } from './dtos/UpdateSendTestPayload.dto';
 
 @ApiTags('Updates')
 @UseInterceptors(MongooseClassSerializerInterceptor(UpdateModule))
@@ -39,12 +41,13 @@ export class UpdateController {
     private updateModelUpdateAction: UpdateModelUpdateAction,
     private updateFindAction: UpdateFindAction,
     private updateFindByIdAction: UpdateFindByIdAction,
+    private updateSendTestAction: UpdateSendTestAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
   @Post('/')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  createSegment(
+  createUpdate(
     @Req() request: AppRequest,
     @Body()
     payload: UpdateCreatePayload,
@@ -55,7 +58,7 @@ export class UpdateController {
   @HttpCode(HttpStatus.OK)
   @Put('/:id')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  updateSegment(
+  updateUpdate(
     @Req() request: AppRequest,
     @Param('id', TranformObjectIdPipe) id: string,
     @Body()
@@ -66,13 +69,24 @@ export class UpdateController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  getSegments(@Req() request: AppRequest, @Query() query: UpdateFindQueryQueryDto) {
+  getUpdates(@Req() request: AppRequest, @Query() query: UpdateFindQueryQueryDto) {
     return this.updateFindAction.execute(request, query);
   }
 
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
-  getSegment(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
+  getUpdate(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
     return this.updateFindByIdAction.execute(request, id);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('/send-test')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  sendTest(
+    @Req() request: AppRequest,
+    @Body()
+    payload: UpdateSendTestPayload,
+  ) {
+    return this.updateSendTestAction.execute(request, payload);
   }
 }

@@ -8,8 +8,11 @@ import { VirtualCardModule } from '../virtualcard/virtual.card.module';
 import { FormSubmissionController } from './form.submission.controller';
 import { FormSubmission, FormSubmissionSchema } from './form.submission.schema';
 import { FormSubmissionCreateAction } from './services/FormSubmissionCreateAction.service';
+import { FormSubmissionGetLocationsAction } from './services/FormSubmissionGetLocationsAction.service';
 import { FormSubmissionsCountByIdsAction } from './services/FormSubmissionsCountByIdsAction.service';
 import { FormSubmissionsFindByEmailAction } from './services/FormSubmissionsFindByEmailAction.service';
+import { FormSubmissionFindByIdAction } from './services/FormSubmissionFindByIdAction.service';
+import { FormSubmissionsGetAction } from './services/FormSubmissionsGetAction.service';
 
 @Module({
   controllers: [FormSubmissionController],
@@ -25,7 +28,14 @@ import { FormSubmissionsFindByEmailAction } from './services/FormSubmissionsFind
     FormSubmissionCreateAction,
     FormSubmissionsFindByEmailAction,
     FormSubmissionsCountByIdsAction,
+    FormSubmissionGetLocationsAction,
+    FormSubmissionsGetAction,
+    FormSubmissionFindByIdAction,
   ],
-  exports: [FormSubmissionsFindByEmailAction, FormSubmissionsCountByIdsAction],
+  exports: [
+    FormSubmissionsFindByEmailAction,
+    FormSubmissionsCountByIdsAction,
+    FormSubmissionFindByIdAction,
+  ],
 })
 export class FormSubmissionModule {}

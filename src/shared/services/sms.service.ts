@@ -253,4 +253,41 @@ export class SmsService {
       });
     }
   }
+
+  async sendMessageHasThrowError(
+    context: RequestContext,
+    from: string,
+    message: string,
+    fileUrl: string | undefined,
+    to: string,
+  ): Promise<void> {
+    const { logger, correlationId } = context;
+    try {
+      const payload: MessageListInstanceCreateOptions = {
+        from,
+        to,
+      };
+      if (message) {
+        payload.body = message;
+      }
+      if (fileUrl) {
+        payload.mediaUrl = fileUrl;
+      }
+      const result = await this.twilioClient.messages.create(payload);
+      logger.info({
+        correlationId,
+        message: 'Send message successful!',
+        result,
+        to,
+      });
+    } catch (error: unknown) {
+      logger.error({
+        correlationId,
+        message: 'Send message fail!',
+        error,
+        to,
+      });
+      throw new IllegalStateException(error as any);
+    }
+  }
 }

@@ -14,3 +14,11 @@ export enum UPDATE_PROGRESS {
   DONE = 'Done',
   SCHEDULED = 'Scheduled',
 }
+
+export enum UPDATE_MERGR_FIELDS {
+  FNAME = '<fname>',
+  LNAME = '<lname>',
+  NAME = '<name>',
+  MOBILE = '<mobile>',
+  FORM = '<form>',
+}
