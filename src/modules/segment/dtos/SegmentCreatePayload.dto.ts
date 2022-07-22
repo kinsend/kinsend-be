@@ -23,7 +23,7 @@ export class Filter {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  title?: string;
+  key?: string;
 
   @ApiProperty({
     example: 2,
