@@ -156,6 +156,15 @@ export class Filter {
   @IsMongoId()
   @IsOptional()
   segmentId?: string;
+
+  @ApiProperty({
+    example: 'Input location',
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  location?: string;
 }
 
 export class SegmentCreatePayload {
