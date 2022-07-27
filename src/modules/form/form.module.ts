@@ -11,6 +11,7 @@ import { Form, FormSchema } from './form.schema';
 import { FormCreateAction } from './services/FormCreateAction.service';
 import { FormDeleteByIdAction } from './services/FormDeleteByIdAction.service';
 import { FormGetByIdAction } from './services/FormGetByIdAction.service';
+import { FormGetSubmissionsByTagIds } from './services/FormGetSubmissionsByTagIds';
 import { FormsGetAction } from './services/FormsGetAction.service';
 import { FormUpdateAction } from './services/FormUpdateAction.service ';
 import { FormUpdateStatusAction } from './services/FormUpdateStatusAction.service';
@@ -33,7 +34,8 @@ import { FormUpdateStatusAction } from './services/FormUpdateStatusAction.servic
     FormUpdateAction,
     FormDeleteByIdAction,
     FormUpdateStatusAction,
+    FormGetSubmissionsByTagIds,
   ],
-  exports: [FormGetByIdAction],
+  exports: [FormGetByIdAction, FormGetSubmissionsByTagIds],
 })
 export class FormModule {}

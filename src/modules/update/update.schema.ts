@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { Transform } from 'class-transformer';
 import { User } from '../user/user.schema';
-import { UPDATE_TRIGGER_TYPE, UPDATE_PROGRESS } from './interfaces/const';
+import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from './interfaces/const';
 import { Filter } from '../segment/dtos/SegmentCreatePayload.dto';
 
 export type UpdateDocument = Update & Document;
@@ -30,8 +30,8 @@ export class Update {
   @Prop({ required: true, type: Date })
   datetime: Date;
 
-  @Prop({ required: true, default: UPDATE_TRIGGER_TYPE.EVERY_DAY })
-  triggerType: UPDATE_TRIGGER_TYPE;
+  @Prop({ required: true, default: INTERVAL_TRIGGER_TYPE.EVERY_DAY })
+  triggerType: INTERVAL_TRIGGER_TYPE;
 
   @Prop({ type: String, default: UPDATE_PROGRESS.SCHEDULED })
   progress: UPDATE_PROGRESS;

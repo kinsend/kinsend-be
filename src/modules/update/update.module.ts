@@ -10,6 +10,10 @@ import { Update, UpdateSchema } from './update.schema';
 import { UpdateFindAction } from './services/UpdateFindAction.service';
 import { UpdateSendTestAction } from './services/UpdateSendTestAction.service';
 import { FormSubmissionModule } from '../form.submission/form.submission.module';
+import { TagsModule } from '../tags/tags.module';
+import { FormModule } from '../form/form.module';
+import { UpdateTaggedTriggerAction } from './services/UpdateTriggerAction/UpdateTaggedTriggerAction';
+import { UpdateHandleTrigerAction } from './services/UpdateHandleTrigerAction';
 
 @Module({
   controllers: [UpdateController],
@@ -18,6 +22,8 @@ import { FormSubmissionModule } from '../form.submission/form.submission.module'
     MongooseModule.forFeature([{ name: Update.name, schema: UpdateSchema }]),
     UserModule,
     FormSubmissionModule,
+    TagsModule,
+    FormModule,
   ],
   providers: [
     UpdateCreateAction,
@@ -25,6 +31,8 @@ import { FormSubmissionModule } from '../form.submission/form.submission.module'
     UpdateModelUpdateAction,
     UpdateFindAction,
     UpdateSendTestAction,
+    UpdateTaggedTriggerAction,
+    UpdateHandleTrigerAction,
   ],
   exports: [],
 })

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-export enum UPDATE_TRIGGER_TYPE {
+export enum INTERVAL_TRIGGER_TYPE {
   ONCE = 'Once',
   EVERY_DAY = 'Every day',
   EVERY_OTHER_DAY = 'Every other day',

@@ -7,7 +7,7 @@ import { sleep } from '../../utils/sleep';
 export class BackgroudJobService {
   constructor(private readonly configService: ConfigService) {}
 
-  public job(date: Date, delay: number | undefined, callback: () => Promise<void>) {
+  public job(date: Date | string, delay: number | undefined, callback: () => Promise<void>) {
     const job1 = new schedule.Job(async () => {
       if (delay) {
         await (() => sleep(delay))();
