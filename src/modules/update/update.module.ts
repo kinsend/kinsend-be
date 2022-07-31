@@ -14,6 +14,7 @@ import { TagsModule } from '../tags/tags.module';
 import { FormModule } from '../form/form.module';
 import { UpdateTaggedTriggerAction } from './services/UpdateTriggerAction/UpdateTaggedTriggerAction';
 import { UpdateHandleTrigerAction } from './services/UpdateHandleTrigerAction';
+import { UpdateLocationTriggerAction } from './services/UpdateTriggerAction/UpdateLocationTriggerAction';
 
 @Module({
   controllers: [UpdateController],
@@ -33,6 +34,7 @@ import { UpdateHandleTrigerAction } from './services/UpdateHandleTrigerAction';
     UpdateSendTestAction,
     UpdateTaggedTriggerAction,
     UpdateHandleTrigerAction,
+    UpdateLocationTriggerAction,
   ],
   exports: [],
 })

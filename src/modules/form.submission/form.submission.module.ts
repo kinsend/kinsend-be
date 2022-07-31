@@ -13,6 +13,7 @@ import { FormSubmissionsCountByIdsAction } from './services/FormSubmissionsCount
 import { FormSubmissionsFindByEmailAction } from './services/FormSubmissionsFindByEmailAction.service';
 import { FormSubmissionFindByIdAction } from './services/FormSubmissionFindByIdAction.service';
 import { FormSubmissionsGetAction } from './services/FormSubmissionsGetAction.service';
+import { FormSubmissionsGetByLocationsAction } from './services/FormSubmissionsGetByLocationsAction.service';
 
 @Module({
   controllers: [FormSubmissionController],
@@ -31,11 +32,13 @@ import { FormSubmissionsGetAction } from './services/FormSubmissionsGetAction.se
     FormSubmissionGetLocationsAction,
     FormSubmissionsGetAction,
     FormSubmissionFindByIdAction,
+    FormSubmissionsGetByLocationsAction,
   ],
   exports: [
     FormSubmissionsFindByEmailAction,
     FormSubmissionsCountByIdsAction,
     FormSubmissionFindByIdAction,
+    FormSubmissionsGetByLocationsAction,
   ],
 })
 export class FormSubmissionModule {}
