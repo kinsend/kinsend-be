@@ -219,7 +219,6 @@ export class UpdateBaseTriggerAction {
       if (this.isSkipTrigger(context, update.triggerType)) {
         return;
       }
-
       logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
       await Promise.all(
         subscribers.map((sub) => {

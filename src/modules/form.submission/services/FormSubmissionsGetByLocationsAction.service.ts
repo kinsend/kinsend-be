@@ -27,6 +27,7 @@ export class FormSubmissionsGetByLocationsAction {
             email: '$email',
             firstName: '$firstName',
             lastName: '$lastName',
+            location: '$location',
           },
         },
       },

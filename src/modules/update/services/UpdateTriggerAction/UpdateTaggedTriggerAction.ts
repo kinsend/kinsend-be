@@ -32,8 +32,10 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
       logger.info('Skip  update tagged trigger. Tag should not null.');
       return;
     }
-    const forms = await this.formGetSubmissionsByTagId.execute(context, isArray ? tagId : [tagId]);
-    const subscribers = this.getSubmissionByForms(forms);
+    const subscribers = await this.formGetSubmissionsByTagId.execute(
+      context,
+      isArray ? tagId : [tagId],
+    );
     this.executeTrigger(
       context,
       ownerPhoneNumber,
@@ -43,24 +45,4 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
       this.smsService,
     );
   }
-
-  private getSubmissionByForms = (forms: FormGetSubmissionResponse[]): FormSubmission[] => {
-    const submissions: FormSubmission[] = [];
-    for (const form of forms) {
-      for (const sub of form.formsubmissions) {
-        const { phoneNumber } = sub;
-        if (
-          !submissions.some(
-            (item) =>
-              item.phoneNumber.code === phoneNumber.code &&
-              item.phoneNumber.phone === phoneNumber.phone &&
-              item.phoneNumber.short === phoneNumber.short,
-          )
-        ) {
-          submissions.push(sub);
-        }
-      }
-    }
-    return submissions;
-  };
 }
