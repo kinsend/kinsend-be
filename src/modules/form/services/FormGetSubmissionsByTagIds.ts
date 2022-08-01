@@ -22,6 +22,11 @@ export class FormGetSubmissionsByTagIds {
       {
         $lookup: {
           from: 'formsubmissions',
+          let: {
+            id: '$_id',
+            form: '$formsubmissions.form',
+          },
+          pipeline: [{ $match: { $expr: { $eq: ['$form', '$$id'] } } }],
           localField: 'form',
           foreignField: 'forms',
           as: 'formsubmissions',
@@ -33,6 +38,7 @@ export class FormGetSubmissionsByTagIds {
       {
         $group: {
           _id: {
+            _id: '$formsubmissions._id',
             phoneNumber: '$formsubmissions.phoneNumber',
             email: '$formsubmissions.email',
             firstName: '$formsubmissions.firstName',

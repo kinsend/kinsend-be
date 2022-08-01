@@ -5,6 +5,7 @@ import { Transform } from 'class-transformer';
 import { User } from '../user/user.schema';
 import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from './interfaces/const';
 import { Filter } from '../segment/dtos/SegmentCreatePayload.dto';
+import { FormSubmission } from '../form.submission/form.submission.schema';
 
 export type UpdateDocument = Update & Document;
 
@@ -21,8 +22,14 @@ export class Update {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', index: true })
   createdBy: User;
 
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'FormSubmission', index: true })
+  recipients: FormSubmission[];
+
   @Prop({ type: String, required: true })
   message: string;
+
+  @Prop({ type: String, required: false })
+  fileUrl?: string;
 
   @Prop({ required: true })
   filter: Filter;

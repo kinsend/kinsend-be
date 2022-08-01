@@ -1,12 +1,12 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
 import { BackgroudJobService } from '../../../../shared/services/backgroud.job.service';
 import { SmsService } from '../../../../shared/services/sms.service';
 import { RequestContext } from '../../../../utils/RequestContext';
-import { FormSubmission } from '../../../form.submission/form.submission.schema';
-import { FormGetSubmissionResponse } from '../../../form/interfaces/form.interface';
 import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmissionsByTagIds';
 import { UpdateDocument } from '../../update.schema';
+import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
 @Injectable()
@@ -14,6 +14,7 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
   constructor(
     private formGetSubmissionsByTagId: FormGetSubmissionsByTagIds,
     private backgroudJobService: BackgroudJobService,
+    private updateReportingCreateAction: UpdateReportingCreateAction,
     private smsService: SmsService,
   ) {
     super();
@@ -36,6 +37,9 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
       context,
       isArray ? tagId : [tagId],
     );
+    update.recipients = subscribers;
+    update.save();
+    this.updateReportingCreateAction.execute(context, update, subscribers);
     this.executeTrigger(
       context,
       ownerPhoneNumber,

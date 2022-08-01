@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable guard-for-in */
@@ -14,6 +15,7 @@ import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmis
 import { Filter } from '../../../segment/dtos/SegmentCreatePayload.dto';
 import { SegmentFindByIdAction } from '../../../segment/services/SegmentFindByIdAction.service';
 import { UpdateDocument } from '../../update.schema';
+import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
 @Injectable()
@@ -24,6 +26,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     private smsService: SmsService,
     private segmentFindByIdAction: SegmentFindByIdAction,
     private formGetSubmissionsByTagId: FormGetSubmissionsByTagIds,
+    private updateReportingCreateAction: UpdateReportingCreateAction,
   ) {
     super();
   }
@@ -41,6 +44,10 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     }
     const segment = await this.getSegmentById(context, segmentId);
     const subscribers = await this.handleSegmentFilters(context, segment.filters);
+    update.recipients = subscribers;
+    update.save();
+    this.updateReportingCreateAction.execute(context, update, subscribers);
+
     this.executeTrigger(
       context,
       ownerPhoneNumber,

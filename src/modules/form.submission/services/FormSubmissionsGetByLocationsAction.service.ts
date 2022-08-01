@@ -23,6 +23,7 @@ export class FormSubmissionsGetByLocationsAction {
       {
         $group: {
           _id: {
+            _id: '$_id',
             phoneNumber: '$phoneNumber',
             email: '$email',
             firstName: '$firstName',

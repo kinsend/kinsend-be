@@ -17,12 +17,21 @@ import { UpdateHandleTrigerAction } from './services/UpdateHandleTrigerAction';
 import { UpdateLocationTriggerAction } from './services/UpdateTriggerAction/UpdateLocationTriggerAction';
 import { UpdateSegmentTriggerAction } from './services/UpdateTriggerAction/UpdateSegmentTriggerAction';
 import { SegmentModule } from '../segment/segment.module';
+import { UpdateReporting, UpdateReportingSchema } from './update.reporting.schema';
+import { UpdateReportingCreateAction } from './services/update.reporting/UpdateReportingCreateAction.service';
+import { UpdateReportingUpdateAction } from './services/update.reporting/UpdateReportingUpdateAction.service';
+import { UpdateReportingFindByUpdateIdAction } from './services/update.reporting/UpdateReportingFindByUpdateIdAction.service';
+import { UpdatesFindByCreatedByAction } from './services/UpdatesFindByCreatedByAction.service';
+import { UpdateReportingUpdateByResponseAction } from './services/update.reporting/UpdateReportingUpdateByResponseAction.service';
 
 @Module({
   controllers: [UpdateController],
   imports: [
     SharedModule,
-    MongooseModule.forFeature([{ name: Update.name, schema: UpdateSchema }]),
+    MongooseModule.forFeature([
+      { name: Update.name, schema: UpdateSchema },
+      { name: UpdateReporting.name, schema: UpdateReportingSchema },
+    ]),
     UserModule,
     FormSubmissionModule,
     TagsModule,
@@ -39,7 +48,17 @@ import { SegmentModule } from '../segment/segment.module';
     UpdateHandleTrigerAction,
     UpdateLocationTriggerAction,
     UpdateSegmentTriggerAction,
+    UpdateReportingCreateAction,
+    UpdateReportingUpdateAction,
+    UpdateReportingFindByUpdateIdAction,
+    UpdatesFindByCreatedByAction,
+    UpdateReportingUpdateByResponseAction,
   ],
-  exports: [],
+  exports: [
+    UpdateReportingUpdateAction,
+    UpdateReportingFindByUpdateIdAction,
+    UpdatesFindByCreatedByAction,
+    UpdateReportingUpdateByResponseAction,
+  ],
 })
 export class UpdateModule {}

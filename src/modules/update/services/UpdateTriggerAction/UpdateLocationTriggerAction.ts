@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
 import { BackgroudJobService } from '../../../../shared/services/backgroud.job.service';
@@ -5,6 +6,7 @@ import { SmsService } from '../../../../shared/services/sms.service';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { FormSubmissionsGetByLocationsAction } from '../../../form.submission/services/FormSubmissionsGetByLocationsAction.service';
 import { UpdateDocument } from '../../update.schema';
+import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
 @Injectable()
@@ -13,6 +15,7 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
     private formSubmissionsGetByLocationsAction: FormSubmissionsGetByLocationsAction,
     private backgroudJobService: BackgroudJobService,
     private smsService: SmsService,
+    private updateReportingCreateAction: UpdateReportingCreateAction,
   ) {
     super();
   }
@@ -29,6 +32,9 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
       return;
     }
     const subscribers = await this.formSubmissionsGetByLocationsAction.execute(context, [location]);
+    this.updateReportingCreateAction.execute(context, update, subscribers);
+    update.recipients = subscribers;
+    update.save();
     this.executeTrigger(
       context,
       ownerPhoneNumber,

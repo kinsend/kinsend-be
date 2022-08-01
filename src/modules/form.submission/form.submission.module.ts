@@ -14,6 +14,7 @@ import { FormSubmissionsFindByEmailAction } from './services/FormSubmissionsFind
 import { FormSubmissionFindByIdAction } from './services/FormSubmissionFindByIdAction.service';
 import { FormSubmissionsGetAction } from './services/FormSubmissionsGetAction.service';
 import { FormSubmissionsGetByLocationsAction } from './services/FormSubmissionsGetByLocationsAction.service';
+import { FormSubmissionFindByPhoneNumberAction } from './services/FormSubmissionFindByPhoneNumberAction.service';
 
 @Module({
   controllers: [FormSubmissionController],
@@ -33,12 +34,14 @@ import { FormSubmissionsGetByLocationsAction } from './services/FormSubmissionsG
     FormSubmissionsGetAction,
     FormSubmissionFindByIdAction,
     FormSubmissionsGetByLocationsAction,
+    FormSubmissionFindByPhoneNumberAction,
   ],
   exports: [
     FormSubmissionsFindByEmailAction,
     FormSubmissionsCountByIdsAction,
     FormSubmissionFindByIdAction,
     FormSubmissionsGetByLocationsAction,
+    FormSubmissionFindByPhoneNumberAction,
   ],
 })
 export class FormSubmissionModule {}

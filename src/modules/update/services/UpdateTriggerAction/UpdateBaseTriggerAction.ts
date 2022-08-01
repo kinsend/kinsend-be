@@ -230,7 +230,14 @@ export class UpdateBaseTriggerAction {
             name: firstName + lastName,
             mobile: to,
           });
-          return smsService.sendMessage(context, ownerPhoneNumber, messageFilled, undefined, to);
+          return smsService.sendMessage(
+            context,
+            ownerPhoneNumber,
+            messageFilled,
+            undefined,
+            to,
+            `api/hook/sms/update/status/${update.id}`,
+          );
         }),
       );
     };

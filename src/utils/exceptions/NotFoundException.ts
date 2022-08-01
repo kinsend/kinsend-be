@@ -16,7 +16,8 @@ export type NotFoundResourceTypes =
   | 'CNAME'
   | 'Segment'
   | 'Update'
-  | 'FormSubmission';
+  | 'FormSubmission'
+  | 'UpdateReporting';
 export class NotFoundException extends HttpException {
   constructor(resourceType: NotFoundResourceTypes, debugMessage: string) {
     super(

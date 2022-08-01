@@ -224,6 +224,7 @@ export class SmsService {
     message: string,
     fileUrl: string | undefined,
     to: string,
+    callbackUrl?: string,
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
@@ -234,8 +235,13 @@ export class SmsService {
       if (message) {
         payload.body = message;
       }
+
       if (fileUrl) {
         payload.mediaUrl = fileUrl;
+      }
+
+      if (callbackUrl) {
+        payload.statusCallback = `${this.configService.backendDomain}/${callbackUrl}`;
       }
       const result = await this.twilioClient.messages.create(payload);
       logger.info({
