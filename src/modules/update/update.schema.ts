@@ -28,6 +28,9 @@ export class Update {
   @Prop({ type: String, required: true })
   message: string;
 
+  @Prop({ type: String, required: true })
+  messageReview: string;
+
   @Prop({ type: String, required: false })
   fileUrl?: string;
 

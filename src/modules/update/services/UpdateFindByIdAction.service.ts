@@ -1,3 +1,5 @@
+/* eslint-disable unicorn/no-array-for-each */
+/* eslint-disable no-param-reassign */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -5,9 +7,14 @@ import mongo, { Model } from 'mongoose';
 import { caculatePercent } from '../../../utils/caculatePercent';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
-import { UpdateGetByIdResponse } from '../interfaces/update.interface';
+import { FormSubmissionDocument } from '../../form.submission/form.submission.schema';
+import { SegmentFindByIdAction } from '../../segment/services/SegmentFindByIdAction.service';
+import { TagsGetByIdAction } from '../../tags/services/TagsGetByIdAction.service';
+import { Clicked, Subscriber, UpdateGetByIdResponse } from '../interfaces/update.interface';
+import { LinkRedirectDocument } from '../link.redirect.schema';
 import { UpdateReportingDocument } from '../update.reporting.schema';
 import { Update, UpdateDocument } from '../update.schema';
+import { LinkRedirectFindIsRootdByUpdateIdAction } from './link.redirect/LinkRedirectFindIsRootdByUpdateIdAction.service';
 import { UpdateReportingFindByUpdateIdAction } from './update.reporting/UpdateReportingFindByUpdateIdAction.service';
 
 @Injectable()
@@ -15,23 +22,35 @@ export class UpdateFindByIdAction {
   constructor(
     @InjectModel(Update.name) private updateModel: Model<UpdateDocument>,
     private updateReportingFindByUpdateIdAction: UpdateReportingFindByUpdateIdAction,
+    private tagsGetByIdAction: TagsGetByIdAction,
+    private segmentFindByIdAction: SegmentFindByIdAction,
+    private linkRedirectFindIsRootdByUpdateIdAction: LinkRedirectFindIsRootdByUpdateIdAction,
   ) {}
 
   async execute(context: RequestContext, id: string): Promise<UpdateGetByIdResponse> {
-    const update = await this.updateModel.findById(id).select('-recipients');
+    const update = await this.updateModel.findById(id).populate('recipients');
     if (!update) {
       throw new NotFoundException('Update', 'Update not found!');
     }
-    const reporting = await (
-      await this.updateReportingFindByUpdateIdAction.execute(context, id)
-    ).populate([{ path: 'responded', select: ['-password'] }]);
-    return this.buildResponse(update, reporting);
+    const [reporting, rootLinkRedirect] = await Promise.all([
+      (
+        await this.updateReportingFindByUpdateIdAction.execute(context, id)
+      ).populate([
+        { path: 'responded', select: ['-password'] },
+        { path: 'clicked', select: ['-password'] },
+      ]),
+      this.linkRedirectFindIsRootdByUpdateIdAction.execute(context, id),
+    ]);
+    this.buildConvertSubmissionToJson(update.recipients as FormSubmissionDocument[]);
+    return this.buildResponse(context, update, reporting, rootLinkRedirect);
   }
 
-  private buildResponse(
+  private async buildResponse(
+    context: RequestContext,
     update: UpdateDocument,
     reporting: UpdateReportingDocument,
-  ): UpdateGetByIdResponse {
+    rootLinkRedirect: LinkRedirectDocument[],
+  ): Promise<UpdateGetByIdResponse> {
     const {
       responded,
       deliveredNumbers,
@@ -42,27 +61,121 @@ export class UpdateFindByIdAction {
       deliveredByMms,
       byLocal,
       byInternational,
+      optedOutResponded,
+      linkNumbers,
     } = reporting;
-    const responsePercent = caculatePercent(responded?.length || 0, deliveredNumbers);
-    const deliveredPercent = caculatePercent(deliveredNumbers, recipients);
-    const bouncedPercent = caculatePercent(bounced, recipients);
-    // cleanedPercent same as Opted Out
-    const cleanedPercent = caculatePercent(cleaned, recipients);
-    const deliveredSMSPercent = caculatePercent(deliveredBySms, recipients);
 
-    const deliveredMMSPercent = caculatePercent(deliveredByMms, recipients);
-    const domesticPercent = caculatePercent(byLocal, recipients);
-    const internationalPercent = caculatePercent(byInternational, recipients);
-    reporting.$set('responsePercent', responsePercent, { strict: false });
-    reporting.$set('deliveredPercent', deliveredPercent, { strict: false });
-    reporting.$set('bouncedPercent', bouncedPercent, { strict: false });
-    reporting.$set('cleanedPercent', cleanedPercent, { strict: false });
-    reporting.$set('deliveredSMSPercent', deliveredSMSPercent, { strict: false });
-    reporting.$set('deliveredMMSPercent', deliveredMMSPercent, { strict: false });
-    reporting.$set('domesticPercent', domesticPercent, { strict: false });
-    reporting.$set('internationalPercent', internationalPercent, { strict: false });
-    reporting.$set('optedOut', cleanedPercent, { strict: false });
-    update.$set('reporting', reporting, { strict: false });
+    const cleanedPercent = caculatePercent(cleaned, recipients);
+    const buildResponsed = this.buildResponsedResponse(
+      update.recipients as FormSubmissionDocument[],
+      responded,
+    );
+    const reportingResponse = {
+      responsePercent: caculatePercent(responded?.length || 0, deliveredNumbers),
+      deliveredPercent: caculatePercent(deliveredNumbers, recipients),
+      bouncedPercent: caculatePercent(bounced, recipients),
+      cleanedPercent,
+      deliveredSMSPercent: caculatePercent(deliveredBySms, recipients),
+      deliveredMMSPercent: caculatePercent(deliveredByMms, recipients),
+      domesticPercent: caculatePercent(byLocal, recipients),
+      internationalPercent: caculatePercent(byInternational, recipients),
+      optedOut: cleanedPercent,
+      recipients,
+      responded: buildResponsed.responsed,
+      notResponse: buildResponsed.notResponse,
+      clicked: this.buildClickedResponse(
+        rootLinkRedirect,
+        update.recipients as FormSubmissionDocument[],
+      ),
+      deliveredNumbers,
+      deliveredBySms,
+      deliveredByMms,
+      byLocal,
+      byInternational,
+      optedOutResponded,
+      linkNumbers,
+      bounced,
+      cleaned,
+      clickedPercent: this.caculateClickedPercent(rootLinkRedirect, recipients),
+    };
+
+    update.$set('reporting', reportingResponse, { strict: false });
+    const filterResponse: any = update.filter;
+
+    if (filterResponse.tagId) {
+      const tag = await this.tagsGetByIdAction.execute(context, filterResponse.tagId as string);
+      filterResponse.title = tag.name;
+    }
+
+    if (filterResponse.segmentId) {
+      const tag = await this.segmentFindByIdAction.execute(
+        context,
+        filterResponse.segmentId as string,
+      );
+      filterResponse.title = tag.name;
+    }
+    update.filter = filterResponse;
     return update as UpdateGetByIdResponse;
+  }
+
+  private caculateClickedPercent(rootLinkRedirect: LinkRedirectDocument[], recipients: number) {
+    let totalClicked = 0;
+    rootLinkRedirect.forEach((link) => {
+      totalClicked += link.clicked?.length || 0;
+    });
+
+    return caculatePercent(totalClicked, recipients);
+  }
+
+  private buildClickedResponse(
+    linkRedirects: LinkRedirectDocument[],
+    recipients: FormSubmissionDocument[],
+  ) {
+    const clickedResponse: Clicked[] = [];
+    linkRedirects.forEach((link) => {
+      const unClicked = recipients.filter((rec) =>
+        link.clicked?.some((item) => item.id !== rec.id),
+      );
+      const clickedItem: Clicked = {
+        link: link.redirect,
+        clicked: this.buildConvertSubmissionToJson(link.clicked),
+        unClicked: this.buildConvertSubmissionToJson(unClicked),
+      };
+      clickedResponse.push(clickedItem);
+    });
+    return clickedResponse;
+  }
+
+  private buildResponsedResponse(
+    recipients: FormSubmissionDocument[],
+    responded?: FormSubmissionDocument[],
+  ): { responsed: Subscriber[]; notResponse: Subscriber[] } {
+    let responsed: Subscriber[] = [];
+    let notResponse: Subscriber[] = [];
+
+    if (!responded || responded.length === 0) {
+      notResponse = this.buildConvertSubmissionToJson(recipients);
+      return {
+        responsed,
+        notResponse,
+      };
+    }
+
+    const notResponseFilter = recipients.filter((rec) =>
+      responded.some((item) => item.id !== rec.id),
+    );
+    responsed = this.buildConvertSubmissionToJson(responded);
+    notResponse = this.buildConvertSubmissionToJson(notResponseFilter);
+    return {
+      responsed,
+      notResponse,
+    };
+  }
+
+  private buildConvertSubmissionToJson(submissions?: FormSubmissionDocument[]): Subscriber[] {
+    if (!submissions) {
+      return [];
+    }
+    return submissions.map((sub) => sub.toJSON());
   }
 }

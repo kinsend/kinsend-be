@@ -6,6 +6,7 @@ import { SmsService } from '../../../../shared/services/sms.service';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmissionsByTagIds';
 import { UpdateDocument } from '../../update.schema';
+import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
@@ -16,6 +17,7 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
     private backgroudJobService: BackgroudJobService,
     private updateReportingCreateAction: UpdateReportingCreateAction,
     private smsService: SmsService,
+    private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
   ) {
     super();
   }
@@ -47,6 +49,7 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
       update,
       this.backgroudJobService,
       this.smsService,
+      this.linkRediectCreateByMessageAction,
     );
   }
 }

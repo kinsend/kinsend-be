@@ -23,6 +23,11 @@ import { UpdateReportingUpdateAction } from './services/update.reporting/UpdateR
 import { UpdateReportingFindByUpdateIdAction } from './services/update.reporting/UpdateReportingFindByUpdateIdAction.service';
 import { UpdatesFindByCreatedByAction } from './services/UpdatesFindByCreatedByAction.service';
 import { UpdateReportingUpdateByResponseAction } from './services/update.reporting/UpdateReportingUpdateByResponseAction.service';
+import { LinkRedirect, LinkRedirectSchema } from './link.redirect.schema';
+import { LinkRediectCreateByMessageAction } from './services/link.redirect/LinkRediectCreateByMessageAction.service';
+import { LinkRediectCreateAction } from './services/link.redirect/LinkRediectCreateAction.service';
+import { LinkRedirectClickedAction } from './services/link.redirect/LinkRedirectClickedAction.service';
+import { LinkRedirectFindIsRootdByUpdateIdAction } from './services/link.redirect/LinkRedirectFindIsRootdByUpdateIdAction.service';
 
 @Module({
   controllers: [UpdateController],
@@ -31,6 +36,7 @@ import { UpdateReportingUpdateByResponseAction } from './services/update.reporti
     MongooseModule.forFeature([
       { name: Update.name, schema: UpdateSchema },
       { name: UpdateReporting.name, schema: UpdateReportingSchema },
+      { name: LinkRedirect.name, schema: LinkRedirectSchema },
     ]),
     UserModule,
     FormSubmissionModule,
@@ -53,12 +59,19 @@ import { UpdateReportingUpdateByResponseAction } from './services/update.reporti
     UpdateReportingFindByUpdateIdAction,
     UpdatesFindByCreatedByAction,
     UpdateReportingUpdateByResponseAction,
+    LinkRediectCreateAction,
+    LinkRediectCreateByMessageAction,
+    LinkRedirectClickedAction,
+    LinkRedirectFindIsRootdByUpdateIdAction,
   ],
   exports: [
     UpdateReportingUpdateAction,
     UpdateReportingFindByUpdateIdAction,
     UpdatesFindByCreatedByAction,
     UpdateReportingUpdateByResponseAction,
+    LinkRediectCreateAction,
+    LinkRediectCreateByMessageAction,
+    LinkRedirectClickedAction,
   ],
 })
 export class UpdateModule {}

@@ -6,6 +6,7 @@ import { SmsService } from '../../../../shared/services/sms.service';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { FormSubmissionsGetByLocationsAction } from '../../../form.submission/services/FormSubmissionsGetByLocationsAction.service';
 import { UpdateDocument } from '../../update.schema';
+import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
@@ -16,6 +17,7 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
     private backgroudJobService: BackgroudJobService,
     private smsService: SmsService,
     private updateReportingCreateAction: UpdateReportingCreateAction,
+    private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
   ) {
     super();
   }
@@ -42,6 +44,7 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
       update,
       this.backgroudJobService,
       this.smsService,
+      this.linkRediectCreateByMessageAction,
     );
   }
 }

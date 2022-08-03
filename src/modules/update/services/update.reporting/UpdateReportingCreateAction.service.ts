@@ -3,6 +3,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { FormSubmission } from '../../../form.submission/form.submission.schema';
 import { PhoneNumber } from '../../../user/dtos/UserResponse.dto';
@@ -36,7 +37,7 @@ export class UpdateReportingCreateAction {
       byInternational,
       deliveredBySms,
       deliveredByMms,
-      linkNumbers: this.caculateNumbersOfLink(update.message),
+      linkNumbers: getLinksInMessage(update.message).length,
     }).save();
     context.logger.info({
       message: 'Created update reporting',
@@ -63,12 +64,5 @@ export class UpdateReportingCreateAction {
       byLocal,
       byInternational,
     };
-  }
-
-  private caculateNumbersOfLink(message: string) {
-    const regex =
-      /(https?:\/\/(?:www\.|(?!www))[\dA-Za-z][\dA-Za-z-]+[\dA-Za-z]\.\S{2,}|www\.[\dA-Za-z][\dA-Za-z-]+[\dA-Za-z]\.\S{2,}|https?:\/\/(?:www\.|(?!www))[\dA-Za-z]+\.\S{2,}|www\.[\dA-Za-z]+\.\S{2,})/;
-    const matched = message.split(' ').filter((item) => item.match(regex));
-    return matched.length;
   }
 }

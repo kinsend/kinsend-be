@@ -15,6 +15,7 @@ import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmis
 import { Filter } from '../../../segment/dtos/SegmentCreatePayload.dto';
 import { SegmentFindByIdAction } from '../../../segment/services/SegmentFindByIdAction.service';
 import { UpdateDocument } from '../../update.schema';
+import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
@@ -27,6 +28,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     private segmentFindByIdAction: SegmentFindByIdAction,
     private formGetSubmissionsByTagId: FormGetSubmissionsByTagIds,
     private updateReportingCreateAction: UpdateReportingCreateAction,
+    private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
   ) {
     super();
   }
@@ -55,6 +57,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
       update,
       this.backgroudJobService,
       this.smsService,
+      this.linkRediectCreateByMessageAction,
     );
   }
 

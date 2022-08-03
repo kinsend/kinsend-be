@@ -4,6 +4,7 @@ import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { Transform } from 'class-transformer';
 import { Update } from './update.schema';
 import { FormSubmissionDocument } from '../form.submission/form.submission.schema';
+import { LinkRedirectDocument } from './link.redirect.schema';
 
 export type UpdateReportingDocument = UpdateReporting & Document;
 
@@ -26,8 +27,8 @@ export class UpdateReporting {
   @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'FormSubmission', required: false })
   responded?: FormSubmissionDocument[];
 
-  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'FormSubmission', required: false })
-  clicked?: FormSubmissionDocument[];
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'LinkRedirect', required: false })
+  clicked?: LinkRedirectDocument[];
 
   @Prop({ type: Number, default: 0 })
   deliveredNumbers: number;

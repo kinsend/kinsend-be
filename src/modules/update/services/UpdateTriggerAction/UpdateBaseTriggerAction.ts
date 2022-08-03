@@ -6,8 +6,13 @@ import { buildCronSchedule } from '../../../../utils/buildCronSchedule';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { INTERVAL_TRIGGER_TYPE } from '../../interfaces/const';
 import { UpdateDocument } from '../../update.schema';
-import { FormSubmission } from '../../../form.submission/form.submission.schema';
+import {
+  FormSubmission,
+  FormSubmissionDocument,
+} from '../../../form.submission/form.submission.schema';
 import { fillMergeFieldsToMessage } from '../../../../utils/fillMergeFieldsToMessage';
+import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
+import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 
 export class UpdateBaseTriggerAction {
   private timesPerformedOtherWeek = 0;
@@ -21,6 +26,7 @@ export class UpdateBaseTriggerAction {
     update: UpdateDocument,
     backgroudJobService: BackgroudJobService,
     smsService: SmsService,
+    linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
   ): Promise<void> {
     const { logger } = context;
     const { triggerType: interval, datetime } = update;
@@ -36,6 +42,7 @@ export class UpdateBaseTriggerAction {
           datetime,
           backgroudJobService,
           smsService,
+          linkRediectCreateByMessageAction,
         );
         break;
       }
@@ -53,6 +60,7 @@ export class UpdateBaseTriggerAction {
           sronSchedule,
           backgroudJobService,
           smsService,
+          linkRediectCreateByMessageAction,
         );
         break;
       }
@@ -70,6 +78,7 @@ export class UpdateBaseTriggerAction {
           sronSchedule,
           backgroudJobService,
           smsService,
+          linkRediectCreateByMessageAction,
         );
         break;
       }
@@ -90,6 +99,7 @@ export class UpdateBaseTriggerAction {
           sronSchedule,
           backgroudJobService,
           smsService,
+          linkRediectCreateByMessageAction,
         );
         break;
       }
@@ -110,6 +120,7 @@ export class UpdateBaseTriggerAction {
           sronSchedule,
           backgroudJobService,
           smsService,
+          linkRediectCreateByMessageAction,
         );
         break;
       }
@@ -128,6 +139,7 @@ export class UpdateBaseTriggerAction {
           sronSchedule,
           backgroudJobService,
           smsService,
+          linkRediectCreateByMessageAction,
         );
         break;
       }
@@ -147,6 +159,7 @@ export class UpdateBaseTriggerAction {
           sronSchedule,
           backgroudJobService,
           smsService,
+          linkRediectCreateByMessageAction,
         );
         break;
       }
@@ -166,6 +179,7 @@ export class UpdateBaseTriggerAction {
           sronSchedule,
           backgroudJobService,
           smsService,
+          linkRediectCreateByMessageAction,
         );
         break;
       }
@@ -207,12 +221,31 @@ export class UpdateBaseTriggerAction {
     return false;
   }
 
+  private async handleGenerateLinkRedirect(
+    update: UpdateDocument,
+    subscriber: FormSubmission,
+    context: RequestContext,
+    linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
+  ) {
+    const links = getLinksInMessage(update.message);
+    if (links.length === 0) {
+      return null;
+    }
+    const linkCreated = await linkRediectCreateByMessageAction.execute(
+      context,
+      update,
+      subscriber as FormSubmissionDocument,
+    );
+    return linkCreated.messageReview;
+  }
+
   private handleSendSms(
     context: RequestContext,
     ownerPhoneNumber: string,
     subscribers: FormSubmission[],
     update: UpdateDocument,
     smsService: SmsService,
+    linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
   ) {
     const { logger } = context;
     return async () => {
@@ -221,10 +254,17 @@ export class UpdateBaseTriggerAction {
       }
       logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
       await Promise.all(
-        subscribers.map((sub) => {
+        subscribers.map(async (sub) => {
           const { phoneNumber, firstName, lastName } = sub;
           const to = `+${phoneNumber.code}${phoneNumber.phone}`;
-          const messageFilled = fillMergeFieldsToMessage(update.message, {
+          const messageReview = await this.handleGenerateLinkRedirect(
+            update,
+            sub,
+            context,
+            linkRediectCreateByMessageAction,
+          );
+          const message = messageReview === null ? update.message : messageReview;
+          const messageFilled = fillMergeFieldsToMessage(message, {
             fname: firstName,
             lname: lastName,
             name: firstName + lastName,
@@ -251,11 +291,19 @@ export class UpdateBaseTriggerAction {
     datatime: Date | string,
     backgroudJobService: BackgroudJobService,
     smsService: SmsService,
+    linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
   ) {
     backgroudJobService.job(
       datatime,
       undefined,
-      this.handleSendSms(context, ownerPhoneNumber, subscribers, update, smsService),
+      this.handleSendSms(
+        context,
+        ownerPhoneNumber,
+        subscribers,
+        update,
+        smsService,
+        linkRediectCreateByMessageAction,
+      ),
     );
   }
 }
