@@ -41,7 +41,7 @@ import { UserAddListPhoneCreateAction } from './services/UserAddListPhoneCreateA
 
 @ApiTags('Users')
 @ApiBearerAuth()
-@Controller('users')
+@Controller('api/users')
 @UseInterceptors(MongooseClassSerializerInterceptor(UserModel))
 export class UserController {
   constructor(

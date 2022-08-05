@@ -25,7 +25,7 @@ import { FormSubmission } from './form.submission.schema';
 
 @ApiTags('FormSubmission')
 @UseInterceptors(MongooseClassSerializerInterceptor(FormSubmissionModule))
-@Controller('form-submission')
+@Controller('api/form-submission')
 export class FormSubmissionController {
   constructor(
     private formSubmissionCreateAction: FormSubmissionCreateAction,

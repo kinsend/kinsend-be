@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsIn, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Filter } from '../../segment/dtos/SegmentCreatePayload.dto';
 import { INTERVAL_TRIGGER_TYPE } from '../interfaces/const';
 
@@ -44,4 +44,13 @@ export class UpdateCreatePayload {
   @IsString()
   @IsNotEmpty()
   triggerType: INTERVAL_TRIGGER_TYPE;
+
+  @ApiProperty({
+    example: 'File url',
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  fileUrl?: string;
 }

@@ -21,7 +21,7 @@ import { SubscriptionGetPricesListAction } from './services/SubscriptionGetPrice
 import { SubscriptionGetProductsListAction } from './services/SubscriptionGetProductsListAction.service';
 
 @ApiTags('Subscriptions')
-@Controller('subscriptions')
+@Controller('api/subscriptions')
 @UsePipes(new ValidationPipe({ transform: true }))
 @UseGuards(AuthVerifyApiKey)
 export class SubscriptionController {

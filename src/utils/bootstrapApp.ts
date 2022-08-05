@@ -9,10 +9,6 @@ import { ErrorRespTransformInterceptor } from './interceptors/ErrorRespTransform
 import { ConfigService } from '../configs/config.service';
 
 export async function bootstrapApp(app: NestExpressApplication) {
-  app.setGlobalPrefix('api', {
-    exclude: ['hook'],
-  });
-
   const config = new DocumentBuilder()
     .addApiKey(
       {

@@ -18,7 +18,7 @@ import { AuthVerifyApiKey } from '../auth/services/AuthVerifyApiKey.service';
 import { AvailablePhoneNumberQueryDto } from './dtos/AvailablePhoneNumberQuery.dto';
 import { BuyPhoneNumber } from './dtos/BuyPhoneNumber.dto';
 
-@Controller('resources')
+@Controller('api/resources')
 @ApiTags('Resources')
 export class ResourceController {
   constructor(private smsService: SmsService) {}

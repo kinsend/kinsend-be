@@ -16,7 +16,7 @@ import { PaymentAttachCreditCardToConsumerAction } from './services/PaymentAttac
 
 @ApiTags('Payments')
 @ApiBearerAuth()
-@Controller('payments')
+@Controller('api/payments')
 @UseGuards(JwtAuthGuard)
 export class PaymentController {
   constructor(

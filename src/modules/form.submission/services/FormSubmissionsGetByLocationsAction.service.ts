@@ -12,28 +12,11 @@ export class FormSubmissionsGetByLocationsAction {
     @InjectModel(FormSubmission.name) private formSubmissionModel: Model<FormSubmissionDocument>,
   ) {}
 
-  async execute(context: RequestContext, locations: string[]): Promise<FormSubmissionDocument[]> {
-    const response = await this.formSubmissionModel.aggregate([
-      {
-        $match: {
-          owner: new mongoose.Types.ObjectId(context.user.id) as any,
-          location: { $in: locations as any },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            _id: '$_id',
-            phoneNumber: '$phoneNumber',
-            email: '$email',
-            firstName: '$firstName',
-            lastName: '$lastName',
-            location: '$location',
-          },
-        },
-      },
-      { $replaceWith: '$_id' as any },
-    ]);
+  async execute(context: RequestContext, location: string): Promise<FormSubmissionDocument[]> {
+    const response = await this.formSubmissionModel.find({
+      owner: context.user.id,
+      location: { $regex: `${location}$`, $options: 'i' },
+    });
     return response;
   }
 }

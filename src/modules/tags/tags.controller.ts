@@ -32,7 +32,7 @@ import { AppRequest } from '../../utils/AppRequest';
 @ApiTags('Tags')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('tags')
+@Controller('api/tags')
 @UseInterceptors(MongooseClassSerializerInterceptor(TagsModule))
 export class TagsController {
   constructor(

@@ -34,7 +34,7 @@ import { AutomationUpdateStatusAction } from './services/AutomationUpdateStatusA
 @UseInterceptors(MongooseClassSerializerInterceptor(AutomationModule))
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('automations')
+@Controller('api/automations')
 export class AutomationController {
   constructor(
     private automationCreateAction: AutomationCreateAction,

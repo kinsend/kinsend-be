@@ -274,7 +274,7 @@ export class UpdateBaseTriggerAction {
             context,
             ownerPhoneNumber,
             messageFilled,
-            undefined,
+            update.fileUrl,
             to,
             `api/hook/sms/update/status/${update.id}`,
           );

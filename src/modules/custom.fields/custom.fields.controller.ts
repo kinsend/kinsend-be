@@ -32,7 +32,7 @@ import MongooseClassSerializerInterceptor from '../../utils/interceptors/Mongoos
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(MongooseClassSerializerInterceptor(CustomFieldsModule))
-@Controller('custom-fields')
+@Controller('api/custom-fields')
 export class CustomFieldsController {
   constructor(
     private customFieldsCreateAction: CustomFieldsCreateAction,

@@ -30,6 +30,7 @@ export class LinkRedirectClickedAction {
   private async hanldeUpdateReporting(context: RequestContext, linkRedirect: LinkRedirectDocument) {
     const rootLinkRedirect = await this.linkRedirectModel.findOne({
       redirect: linkRedirect.redirect,
+      update: linkRedirect.update,
       isRoot: true,
     });
 
@@ -37,9 +38,14 @@ export class LinkRedirectClickedAction {
 
     const { clicked, isClicked } = linkRedirect;
     if (!isClicked && rootLinkRedirect) {
-      rootLinkRedirect.clicked = [...(rootLinkRedirect.clicked || []), ...(clicked || [])];
-      linkRedirect.isClicked = true;
-      await Promise.all([rootLinkRedirect.save(), linkRedirect.save()]);
+      await Promise.all([
+        rootLinkRedirect.updateOne({
+          clicked: [...(rootLinkRedirect.clicked || []), ...(clicked || [])],
+        }),
+        linkRedirect.updateOne({
+          isClicked: true,
+        }),
+      ]);
     }
   }
 }

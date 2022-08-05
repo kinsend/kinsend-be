@@ -13,7 +13,7 @@ import { ImageUploadAction } from './services/ImageUploadAction.service';
 import { AppRequest } from '../../utils/AppRequest';
 
 @ApiTags('Images')
-@Controller('images')
+@Controller('api/images')
 export class ImageController {
   constructor(private imageUploadAction: ImageUploadAction) {}
 

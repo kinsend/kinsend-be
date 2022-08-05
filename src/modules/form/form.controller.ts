@@ -42,7 +42,7 @@ import { FormUpdateStatusPayload } from './dtos/FormUpdateStatusPayload.dto';
 
 @ApiTags('Forms')
 @UseInterceptors(MongooseClassSerializerInterceptor(FormModule))
-@Controller('forms')
+@Controller('api/forms')
 export class FormController {
   constructor(
     private formCreateAction: FormCreateAction,

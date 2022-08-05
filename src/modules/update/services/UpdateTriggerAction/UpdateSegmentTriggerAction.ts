@@ -81,9 +81,10 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
       }
 
       if (location) {
-        const subscribers = await this.formSubmissionsGetByLocationsAction.execute(context, [
+        const subscribers = await this.formSubmissionsGetByLocationsAction.execute(
+          context,
           location,
-        ]);
+        );
         subscribersResponse.push(...subscribers);
       }
 

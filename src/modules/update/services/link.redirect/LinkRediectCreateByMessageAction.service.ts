@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable unicorn/no-array-for-each */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
@@ -25,22 +26,25 @@ export class LinkRediectCreateByMessageAction {
     subscriber?: FormSubmissionDocument,
     isRoot = false,
   ): Promise<{ messageReview: string }> {
-    const messagesReviews = await Promise.all(
-      update.message.split(' ').map(async (item) => {
-        if (regexLink.test(item)) {
-          const linkCreated = await this.linkRediectCreateAction.execute(
-            context,
-            update,
-            item,
-            subscriber,
-            isRoot,
-          );
-          return `${this.configService.backendDomain}/api/updates/redirect/${linkCreated.url}`;
-        }
-        return item;
-      }),
-    );
-    const messageReview = messagesReviews.join(' ');
+    const messagesResponse: string[] = [];
+    for (const item of update.message.split(/[\n '()|]/)) {
+      if (regexLink.test(item)) {
+        const linkCreated = await this.linkRediectCreateAction.execute(
+          context,
+          update,
+          item,
+          subscriber,
+          isRoot,
+        );
+        messagesResponse.push(`${this.configService.backendDomain}/${linkCreated.url}`);
+      } else {
+        messagesResponse.push(item);
+      }
+    }
+    const messageReview = messagesResponse.join(' ');
+    await update.updateOne({
+      messageReview,
+    });
     return { messageReview };
   }
 }

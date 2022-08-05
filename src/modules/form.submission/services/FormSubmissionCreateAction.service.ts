@@ -15,6 +15,7 @@ import { UserDocument } from '../../user/user.schema';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { FormDocument } from '../../form/form.schema';
 import { VirtualCardGetByUserIdWithoutAction } from '../../virtualcard/services/VirtualCardGetByUserIdWithoutAction.service';
+import { ConflictException } from '../../../utils/exceptions/ConflictException';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -31,7 +32,17 @@ export class FormSubmissionCreateAction {
     context: RequestContext,
     payload: FormSubmissionCreatePayload,
   ): Promise<FormSubmissionDocument> {
-    const formExist = await this.formGetByIdAction.execute(context, payload.formId);
+    const { phoneNumber, email, formId } = payload;
+    const formSubmissionExist = await this.formSubmissionModel.findOne({
+      'phoneNumber.phone': phoneNumber.phone,
+      'phoneNumber.code': phoneNumber.code,
+      email,
+      form: formId,
+    });
+    if (formSubmissionExist) {
+      throw new ConflictException('You have been subscriber to this form');
+    }
+    const formExist = await this.formGetByIdAction.execute(context, formId);
     const { userId } = formExist;
     const [owner, vCard] = await Promise.all([
       this.userFindByIdAction.execute(context, userId),

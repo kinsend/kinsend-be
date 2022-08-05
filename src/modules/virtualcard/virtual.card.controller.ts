@@ -27,7 +27,7 @@ import { VirtualCardModule } from './virtual.card.module';
 
 @ApiTags('vcards')
 @ApiBearerAuth()
-@Controller('vcards')
+@Controller('api/vcards')
 @UseInterceptors(MongooseClassSerializerInterceptor(VirtualCardModule))
 export class VirtualCardController {
   constructor(

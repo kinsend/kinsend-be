@@ -28,7 +28,7 @@ import { SIGNIN_PROVIDER } from '../../domain/const';
 import { AuthSigninProviderAction } from './services/AuthSigninProviderAction.service';
 
 @ApiTags('Auths')
-@Controller('auths')
+@Controller('api/auths')
 export class AuthController {
   constructor(
     private authSignInAction: AuthSignInAction,

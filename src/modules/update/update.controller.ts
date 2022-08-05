@@ -35,7 +35,7 @@ import { LinkRedirectClickedAction } from './services/link.redirect/LinkRedirect
 
 @ApiTags('Updates')
 @UseInterceptors(MongooseClassSerializerInterceptor(UpdateModule))
-@Controller('updates')
+@Controller('api/updates')
 export class UpdateController {
   constructor(
     private updateCreateAction: UpdateCreateAction,

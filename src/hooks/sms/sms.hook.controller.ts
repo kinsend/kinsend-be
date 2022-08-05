@@ -7,7 +7,7 @@ import { SmsReceiveHookAction } from './services/SmsReceiveHookAction.service';
 import { SmsStatusCallbackHookAction } from './services/SmsStatusCallbackHookAction.service';
 
 @ApiTags('Hook')
-@Controller('hook')
+@Controller('api/hook')
 export class SmsHookController {
   constructor(
     private smsReceiveHookAction: SmsReceiveHookAction,

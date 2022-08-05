@@ -28,7 +28,7 @@ import { VerificationConfirmPhoneNumberAction } from './services/VerificationCon
 import { AppRequest } from '../../utils/AppRequest';
 
 @ApiTags('Verifications')
-@Controller('verifications')
+@Controller('api/verifications')
 @UseInterceptors(MongooseClassSerializerInterceptor(UserModel))
 export class VerificationController {
   constructor(

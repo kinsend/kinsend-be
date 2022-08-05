@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
@@ -33,7 +34,7 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
       logger.info('Skip  update location trigger. Location should not null.');
       return;
     }
-    const subscribers = await this.formSubmissionsGetByLocationsAction.execute(context, [location]);
+    const subscribers = await this.formSubmissionsGetByLocationsAction.execute(context, location);
     this.updateReportingCreateAction.execute(context, update, subscribers);
     update.recipients = subscribers;
     update.save();

@@ -31,7 +31,7 @@ import { SegmentFindByIdAction } from './services/SegmentFindByIdAction.service'
 @UseInterceptors(MongooseClassSerializerInterceptor(SegmentModule))
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('segments')
+@Controller('api/segments')
 export class SegmentController {
   constructor(
     private segmentCreateAction: SegmentCreateAction,

@@ -30,7 +30,7 @@ import { CNAMEDeleteByIdAction } from './services/CNAMEDeleteByIdAction.service'
 @ApiTags('CNAME')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('cnames')
+@Controller('api/cnames')
 @UseInterceptors(MongooseClassSerializerInterceptor(CNAMEModule))
 export class CNAMEController {
   constructor(
