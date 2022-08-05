@@ -201,6 +201,6 @@ export class UpdateFindByIdAction {
     if (!submissions) {
       return [];
     }
-    return submissions.map((sub) => sub.toJSON());
+    return submissions.map((sub) => sub.toJSON()) as Subscriber[];
   }
 }
