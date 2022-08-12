@@ -24,8 +24,8 @@ export class FormSubmission {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', index: true })
   form: Form;
 
-  @Prop()
-  email: string;
+  @Prop({ required: false })
+  email?: string;
 
   @Prop()
   firstName: string;
@@ -47,6 +47,22 @@ export class FormSubmission {
 
   @Prop({ default: Date.now(), type: Date })
   updatedAt: Date;
+
+  // TODO data for test
+  @Prop({ default: true, type: Boolean })
+  isContactHidden: boolean;
+
+  @Prop({ default: true, type: Boolean })
+  isContactArchived: boolean;
+
+  @Prop({ default: true, type: Boolean })
+  isSubscribed: boolean;
+
+  @Prop({ default: true, type: Boolean })
+  isFacebookContact: boolean;
+
+  @Prop({ default: Date.now(), type: Date })
+  lastContacted: Date;
 }
 
 const FormSubmissionSchema = SchemaFactory.createForClass(FormSubmission);

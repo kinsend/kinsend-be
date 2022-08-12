@@ -24,7 +24,7 @@ export class AutomationCreateTriggerAutomationAction {
     context: RequestContext,
     owner: UserDocument,
     form: FormDocument | undefined,
-    subscriberEmail: string,
+    subscriberEmail: string | undefined,
     subscriberPhoneNumber: PhoneNumber,
     isTriggerByHook = false,
   ): Promise<void> {
@@ -57,7 +57,7 @@ export class AutomationCreateTriggerAutomationAction {
     form: FormDocument | undefined,
     from: string,
     automations: AutomationDocument[],
-    subscriberEmail: string,
+    subscriberEmail: string | undefined,
     subscriberPhoneNumber: PhoneNumber,
     isTriggerByHook = false,
   ) {

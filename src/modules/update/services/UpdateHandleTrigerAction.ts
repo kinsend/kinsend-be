@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { RequestContext } from '../../../utils/RequestContext';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { UpdateDocument } from '../update.schema';
+import { UpdateContactsTriggerAction } from './UpdateTriggerAction/UpdateContactsTriggerAction';
 import { UpdateLocationTriggerAction } from './UpdateTriggerAction/UpdateLocationTriggerAction';
 import { UpdateSegmentTriggerAction } from './UpdateTriggerAction/UpdateSegmentTriggerAction';
 import { UpdateTaggedTriggerAction } from './UpdateTriggerAction/UpdateTaggedTriggerAction';
@@ -13,11 +14,12 @@ export class UpdateHandleTrigerAction {
     private updateTaggedTriggerAction: UpdateTaggedTriggerAction,
     private updateLocationTriggerAction: UpdateLocationTriggerAction,
     private updateSegmentTriggerAction: UpdateSegmentTriggerAction,
+    private updateContactsTriggerAction: UpdateContactsTriggerAction
   ) {}
 
   async execute(context: RequestContext, update: UpdateDocument): Promise<void> {
     const { logger } = context;
-    const { tagId, location, segmentId } = update.filter;
+    const { tagId, location, segmentId, key} = update.filter;
     const { phoneSystem } = update.createdBy;
     if (!phoneSystem || (phoneSystem as PhoneNumber[]).length === 0) {
       logger.info('Skip trigger update. Phone number is empty!');
@@ -39,5 +41,7 @@ export class UpdateHandleTrigerAction {
       logger.info('Start segment trigger update');
       this.updateSegmentTriggerAction.execute(context, from, update);
     }
+    // Contacts filter
+    this.updateContactsTriggerAction.execute(context, from, update)
   }
 }

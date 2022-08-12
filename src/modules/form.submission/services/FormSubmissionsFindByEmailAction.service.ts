@@ -10,10 +10,18 @@ export class FormSubmissionsFindByEmailAction {
     @InjectModel(FormSubmission.name) private formSubmissionModel: Model<FormSubmissionDocument>,
   ) {}
 
-  async execute(context: RequestContext, email): Promise<FormSubmissionDocument[]> {
-    const formSubmission = await this.formSubmissionModel.find({
-      email,
-    });
+  async execute(
+    context: RequestContext,
+    email?: string,
+    owner?: string,
+    isNotNull?: boolean,
+  ): Promise<FormSubmissionDocument[]> {
+    const conditions: any = {
+      owner,
+      email: isNotNull ? { $ne: null } : email,
+    };
+
+    const formSubmission = await this.formSubmissionModel.find(conditions);
     const response = await Promise.all(
       formSubmission.map((formSub: FormSubmissionDocument) =>
         formSub.populate([{ path: 'owner', select: ['_id'] }]),

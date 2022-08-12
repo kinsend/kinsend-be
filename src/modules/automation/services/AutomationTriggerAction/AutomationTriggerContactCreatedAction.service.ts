@@ -18,7 +18,7 @@ export class AutomationTriggerContactCreatedAction extends AutomationBaseTriggeA
     context: RequestContext,
     from: string,
     automation: AutomationDocument,
-    subscriberEmail: string,
+    subscriberEmail: string | undefined,
     subscriberPhoneNumber: PhoneNumber,
   ): Promise<void> {
     const { logger } = context;

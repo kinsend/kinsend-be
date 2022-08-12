@@ -22,7 +22,7 @@ export class AutomationTriggerContactTaggedAction extends AutomationBaseTriggeAc
     form: FormDocument | undefined,
     from: string,
     automation: AutomationDocument,
-    subscriberEmail: string,
+    subscriberEmail: string | undefined,
     subscriberPhoneNumber: PhoneNumber,
   ): Promise<void> {
     const { logger } = context;

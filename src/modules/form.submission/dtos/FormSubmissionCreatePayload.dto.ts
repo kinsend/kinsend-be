@@ -17,11 +17,12 @@ export class FormSubmissionCreatePayload {
   @IsNotEmpty()
   formId: string;
 
-  @ApiProperty({ example: 'lorem@gmail.com', type: String, required: true })
+  @ApiProperty({ example: 'lorem@gmail.com', type: String, required: false })
   @MaxLength(50)
   @IsLowercase()
   @IsEmail()
-  email: string;
+  @IsOptional()
+  email?: string;
 
   @ApiProperty({ example: 'Lo', required: true, type: String })
   @IsString()

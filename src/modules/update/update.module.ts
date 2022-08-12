@@ -29,6 +29,7 @@ import { LinkRediectCreateAction } from './services/link.redirect/LinkRediectCre
 import { LinkRedirectClickedAction } from './services/link.redirect/LinkRedirectClickedAction.service';
 import { LinkRedirectFindIsRootdByUpdateIdAction } from './services/link.redirect/LinkRedirectFindIsRootdByUpdateIdAction.service';
 import { UpdateReportingFindByUpdateIdWithoutErrorAction } from './services/update.reporting/UpdateReportingFindByUpdateIdWithoutErrorAction.service';
+import { UpdateContactsTriggerAction } from './services/UpdateTriggerAction/UpdateContactsTriggerAction';
 
 @Module({
   controllers: [UpdateController],
@@ -65,6 +66,7 @@ import { UpdateReportingFindByUpdateIdWithoutErrorAction } from './services/upda
     LinkRedirectClickedAction,
     LinkRedirectFindIsRootdByUpdateIdAction,
     UpdateReportingFindByUpdateIdWithoutErrorAction,
+    UpdateContactsTriggerAction,
   ],
   exports: [
     UpdateReportingUpdateAction,
