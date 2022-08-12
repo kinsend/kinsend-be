@@ -280,7 +280,6 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
           owner: update.createdBy._id.toString(),
           isContactArchived: true,
         });
-        console.log('subscribers :>> ', subscribers);
         break;
       }
 
@@ -291,7 +290,6 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
           owner: update.createdBy._id.toString(),
           isContactArchived: false,
         });
-        console.log('subscribers :>> ', subscribers);
         break;
       }
 
@@ -302,7 +300,6 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
           owner: update.createdBy._id.toString(),
           isContactHidden: true,
         });
-        console.log('subscribers :>> ', subscribers);
         break;
       }
 
@@ -313,7 +310,6 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
           owner: update.createdBy._id.toString(),
           isContactHidden: false,
         });
-        console.log('subscribers :>> ', subscribers);
         break;
       }
 
@@ -333,7 +329,6 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
           owner: update.createdBy._id.toString(),
           isSubscribed: false,
         });
-        console.log('subscribers :>> ', subscribers);
         break;
       }
 
@@ -344,7 +339,6 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
           owner: update.createdBy._id.toString(),
           isFacebookContact: true,
         });
-        console.log('subscribers :>> ', subscribers);
         break;
       }
 
@@ -355,7 +349,6 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
           owner: update.createdBy._id.toString(),
           isFacebookContact: false,
         });
-        console.log('subscribers :>> ', subscribers);
         break;
       }
 
