@@ -15,7 +15,7 @@ export class UpdateFindAction {
     context: RequestContext,
     query: UpdateFindQueryQueryDto,
   ): Promise<UpdateDocument[]> {
-    const { search, progress } = query;
+    const { search, progress, limit, skip } = query;
     const condition: FilterQuery<UpdateDocument> = {
       createdBy: context.user.id,
     };
@@ -27,12 +27,22 @@ export class UpdateFindAction {
       condition.$text = { $search: search };
     }
 
-    const updates = await this.updateModel
+    const builder = this.updateModel
       .find(condition)
       .sort({
         createdAt: -1,
       })
       .populate([{ path: 'createdBy', select: ['_id'] }]);
+
+    if (skip) {
+      builder.skip(skip);
+    }
+
+    if (limit) {
+      builder.limit(limit);
+    }
+
+    const updates = await builder;
     return updates;
   }
 }

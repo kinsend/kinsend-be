@@ -71,6 +71,7 @@ export enum FILTERS_CONTACT {
   'IS_VIP' = 'Is VIP',
   'IS_NOT_VIP' = "Isn't VIP",
   'INCLUDE_SEGMENT' = 'Include Segment',
+  'RECEIVED_LATEST_UPDATE' = 'Received Latest Update',
 }
 
 export enum CONDITION {

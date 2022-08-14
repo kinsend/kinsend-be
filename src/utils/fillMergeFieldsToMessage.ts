@@ -5,6 +5,7 @@ export interface MergeFieldsValue {
   lname?: string;
   name?: string;
   mobile?: string;
+  email?: string;
 }
 export function fillMergeFieldsToMessage(message: string, mergeFieldsValue: MergeFieldsValue) {
   const messageFilled = message.split(' ').map((item) => {
@@ -20,6 +21,9 @@ export function fillMergeFieldsToMessage(message: string, mergeFieldsValue: Merg
       }
       case UPDATE_MERGR_FIELDS.MOBILE: {
         return mergeFieldsValue.mobile;
+      }
+      case UPDATE_MERGR_FIELDS.EMAIL: {
+        return mergeFieldsValue.email;
       }
 
       default: {

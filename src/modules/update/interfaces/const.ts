@@ -21,4 +21,5 @@ export enum UPDATE_MERGR_FIELDS {
   NAME = '<name>',
   MOBILE = '<mobile>',
   FORM = '<form>',
+  EMAIL = '<email>',
 }

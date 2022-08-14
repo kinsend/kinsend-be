@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { UPDATE_PROGRESS } from '../interfaces/const';
 
 export class UpdateFindQueryQueryDto {
@@ -12,4 +13,16 @@ export class UpdateFindQueryQueryDto {
   @IsOptional()
   @IsString()
   progress?: UPDATE_PROGRESS;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  limit?: number;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  skip?: number;
 }

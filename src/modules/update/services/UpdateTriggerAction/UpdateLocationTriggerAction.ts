@@ -27,9 +27,9 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
     context: RequestContext,
     ownerPhoneNumber: string,
     update: UpdateDocument,
+    location: string,
   ): Promise<void> {
     const { logger } = context;
-    const { location } = update.filter;
     if (!location) {
       logger.info('Skip  update location trigger. Location should not null.');
       return;

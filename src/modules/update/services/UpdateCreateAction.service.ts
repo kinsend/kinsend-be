@@ -30,7 +30,7 @@ export class UpdateCreateAction {
       messageReview: payload.message,
       createdBy: userModel,
     }).save();
-    this.updateHandleTrigerAction.execute(context, update);
+    this.updateHandleTrigerAction.execute(context, update, update.filter, userModel);
     const linkCreated = await this.linkRediectCreateByMessageAction.execute(
       context,
       update,

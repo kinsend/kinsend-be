@@ -10,6 +10,7 @@ import { FormSubmissionDocument } from '../../../form.submission/form.submission
 import { FormSubmissionFindByConditionAction } from '../../../form.submission/services/FormSubmissionFindByConditionAction.service';
 import { FormSubmissionsFindByEmailAction } from '../../../form.submission/services/FormSubmissionsFindByEmailAction.service';
 import { FormSubmissionsGetByLocationsAction } from '../../../form.submission/services/FormSubmissionsGetByLocationsAction.service';
+import { Filter } from '../../../segment/dtos/SegmentCreatePayload.dto';
 import { FILTERS_CONTACT } from '../../../segment/interfaces/const';
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
@@ -34,9 +35,10 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
     context: RequestContext,
     ownerPhoneNumber: string,
     update: UpdateDocument,
+    filter: Filter,
   ): Promise<void> {
     const { logger } = context;
-    const { key } = update.filter;
+    const { key } = filter;
     let subscribers: FormSubmissionDocument[] = [];
     switch (key) {
       case FILTERS_CONTACT.ALL_CONTACTS: {

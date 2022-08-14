@@ -26,10 +26,9 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
     context: RequestContext,
     ownerPhoneNumber: string,
     update: UpdateDocument,
+    tagId: string | string[],
   ): Promise<void> {
     const { logger } = context;
-    const { filter } = update;
-    const { tagId } = filter;
     const isArray = Array.isArray(tagId);
     if (!tagId || (isArray && tagId.length === 0)) {
       logger.info('Skip  update tagged trigger. Tag should not null.');

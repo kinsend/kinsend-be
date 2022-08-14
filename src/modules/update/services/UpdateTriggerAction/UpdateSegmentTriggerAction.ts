@@ -37,9 +37,9 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     context: RequestContext,
     ownerPhoneNumber: string,
     update: UpdateDocument,
+    segmentId: string,
   ): Promise<void> {
     const { logger } = context;
-    const { segmentId } = update.filter;
     if (!segmentId) {
       logger.info('Skip  update location trigger. Segment should not null.');
       return;
