@@ -26,7 +26,7 @@ export class UpdateSendTestAction {
   async execute(context: RequestContext, payload: UpdateSendTestPayload): Promise<string> {
     const { user, logger } = context;
     const userExist = await this.userFindByIdAction.execute(context, user.id);
-    const messageFilled = fillMergeFieldsToMessage(payload.message, payload);
+    const contacts = await this.formSubmissionFindByIdAction.execute(context, payload.contactsId);
 
     if (!userExist.phoneSystem || (userExist.phoneSystem as PhoneNumber[]).length === 0) {
       logger.info('User no phone number for send sms feature!');
@@ -34,9 +34,14 @@ export class UpdateSendTestAction {
     }
 
     const phoneNumberOwner = userExist.phoneSystem[0];
-
-    const contacts = await this.formSubmissionFindByIdAction.execute(context, payload.contactsId);
     const { phoneNumber } = contacts;
+    const { phoneNumber: payloadPhoneNumber } = payload;
+    const messageFilled = fillMergeFieldsToMessage(payload.message, {
+      ...payload,
+      mobile: payloadPhoneNumber
+        ? `+${payloadPhoneNumber.code}${payloadPhoneNumber.phone}`
+        : undefined,
+    });
     await this.sendUpdate(context, messageFilled, phoneNumberOwner, phoneNumber);
 
     return 'Send update test successfully!';

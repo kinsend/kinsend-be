@@ -15,7 +15,7 @@ export enum UPDATE_PROGRESS {
   SCHEDULED = 'Scheduled',
 }
 
-export enum UPDATE_MERGR_FIELDS {
+export enum UPDATE_MERGE_FIELDS {
   FNAME = '<fname>',
   LNAME = '<lname>',
   NAME = '<name>',

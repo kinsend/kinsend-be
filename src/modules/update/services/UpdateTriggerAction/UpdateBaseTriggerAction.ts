@@ -255,7 +255,7 @@ export class UpdateBaseTriggerAction {
       logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
       await Promise.all(
         subscribers.map(async (sub) => {
-          const { phoneNumber, firstName, lastName } = sub;
+          const { phoneNumber, firstName, lastName, email } = sub;
           const to = `+${phoneNumber.code}${phoneNumber.phone}`;
           const messageReview = await this.handleGenerateLinkRedirect(
             update,
@@ -269,6 +269,7 @@ export class UpdateBaseTriggerAction {
             lname: lastName,
             name: firstName + lastName,
             mobile: to,
+            email,
           });
           return smsService.sendMessage(
             context,

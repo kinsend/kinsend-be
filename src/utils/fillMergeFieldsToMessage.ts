@@ -1,4 +1,4 @@
-import { UPDATE_MERGR_FIELDS } from '../modules/update/interfaces/const';
+import { UPDATE_MERGE_FIELDS } from '../modules/update/interfaces/const';
 
 export interface MergeFieldsValue {
   fname?: string;
@@ -7,23 +7,30 @@ export interface MergeFieldsValue {
   mobile?: string;
   email?: string;
 }
+const fnameRegex = new RegExp(UPDATE_MERGE_FIELDS.FNAME);
+const lnameRegex = new RegExp(UPDATE_MERGE_FIELDS.LNAME);
+const nameRegex = new RegExp(UPDATE_MERGE_FIELDS.NAME);
+const mobileRegex = new RegExp(UPDATE_MERGE_FIELDS.MOBILE);
+const emailRegex = new RegExp(UPDATE_MERGE_FIELDS.EMAIL);
+
 export function fillMergeFieldsToMessage(message: string, mergeFieldsValue: MergeFieldsValue) {
+  const { email, fname, lname, name, mobile } = mergeFieldsValue;
   const messageFilled = message.split(' ').map((item) => {
-    switch (item) {
-      case UPDATE_MERGR_FIELDS.FNAME: {
-        return mergeFieldsValue.fname;
+    switch (true) {
+      case fnameRegex.test(item): {
+        return item.replace(fnameRegex, fname || '');
       }
-      case UPDATE_MERGR_FIELDS.LNAME: {
-        return mergeFieldsValue.lname;
+      case lnameRegex.test(item): {
+        return item.replace(lnameRegex, lname || '');
       }
-      case UPDATE_MERGR_FIELDS.NAME: {
-        return mergeFieldsValue.name;
+      case nameRegex.test(item): {
+        return item.replace(nameRegex, name || '');
       }
-      case UPDATE_MERGR_FIELDS.MOBILE: {
-        return mergeFieldsValue.mobile;
+      case mobileRegex.test(item): {
+        return item.replace(mobileRegex, mobile || '');
       }
-      case UPDATE_MERGR_FIELDS.EMAIL: {
-        return mergeFieldsValue.email;
+      case emailRegex.test(item): {
+        return item.replace(emailRegex, email || '');
       }
 
       default: {
