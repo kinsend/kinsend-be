@@ -8,14 +8,13 @@ import { FormSubmission, FormSubmissionDocument } from '../form.submission.schem
 import { FormSubmissionCreatePayload } from '../dtos/FormSubmissionCreatePayload.dto';
 import { FormGetByIdAction } from '../../form/services/FormGetByIdAction.service';
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
-import { VirtualCardGetByUserIdAction } from '../../virtualcard/services/VirtualCardGetByUserIdAction.service';
 import { SmsService } from '../../../shared/services/sms.service';
 import { AutomationCreateTriggerAutomationAction } from '../../automation/services/AutomationCreateTriggerAutomationAction.service';
 import { UserDocument } from '../../user/user.schema';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { FormDocument } from '../../form/form.schema';
 import { VirtualCardGetByUserIdWithoutAction } from '../../virtualcard/services/VirtualCardGetByUserIdWithoutAction.service';
-import { ConflictException } from '../../../utils/exceptions/ConflictException';
+import { FormSubmissionUpdateAction } from './FormSubmissionUpdateAction.service';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -26,21 +25,22 @@ export class FormSubmissionCreateAction {
     private virtualCardGetByUserIdWithoutAction: VirtualCardGetByUserIdWithoutAction,
     private smsService: SmsService,
     private automationCreateTriggerAutomationAction: AutomationCreateTriggerAutomationAction,
+    private formSubmissionUpdateAction: FormSubmissionUpdateAction,
   ) {}
 
   async execute(
     context: RequestContext,
     payload: FormSubmissionCreatePayload,
   ): Promise<FormSubmissionDocument> {
-    const { phoneNumber, email, formId } = payload;
+    const { phoneNumber, formId } = payload;
     const formSubmissionExist = await this.formSubmissionModel.findOne({
       'phoneNumber.phone': phoneNumber.phone,
       'phoneNumber.code': phoneNumber.code,
-      email,
       form: formId,
     });
     if (formSubmissionExist) {
-      throw new ConflictException('You have been subscriber to this form');
+      // Case form submission exist shoud update data
+      return this.formSubmissionUpdateAction.execute(context, formSubmissionExist.id, payload);
     }
     const formExist = await this.formGetByIdAction.execute(context, formId);
     const { userId } = formExist;
