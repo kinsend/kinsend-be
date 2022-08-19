@@ -9,14 +9,16 @@ export class FormSubmissionUpdatePayload {
   @IsOptional()
   email?: string;
 
-  @ApiProperty({ example: 'Lo', required: true, type: String })
+  @ApiProperty({ example: 'Lo', required: false, type: String })
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   firstName?: string;
 
-  @ApiProperty({ example: 'Rem', required: true, type: String })
+  @ApiProperty({ example: 'Rem', required: false, type: String })
   @IsString()
   @IsNotEmpty()
+  @IsOptional()
   lastName?: string;
 
   @ApiProperty({ example: 'Location lorem', required: false, type: String })
