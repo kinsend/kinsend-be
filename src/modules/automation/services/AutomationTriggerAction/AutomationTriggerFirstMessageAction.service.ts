@@ -4,6 +4,7 @@ import { BackgroudJobService } from '../../../../shared/services/backgroud.job.s
 import { SmsService } from '../../../../shared/services/sms.service';
 import { now } from '../../../../utils/nowDate';
 import { RequestContext } from '../../../../utils/RequestContext';
+import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { SmsLogsGetByFromAction } from '../../../sms.log/services/SmsLogsGetByFromAction.service';
 import { PhoneNumber } from '../../../user/dtos/UserResponse.dto';
 import { AutomationDocument } from '../../automation.schema';
@@ -15,6 +16,7 @@ export class AutomationTriggerFirstMessageAction extends AutomationBaseTriggeAct
     private backgroudJobService: BackgroudJobService,
     private smsService: SmsService,
     private smsLogsGetByFromAction: SmsLogsGetByFromAction,
+    private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {
     super();
   }
@@ -48,6 +50,7 @@ export class AutomationTriggerFirstMessageAction extends AutomationBaseTriggeAct
         startTimeTrigger,
         automation,
         subscriberPhoneNumber,
+        this.formSubmissionUpdateLastContactedAction,
       ),
     );
 

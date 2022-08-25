@@ -4,6 +4,7 @@ import { SmsService } from '../../../../shared/services/sms.service';
 import { Logger } from '../../../../utils/Logger';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { sleep } from '../../../../utils/sleep';
+import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { SmsLogsGetByFromAction } from '../../../sms.log/services/SmsLogsGetByFromAction.service';
 import { PhoneNumber } from '../../../user/dtos/UserResponse.dto';
 import { AutomationDocument } from '../../automation.schema';
@@ -85,6 +86,7 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
     startTimeTrigger: Date,
     automation: AutomationDocument,
     subscriberPhoneNumber: PhoneNumber,
+    formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {
     const { logger } = context;
     const to = `+${subscriberPhoneNumber.code}${subscriberPhoneNumber.phone}`;
@@ -117,6 +119,10 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
             subscriberPhoneNumber,
             triggerType: automation.triggerType,
           });
+          // Note: run async to update lastContacted
+          formSubmissionUpdateLastContactedAction.execute(context, to);
+
+          // Send sms
           await smsService.sendMessage(context, from, task.message || '', task.fileAttached, to);
         }
       }

@@ -13,6 +13,7 @@ import {
 import { fillMergeFieldsToMessage } from '../../../../utils/fillMergeFieldsToMessage';
 import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
+import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 
 export class UpdateBaseTriggerAction {
   private timesPerformedOtherWeek = 0;
@@ -27,6 +28,7 @@ export class UpdateBaseTriggerAction {
     backgroudJobService: BackgroudJobService,
     smsService: SmsService,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
+    formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ): Promise<void> {
     const { logger } = context;
     const { triggerType: interval, datetime } = update;
@@ -43,6 +45,7 @@ export class UpdateBaseTriggerAction {
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
         );
         break;
       }
@@ -61,6 +64,7 @@ export class UpdateBaseTriggerAction {
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
         );
         break;
       }
@@ -79,6 +83,7 @@ export class UpdateBaseTriggerAction {
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
         );
         break;
       }
@@ -100,6 +105,7 @@ export class UpdateBaseTriggerAction {
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
         );
         break;
       }
@@ -121,6 +127,7 @@ export class UpdateBaseTriggerAction {
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
         );
         break;
       }
@@ -140,6 +147,7 @@ export class UpdateBaseTriggerAction {
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
         );
         break;
       }
@@ -160,6 +168,7 @@ export class UpdateBaseTriggerAction {
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
         );
         break;
       }
@@ -180,6 +189,7 @@ export class UpdateBaseTriggerAction {
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
         );
         break;
       }
@@ -246,6 +256,7 @@ export class UpdateBaseTriggerAction {
     update: UpdateDocument,
     smsService: SmsService,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
+    formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {
     const { logger } = context;
     return async () => {
@@ -271,6 +282,10 @@ export class UpdateBaseTriggerAction {
             mobile: to,
             email,
           });
+
+          // Note: run async for update lastContacted
+          formSubmissionUpdateLastContactedAction.execute(context, to);
+
           return smsService.sendMessage(
             context,
             ownerPhoneNumber,
@@ -293,6 +308,7 @@ export class UpdateBaseTriggerAction {
     backgroudJobService: BackgroudJobService,
     smsService: SmsService,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
+    formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {
     backgroudJobService.job(
       datatime,
@@ -304,6 +320,7 @@ export class UpdateBaseTriggerAction {
         update,
         smsService,
         linkRediectCreateByMessageAction,
+        formSubmissionUpdateLastContactedAction,
       ),
     );
   }

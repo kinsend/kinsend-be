@@ -11,6 +11,7 @@ import { FormSubmissionDocument } from '../../../form.submission/form.submission
 import { FormSubmissionFindByConditionAction } from '../../../form.submission/services/FormSubmissionFindByConditionAction.service';
 import { FormSubmissionsFindByEmailAction } from '../../../form.submission/services/FormSubmissionsFindByEmailAction.service';
 import { FormSubmissionsGetByLocationsAction } from '../../../form.submission/services/FormSubmissionsGetByLocationsAction.service';
+import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { Filter } from '../../../segment/dtos/SegmentCreatePayload.dto';
 import { CONDITION, FILTERS_CONTACT } from '../../../segment/interfaces/const';
 import { UserDocument } from '../../../user/user.schema';
@@ -34,6 +35,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
     private updateFindAction: UpdateFindAction,
     private linkRedirectFinddByUpdateIdAction: LinkRedirectFinddByUpdateIdAction,
     private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
+    private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {
     super();
   }
@@ -63,6 +65,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
       this.backgroudJobService,
       this.smsService,
       this.linkRediectCreateByMessageAction,
+      this.formSubmissionUpdateLastContactedAction,
     );
   }
 

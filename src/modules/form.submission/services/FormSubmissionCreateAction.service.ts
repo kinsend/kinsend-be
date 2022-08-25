@@ -15,6 +15,7 @@ import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { FormDocument } from '../../form/form.schema';
 import { VirtualCardGetByUserIdWithoutAction } from '../../virtualcard/services/VirtualCardGetByUserIdWithoutAction.service';
 import { FormSubmissionUpdateAction } from './FormSubmissionUpdateAction.service';
+import { FormSubmissionUpdateLastContactedAction } from './FormSubmissionUpdateLastContactedAction.service';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -26,6 +27,7 @@ export class FormSubmissionCreateAction {
     private smsService: SmsService,
     private automationCreateTriggerAutomationAction: AutomationCreateTriggerAutomationAction,
     private formSubmissionUpdateAction: FormSubmissionUpdateAction,
+    private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {}
 
   async execute(
@@ -54,11 +56,12 @@ export class FormSubmissionCreateAction {
       form: formExist,
       owner,
     });
+    await response.save();
+
     if (formExist.isVcardSend || formExist.isEnabled) {
       await this.sendVcardToSubscriber(context, owner, formExist, payload.phoneNumber);
     }
 
-    await response.save();
     this.automationCreateTriggerAutomationAction.execute(
       context,
       owner,
@@ -90,6 +93,9 @@ export class FormSubmissionCreateAction {
     const { isEnabled, isVcardSend, submission } = form;
     const message = isEnabled ? submission || '' : undefined;
     const vcardUrl = isVcardSend ? vCard.url || '' : undefined;
+    // Note: run async for update lastContacted
+    this.formSubmissionUpdateLastContactedAction.execute(context, to);
+
     await this.smsService.sendVitualCardToSubscriber(context, message, vcardUrl, from, to);
   }
 }

@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
+import { FormSubmissionModule } from '../form.submission/form.submission.module';
 import { ImageModule } from '../image/image.module';
 import { SmsLogModel } from '../sms.log/sms.log.module';
 import { TagsModule } from '../tags/tags.module';
@@ -32,6 +33,7 @@ import { Task, TaskSchema } from './task.schema';
     ImageModule,
     TagsModule,
     SmsLogModel,
+    forwardRef(() => FormSubmissionModule),
   ],
   providers: [
     AutomationCreateAction,

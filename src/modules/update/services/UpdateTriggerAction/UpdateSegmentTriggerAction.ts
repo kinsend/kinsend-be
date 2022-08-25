@@ -11,6 +11,7 @@ import { filterDuplicateArray } from '../../../../utils/filterDuplicateArray';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { FormSubmission } from '../../../form.submission/form.submission.schema';
 import { FormSubmissionsGetByLocationsAction } from '../../../form.submission/services/FormSubmissionsGetByLocationsAction.service';
+import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmissionsByTagIds';
 import { Filter } from '../../../segment/dtos/SegmentCreatePayload.dto';
 import { SegmentFindByIdAction } from '../../../segment/services/SegmentFindByIdAction.service';
@@ -31,6 +32,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     private updateReportingCreateAction: UpdateReportingCreateAction,
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     private updateContactsTriggerAction: UpdateContactsTriggerAction,
+    private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {
     super();
   }
@@ -61,6 +63,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
       this.backgroudJobService,
       this.smsService,
       this.linkRediectCreateByMessageAction,
+      this.formSubmissionUpdateLastContactedAction,
     );
   }
 

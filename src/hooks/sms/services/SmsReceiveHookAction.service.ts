@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { AutomationCreateTriggerAutomationAction } from '../../../modules/automation/services/AutomationCreateTriggerAutomationAction.service';
 import { FormSubmission } from '../../../modules/form.submission/form.submission.schema';
 import { FormSubmissionFindByPhoneNumberAction } from '../../../modules/form.submission/services/FormSubmissionFindByPhoneNumberAction.service';
+import { FormSubmissionUpdateLastContactedAction } from '../../../modules/form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { SmsLogCreateAction } from '../../../modules/sms.log/services/SmsLogCreateAction.service';
 import { SmsLogsGetByFromAction } from '../../../modules/sms.log/services/SmsLogsGetByFromAction.service';
 import { UpdateReportingUpdateByResponseAction } from '../../../modules/update/services/update.reporting/UpdateReportingUpdateByResponseAction.service';
@@ -23,6 +24,7 @@ export class SmsReceiveHookAction {
     private updatesFindByCreatedByAction: UpdatesFindByCreatedByAction,
     private formSubmissionFindByPhoneNumberAction: FormSubmissionFindByPhoneNumberAction,
     private updateReportingUpdateByResponseAction: UpdateReportingUpdateByResponseAction,
+    private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {}
 
   async execute(context: RequestContext, payload: any): Promise<void> {
@@ -80,12 +82,13 @@ export class SmsReceiveHookAction {
         convertStringToPhoneNumber(payload.From),
       );
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
-      this.updateReportingUpdateByResponseAction.execute(
+      await this.updateReportingUpdateByResponseAction.execute(
         context,
         updatesFiltered,
         subscriber,
         payload.Body,
       );
+      await this.formSubmissionUpdateLastContactedAction.execute(context, payload.From);
     } catch (error) {
       context.logger.error({
         message: 'Handle sms receive update fail!',

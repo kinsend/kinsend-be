@@ -5,6 +5,7 @@ import { BackgroudJobService } from '../../../../shared/services/backgroud.job.s
 import { SmsService } from '../../../../shared/services/sms.service';
 import { now } from '../../../../utils/nowDate';
 import { RequestContext } from '../../../../utils/RequestContext';
+import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { FormDocument } from '../../../form/form.schema';
 import { Tags } from '../../../tags/tags.schema';
 import { PhoneNumber } from '../../../user/dtos/UserResponse.dto';
@@ -13,7 +14,11 @@ import { AutomationBaseTriggeAction } from './AutomationBaseTriggerAction.servic
 
 @Injectable()
 export class AutomationTriggerContactTaggedAction extends AutomationBaseTriggeAction {
-  constructor(private backgroudJobService: BackgroudJobService, private smsService: SmsService) {
+  constructor(
+    private backgroudJobService: BackgroudJobService,
+    private smsService: SmsService,
+    private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+  ) {
     super();
   }
 
@@ -86,6 +91,7 @@ export class AutomationTriggerContactTaggedAction extends AutomationBaseTriggeAc
         startTimeTrigger,
         automation,
         subscriberPhoneNumber,
+        this.formSubmissionUpdateLastContactedAction,
       ),
     );
 

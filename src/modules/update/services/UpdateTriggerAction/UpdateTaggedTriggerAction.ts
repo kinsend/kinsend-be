@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { BackgroudJobService } from '../../../../shared/services/backgroud.job.service';
 import { SmsService } from '../../../../shared/services/sms.service';
 import { RequestContext } from '../../../../utils/RequestContext';
+import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmissionsByTagIds';
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
@@ -18,6 +19,7 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
     private updateReportingCreateAction: UpdateReportingCreateAction,
     private smsService: SmsService,
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
+    private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {
     super();
   }
@@ -49,6 +51,7 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
       this.backgroudJobService,
       this.smsService,
       this.linkRediectCreateByMessageAction,
+      this.formSubmissionUpdateLastContactedAction,
     );
   }
 }

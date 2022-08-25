@@ -55,6 +55,7 @@ export class UpdateSendTestAction {
   ) {
     const fromStr = `+${from.code}${from.phone}`;
     const toStr = ` +${to.code}${to.phone}`;
+    // Note: pass update lastContacted
     await this.smsService.sendMessageHasThrowError(context, fromStr, message, undefined, toStr);
   }
 }

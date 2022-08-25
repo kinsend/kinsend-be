@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { SmsService } from '../../../shared/services/sms.service';
 import { RequestContext } from '../../../utils/RequestContext';
+import { FormSubmissionUpdateLastContactedAction } from '../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { SmsLogsGetByFromAction } from '../../sms.log/services/SmsLogsGetByFromAction.service';
 import { Tags } from '../../tags/tags.schema';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
@@ -26,5 +27,6 @@ export abstract class AutomationBaseTriggerAction {
     startTimeTrigger: Date,
     automation: AutomationDocument,
     subscriberPhoneNumber: PhoneNumber,
+    formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   );
 }
