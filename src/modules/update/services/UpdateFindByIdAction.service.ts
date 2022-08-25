@@ -14,7 +14,7 @@ import { Clicked, Subscriber, UpdateGetByIdResponse } from '../interfaces/update
 import { LinkRedirectDocument } from '../link.redirect.schema';
 import { UpdateReportingDocument } from '../update.reporting.schema';
 import { Update, UpdateDocument } from '../update.schema';
-import { LinkRedirectFindIsRootdByUpdateIdAction } from './link.redirect/LinkRedirectFindIsRootdByUpdateIdAction.service';
+import { LinkRedirectFinddByUpdateIdAction } from './link.redirect/LinkRedirectFindByUpdateIdAction.service';
 import { UpdateReportingFindByUpdateIdWithoutErrorAction } from './update.reporting/UpdateReportingFindByUpdateIdWithoutErrorAction.service';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class UpdateFindByIdAction {
     private updateReportingFindByUpdateIdWithoutErrorAction: UpdateReportingFindByUpdateIdWithoutErrorAction,
     private tagsGetByIdAction: TagsGetByIdAction,
     private segmentFindByIdAction: SegmentFindByIdAction,
-    private linkRedirectFindIsRootdByUpdateIdAction: LinkRedirectFindIsRootdByUpdateIdAction,
+    private linkRedirectFindIsRootdByUpdateIdAction: LinkRedirectFinddByUpdateIdAction,
   ) {}
 
   async execute(context: RequestContext, id: string): Promise<UpdateGetByIdResponse> {
@@ -34,7 +34,7 @@ export class UpdateFindByIdAction {
     }
     const [reporting, rootLinkRedirect] = await Promise.all([
       this.updateReportingFindByUpdateIdWithoutErrorAction.execute(context, id),
-      this.linkRedirectFindIsRootdByUpdateIdAction.execute(context, id),
+      this.linkRedirectFindIsRootdByUpdateIdAction.execute(context, id, true),
     ]);
     return this.buildResponse(context, update, reporting, rootLinkRedirect);
   }

@@ -27,9 +27,10 @@ import { LinkRedirect, LinkRedirectSchema } from './link.redirect.schema';
 import { LinkRediectCreateByMessageAction } from './services/link.redirect/LinkRediectCreateByMessageAction.service';
 import { LinkRediectCreateAction } from './services/link.redirect/LinkRediectCreateAction.service';
 import { LinkRedirectClickedAction } from './services/link.redirect/LinkRedirectClickedAction.service';
-import { LinkRedirectFindIsRootdByUpdateIdAction } from './services/link.redirect/LinkRedirectFindIsRootdByUpdateIdAction.service';
+import { LinkRedirectFinddByUpdateIdAction } from './services/link.redirect/LinkRedirectFindByUpdateIdAction.service';
 import { UpdateReportingFindByUpdateIdWithoutErrorAction } from './services/update.reporting/UpdateReportingFindByUpdateIdWithoutErrorAction.service';
 import { UpdateContactsTriggerAction } from './services/UpdateTriggerAction/UpdateContactsTriggerAction';
+import { UpdateFindByIdWithoutReportingAction } from './services/UpdateFindByIdWithoutReportingAction.service';
 
 @Module({
   controllers: [UpdateController],
@@ -64,9 +65,10 @@ import { UpdateContactsTriggerAction } from './services/UpdateTriggerAction/Upda
     LinkRediectCreateAction,
     LinkRediectCreateByMessageAction,
     LinkRedirectClickedAction,
-    LinkRedirectFindIsRootdByUpdateIdAction,
+    LinkRedirectFinddByUpdateIdAction,
     UpdateReportingFindByUpdateIdWithoutErrorAction,
     UpdateContactsTriggerAction,
+    UpdateFindByIdWithoutReportingAction,
   ],
   exports: [
     UpdateReportingUpdateAction,

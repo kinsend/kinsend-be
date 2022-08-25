@@ -52,7 +52,7 @@ export class UpdateHandleTrigerAction {
 
     if (segmentId) {
       logger.info('Start segment trigger update');
-      this.updateSegmentTriggerAction.execute(context, from, update, segmentId);
+      this.updateSegmentTriggerAction.execute(context, from, update, createdBy, segmentId);
       return;
     }
     // case lastest update
@@ -70,6 +70,6 @@ export class UpdateHandleTrigerAction {
       return;
     }
     // Contacts filter
-    this.updateContactsTriggerAction.execute(context, from, update, filter);
+    this.updateContactsTriggerAction.execute(context, from, update, createdBy, filter);
   }
 }

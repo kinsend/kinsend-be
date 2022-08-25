@@ -14,11 +14,12 @@ import { FormSubmissionsGetByLocationsAction } from '../../../form.submission/se
 import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmissionsByTagIds';
 import { Filter } from '../../../segment/dtos/SegmentCreatePayload.dto';
 import { SegmentFindByIdAction } from '../../../segment/services/SegmentFindByIdAction.service';
+import { UserDocument } from '../../../user/user.schema';
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
-
+import { UpdateContactsTriggerAction } from './UpdateContactsTriggerAction';
 @Injectable()
 export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
   constructor(
@@ -29,6 +30,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     private formGetSubmissionsByTagId: FormGetSubmissionsByTagIds,
     private updateReportingCreateAction: UpdateReportingCreateAction,
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
+    private updateContactsTriggerAction: UpdateContactsTriggerAction,
   ) {
     super();
   }
@@ -37,15 +39,16 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     context: RequestContext,
     ownerPhoneNumber: string,
     update: UpdateDocument,
+    createdBy: UserDocument,
     segmentId: string,
   ): Promise<void> {
     const { logger } = context;
     if (!segmentId) {
-      logger.info('Skip  update location trigger. Segment should not null.');
+      logger.info('Skip update location trigger. Segment should not null.');
       return;
     }
     const segment = await this.getSegmentById(context, segmentId);
-    const subscribers = await this.handleSegmentFilters(context, segment.filters);
+    const subscribers = await this.handleSegmentFilters(context, update, segment.filters);
     update.recipients = subscribers;
     update.save();
     this.updateReportingCreateAction.execute(context, update, subscribers);
@@ -67,6 +70,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
 
   private async getSubscriberByFilter(
     context: RequestContext,
+    update: UpdateDocument,
     filters: Filter[],
   ): Promise<FormSubmission[]> {
     const subscribersResponse: FormSubmission[] = [];
@@ -90,18 +94,29 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
 
       if (segmentId) {
         const segment = await this.getSegmentById(context, segmentId);
-        const subscribers = await this.handleSegmentFilters(context, segment.filters);
+        const subscribers = await this.handleSegmentFilters(context, update, segment.filters);
         subscribersResponse.push(...subscribers);
       }
+
+      subscribersResponse.push(
+        ...(await this.updateContactsTriggerAction.getSubscriberByFiltersContact(
+          context,
+          update,
+          filter,
+        )),
+      );
     }
-    // TODO: filter contacts
     return filterDuplicateArray(subscribersResponse);
   }
 
-  private async handleSegmentFilters(context: RequestContext, filters: Filter[][]) {
+  private async handleSegmentFilters(
+    context: RequestContext,
+    update: UpdateDocument,
+    filters: Filter[][],
+  ) {
     const subscribersResponse: FormSubmission[] = [];
     for (const filter of filters) {
-      const subscribers = await this.getSubscriberByFilter(context, filter);
+      const subscribers = await this.getSubscriberByFilter(context, update, filter);
       subscribersResponse.push(...subscribers);
     }
     return filterDuplicateArray(subscribersResponse);

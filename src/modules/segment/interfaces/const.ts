@@ -80,17 +80,10 @@ export enum CONDITION {
   BELOW = 'Bellow',
   IS_AND_ABOVE = 'Is & Above',
   IS_AND_BELLOW = 'Is & Bellow',
-}
-
-export enum TEXT_CONDITION {
   EXIST = 'Exist',
   DO_NOT_EXIST = "Doesn't Exist",
-  IS = 'Is',
   CONTAINS = 'Contains',
   STARTS_WITH = 'Starts With',
-}
-
-export enum DATE_CONDITION {
   ON = 'On',
   BEFORE = 'Before',
   AFTER = 'After',

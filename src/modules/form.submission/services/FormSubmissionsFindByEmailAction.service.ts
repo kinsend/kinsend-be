@@ -12,7 +12,7 @@ export class FormSubmissionsFindByEmailAction {
 
   async execute(
     context: RequestContext,
-    email?: string,
+    email?: string | null,
     owner?: string,
     isNotNull?: boolean,
   ): Promise<FormSubmissionDocument[]> {

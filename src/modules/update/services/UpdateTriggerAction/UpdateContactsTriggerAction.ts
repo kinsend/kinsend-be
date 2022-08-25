@@ -5,28 +5,35 @@ import { Injectable } from '@nestjs/common';
 import * as moment from 'moment';
 import { BackgroudJobService } from '../../../../shared/services/backgroud.job.service';
 import { SmsService } from '../../../../shared/services/sms.service';
+import { Month } from '../../../../utils/getDayOfNextWeek';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { FormSubmissionDocument } from '../../../form.submission/form.submission.schema';
 import { FormSubmissionFindByConditionAction } from '../../../form.submission/services/FormSubmissionFindByConditionAction.service';
 import { FormSubmissionsFindByEmailAction } from '../../../form.submission/services/FormSubmissionsFindByEmailAction.service';
 import { FormSubmissionsGetByLocationsAction } from '../../../form.submission/services/FormSubmissionsGetByLocationsAction.service';
 import { Filter } from '../../../segment/dtos/SegmentCreatePayload.dto';
-import { FILTERS_CONTACT } from '../../../segment/interfaces/const';
+import { CONDITION, FILTERS_CONTACT } from '../../../segment/interfaces/const';
+import { UserDocument } from '../../../user/user.schema';
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
+import { LinkRedirectFinddByUpdateIdAction } from '../link.redirect/LinkRedirectFindByUpdateIdAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
+import { UpdateFindAction } from '../UpdateFindAction.service';
+import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
 @Injectable()
 export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
   constructor(
-    private formSubmissionsGetByLocationsAction: FormSubmissionsGetByLocationsAction,
     private backgroudJobService: BackgroudJobService,
     private smsService: SmsService,
     private updateReportingCreateAction: UpdateReportingCreateAction,
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     private formSubmissionFindByConditionAction: FormSubmissionFindByConditionAction,
     private formSubmissionsFindByEmailAction: FormSubmissionsFindByEmailAction,
+    private updateFindAction: UpdateFindAction,
+    private linkRedirectFinddByUpdateIdAction: LinkRedirectFinddByUpdateIdAction,
+    private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
   ) {
     super();
   }
@@ -35,8 +42,35 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
     context: RequestContext,
     ownerPhoneNumber: string,
     update: UpdateDocument,
+    createdBy: UserDocument,
     filter: Filter,
   ): Promise<void> {
+    let subscribers: FormSubmissionDocument[] = await this.getSubscriberByFiltersContact(
+      context,
+      update,
+      filter,
+    );
+    this.updateReportingCreateAction.execute(context, update, subscribers);
+
+    update.recipients = subscribers;
+    update.save();
+
+    this.executeTrigger(
+      context,
+      ownerPhoneNumber,
+      subscribers,
+      update,
+      this.backgroudJobService,
+      this.smsService,
+      this.linkRediectCreateByMessageAction,
+    );
+  }
+
+  async getSubscriberByFiltersContact(
+    context: RequestContext,
+    update: UpdateDocument,
+    filter: Filter,
+  ): Promise<FormSubmissionDocument[]> {
     const { logger } = context;
     const { key } = filter;
     let subscribers: FormSubmissionDocument[] = [];
@@ -45,6 +79,17 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         logger.info('Filter ALL_CONTACTS is running');
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
+        });
+        break;
+      }
+
+      case FILTERS_CONTACT.BIRTHDAYS_IS: {
+        const { month, day } = filter;
+        logger.info('Filter BIRTHDAYS_IS is running');
+        const birthdayPattern = `"birthday":"${Month[month || '']}/${day}/.+"`;
+        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+          owner: update.createdBy._id.toString(),
+          metaData: { $regex: birthdayPattern, $options: 'i' },
         });
         break;
       }
@@ -136,42 +181,187 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
 
       case FILTERS_CONTACT.EMAIL: {
         logger.info('Filter EMAIL is running');
-        subscribers = await this.formSubmissionsFindByEmailAction.execute(
-          context,
-          undefined,
-          update.createdBy._id.toString(),
-          true,
-        );
+        const { condition, value } = filter;
+        switch (condition) {
+          case CONDITION.IS: {
+            subscribers = await this.formSubmissionsFindByEmailAction.execute(
+              context,
+              value,
+              update.createdBy._id.toString(),
+            );
+            break;
+          }
+
+          case CONDITION.EXIST: {
+            subscribers = await this.formSubmissionsFindByEmailAction.execute(
+              context,
+              undefined,
+              update.createdBy._id.toString(),
+              true,
+            );
+            break;
+          }
+
+          case CONDITION.DO_NOT_EXIST: {
+            subscribers = await this.formSubmissionsFindByEmailAction.execute(
+              context,
+              null,
+              update.createdBy._id.toString(),
+            );
+            break;
+          }
+
+          case CONDITION.STARTS_WITH: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              email: { $regex: `^${value}.*$`, $options: 'i' },
+            });
+            break;
+          }
+
+          case CONDITION.CONTAINS: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              email: { $regex: `.*${value}.*$`, $options: 'i' },
+            });
+            break;
+          }
+
+          // Default email exist
+          default: {
+            subscribers = await this.formSubmissionsFindByEmailAction.execute(
+              context,
+              undefined,
+              update.createdBy._id.toString(),
+              true,
+            );
+            break;
+          }
+        }
         break;
       }
 
       case FILTERS_CONTACT.JOB_TITLE: {
         logger.info('Filter JOB_TITLE is running');
-        const jobPattern = `"job":`;
-        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
-          owner: update.createdBy._id.toString(),
-          metaData: { $regex: jobPattern, $options: 'i' },
-        });
+        const { condition, value } = filter;
+        switch (condition) {
+          case CONDITION.IS: {
+            const jobPattern = `"job":"${value}"`;
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: jobPattern, $options: 'i' },
+            });
+
+            break;
+          }
+
+          case CONDITION.EXIST: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: `"job":`, $options: 'i' },
+            });
+            break;
+          }
+
+          case CONDITION.DO_NOT_EXIST: {
+            subscribers = await this.getFormSubmistionDoNotHaveFieldInMetaData(
+              context,
+              update.createdBy._id.toString(),
+              `^((?!"job":).)*$`,
+            );
+            break;
+          }
+
+          case CONDITION.STARTS_WITH: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: `"job":"${value}.*"`, $options: 'i' },
+            });
+            break;
+          }
+
+          case CONDITION.CONTAINS: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: `"job":".*${value}.*"`, $options: 'i' },
+            });
+            break;
+          }
+          // Default job exist
+          default: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: `"job":`, $options: 'i' },
+            });
+          }
+        }
         break;
       }
 
       case FILTERS_CONTACT.DOES_NOT_HAVE_JOB_TITLE: {
         logger.info('Filter DOES_NOT_HAVE_JOB_TITLE is running');
-        const jobPattern = `^((?!"job":).)*$`;
-        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
-          owner: update.createdBy._id.toString(),
-          $or: [{ metaData: null }, { metaData: { $regex: jobPattern, $options: 'i' } }],
-        });
+        subscribers = await this.getFormSubmistionDoNotHaveFieldInMetaData(
+          context,
+          update.createdBy._id.toString(),
+          `^((?!"job":).)*$`,
+        );
         break;
       }
 
       case FILTERS_CONTACT.COMPANY: {
         logger.info('Filter COMPANY is running');
-        const jobPattern = `"company":`;
-        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
-          owner: update.createdBy._id.toString(),
-          metaData: { $regex: jobPattern, $options: 'i' },
-        });
+
+        const { condition, value } = filter;
+        switch (condition) {
+          case CONDITION.IS: {
+            const companyPattern = `"company":"${value}"`;
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: companyPattern, $options: 'i' },
+            });
+            break;
+          }
+
+          case CONDITION.EXIST: {
+            const companyPattern = `"company":`;
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: companyPattern, $options: 'i' },
+            });
+            break;
+          }
+
+          case CONDITION.DO_NOT_EXIST: {
+            const companyPattern = `^((?!"company":).)*$`;
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              $or: [{ metaData: null }, { metaData: { $regex: companyPattern, $options: 'i' } }],
+            });
+            break;
+          }
+
+          case CONDITION.STARTS_WITH: {
+            const companyPattern = `"company":"${value}.*"`;
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: companyPattern, $options: 'i' },
+            });
+            break;
+          }
+
+          case CONDITION.CONTAINS: {
+            const companyPattern = `"company":".*${value}.*"`;
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: companyPattern, $options: 'i' },
+            });
+            break;
+          }
+
+          default:
+            break;
+        }
+
         break;
       }
 
@@ -187,21 +377,69 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
 
       case FILTERS_CONTACT.INDUSTRY: {
         logger.info('Filter INDUSTRY is running');
-        const industryPattern = `"industry":`;
-        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
-          owner: update.createdBy._id.toString(),
-          metaData: { $regex: industryPattern, $options: 'i' },
-        });
+        const { condition, value } = filter;
+        switch (condition) {
+          case CONDITION.IS: {
+            const industryPattern = `"industry":"${value}"`;
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: industryPattern, $options: 'i' },
+            });
+
+            break;
+          }
+
+          case CONDITION.EXIST: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: `"industry":`, $options: 'i' },
+            });
+            break;
+          }
+
+          case CONDITION.DO_NOT_EXIST: {
+            subscribers = await this.getFormSubmistionDoNotHaveFieldInMetaData(
+              context,
+              update.createdBy._id.toString(),
+              `^((?!"industry":).)*$`,
+            );
+            break;
+          }
+
+          case CONDITION.STARTS_WITH: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: `"industry":"${value}.*"`, $options: 'i' },
+            });
+            break;
+          }
+
+          case CONDITION.CONTAINS: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: `"industry":".*${value}.*"`, $options: 'i' },
+            });
+            break;
+          }
+
+          // Default industry exist
+          default: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              metaData: { $regex: `"industry":`, $options: 'i' },
+            });
+          }
+        }
         break;
       }
 
       case FILTERS_CONTACT.DOES_NOT_HAVE_INDUSTRY: {
         logger.info('Filter DOES_NOT_HAVE_INDUSTRY is running');
-        const industryPattern = `^((?!"industry":).)*$`;
-        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
-          owner: update.createdBy._id.toString(),
-          $or: [{ metaData: null }, { metaData: { $regex: industryPattern, $options: 'i' } }],
-        });
+        subscribers = await this.getFormSubmistionDoNotHaveFieldInMetaData(
+          context,
+          update.createdBy._id.toString(),
+          `^((?!"industry":).)*$`,
+        );
         break;
       }
 
@@ -354,6 +592,51 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         break;
       }
 
+      case FILTERS_CONTACT.LAST_CONTACTED: {
+        logger.info('Filter CONTACTED_THIS_WEEK is running');
+        const { condition, value } = filter;
+        switch (condition) {
+          case CONDITION.ON: {
+            const date = moment(new Date(value || ''));
+
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              lastContacted: {
+                $gte: date.startOf('day').toDate(),
+                $lte: date.endOf('day').toDate(),
+              },
+            });
+            break;
+          }
+
+          case CONDITION.AFTER: {
+            const date = moment(new Date(value || ''));
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              lastContacted: {
+                $gt: date.endOf('day').toDate(),
+              },
+            });
+            break;
+          }
+
+          case CONDITION.BEFORE: {
+            const date = moment(new Date(value || ''));
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              lastContacted: {
+                $lt: date.startOf('day').toDate(),
+              },
+            });
+            break;
+          }
+
+          default:
+            break;
+        }
+        break;
+      }
+
       case FILTERS_CONTACT.CONTACTED_THIS_WEEK: {
         logger.info('Filter CONTACTED_THIS_WEEK is running');
         const startOfWeek = moment().startOf('week').toDate();
@@ -424,23 +707,184 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         break;
       }
 
+      case FILTERS_CONTACT.AGE: {
+        logger.info('Filter AGE is running');
+        const birthdayPattern = `"birthday":`;
+        const subs = await this.formSubmissionFindByConditionAction.execute(context, {
+          owner: update.createdBy._id.toString(),
+          metaData: { $regex: birthdayPattern, $options: 'i' },
+        });
+        subscribers = this.filterFormSubmissionByAge(
+          subs,
+          Number(filter.value),
+          filter.condition || CONDITION.IS,
+        );
+        break;
+      }
+
+      case FILTERS_CONTACT.CREATED_DATE: {
+        logger.info('Filter CREATED_DATE is running');
+        const { condition, value } = filter;
+        switch (condition) {
+          case CONDITION.ON: {
+            const date = moment(new Date(value || ''));
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              createdAt: {
+                $gte: date.startOf('day').toDate(),
+                $lte: date.endOf('day').toDate(),
+              },
+            });
+            break;
+          }
+
+          case CONDITION.BEFORE: {
+            const date = moment(new Date(value || ''));
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              createdAt: {
+                $lt: date.toDate(),
+              },
+            });
+            break;
+          }
+
+          case CONDITION.AFTER: {
+            const date = moment(new Date(value || ''));
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              createdAt: {
+                $gt: date.toDate(),
+              },
+            });
+            break;
+          }
+
+          default:
+            break;
+        }
+
+        break;
+      }
+
+      case FILTERS_CONTACT.HAS_BEEN_CONTACTED: {
+        logger.info('Filter HAS_BEEN_CONTACTED is running');
+        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+          owner: update.createdBy._id.toString(),
+          lastContacted: { $ne: null },
+        });
+        break;
+      }
+
+      case FILTERS_CONTACT.MOBILE: {
+        logger.info('Filter MOBILE is running');
+        const { condition, value } = filter;
+        switch (condition) {
+          case CONDITION.IS: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              'phoneNumber.phone': value,
+            });
+            break;
+          }
+
+          case CONDITION.EXIST: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              phoneNumber: { $ne: null },
+            });
+            break;
+          }
+
+          case CONDITION.DO_NOT_EXIST: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              phoneNumber: null,
+            });
+            break;
+          }
+
+          case CONDITION.STARTS_WITH: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              'phoneNumber.phone': { $regex: `^${value}.*` },
+            });
+            break;
+          }
+
+          case CONDITION.CONTAINS: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              'phoneNumber.phone': { $regex: `.*${value}.*` },
+            });
+            break;
+          }
+
+          // Default phone exist
+          default: {
+            subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+              owner: update.createdBy._id.toString(),
+              phoneNumber: { $ne: null },
+            });
+          }
+        }
+        break;
+      }
+
+      case FILTERS_CONTACT.LAST_UPDATED: {
+        logger.info('Filter LAST_UPDATED is running');
+        subscribers = await this.handleTriggerLastUpdate(context, filter);
+        break;
+      }
+
+      case FILTERS_CONTACT.CLICKED: {
+        logger.info('Filter CLICKED is running');
+        const linkRedirects = await this.linkRedirectFinddByUpdateIdAction.execute(
+          context,
+          update.id,
+        );
+        subscribers =
+          linkRedirects.length === 0 ? [] : (linkRedirects[0].clicked as FormSubmissionDocument[]);
+        break;
+      }
+
+      case FILTERS_CONTACT.LIVES_IN: {
+        logger.info('Filter LIVES_IN is running');
+        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+          owner: update.createdBy._id.toString(),
+          location: { $regex: filter.value, $options: 'i' },
+        });
+        break;
+      }
+
+      case FILTERS_CONTACT.DO_NOT_LIVES_IN: {
+        logger.info('Filter LIVES_IN is running');
+        subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
+          owner: update.createdBy._id.toString(),
+          location: { $regex: `^(?!${filter.value})`, $options: 'i' },
+        });
+        break;
+      }
+
+      case FILTERS_CONTACT.RESPONDED: {
+        try {
+          logger.info('Filter RESPONDED is running');
+          const { updateId } = filter;
+          if (!updateId) break;
+
+          const updateExist = await this.updateFindByIdWithoutReportingAction.execute(
+            context,
+            updateId,
+          );
+          subscribers = updateExist.recipients as FormSubmissionDocument[];
+          break;
+        } catch (error) {}
+      }
+
       default:
         break;
     }
-    this.updateReportingCreateAction.execute(context, update, subscribers);
-
-    update.recipients = subscribers;
-    update.save();
-
-    this.executeTrigger(
-      context,
-      ownerPhoneNumber,
-      subscribers,
-      update,
-      this.backgroudJobService,
-      this.smsService,
-      this.linkRediectCreateByMessageAction,
-    );
+    return subscribers;
   }
 
   private filterFormSubmissionByBirthday(
@@ -462,5 +906,81 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
       }
       return sub;
     });
+  }
+
+  private filterFormSubmissionByAge(
+    formSubs: FormSubmissionDocument[],
+    age: number,
+    condition: CONDITION,
+  ) {
+    return formSubs.filter((sub) => {
+      if (!sub.metaData) {
+        return undefined;
+      }
+      const metaData = JSON.parse(sub.metaData || '');
+      if (!metaData.birthday) {
+        return undefined;
+      }
+      const ageSub = Math.floor(
+        moment().diff(moment(metaData.birthday, 'MM/DD/YYYY'), 'years', true),
+      );
+      switch (condition) {
+        case CONDITION.IS: {
+          if (ageSub === age) return sub;
+          return undefined;
+        }
+
+        case CONDITION.IS_AND_ABOVE: {
+          if (ageSub >= age) return sub;
+          return undefined;
+        }
+
+        case CONDITION.IS_AND_BELLOW: {
+          if (ageSub <= age) return sub;
+          return undefined;
+        }
+
+        case CONDITION.ABOVE: {
+          if (ageSub > age) return sub;
+          return undefined;
+        }
+
+        case CONDITION.BELOW: {
+          if (ageSub < age) return sub;
+          return undefined;
+        }
+
+        default:
+          return undefined;
+      }
+    });
+  }
+
+  private getFormSubmistionDoNotHaveFieldInMetaData(
+    context: RequestContext,
+    owner: string,
+    pattern: string,
+  ) {
+    return this.formSubmissionFindByConditionAction.execute(context, {
+      owner,
+      $or: [{ metaData: null }, { metaData: { $regex: pattern, $options: 'i' } }],
+    });
+  }
+
+  private async handleTriggerLastUpdate(
+    context: RequestContext,
+    filter: Filter,
+  ): Promise<FormSubmissionDocument[]> {
+    const { condition, value } = filter;
+    context.logger.info('Start Received Latest Update');
+    const updateLatest = await this.updateFindAction.execute(context, {
+      limit: 1,
+      createdAt: moment(new Date(value || '')),
+      condition,
+    });
+    if (updateLatest.length === 0) {
+      return [];
+    }
+    return updateLatest[0].recipients as FormSubmissionDocument[];
   }
 }

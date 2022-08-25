@@ -61,8 +61,8 @@ export class FormSubmission {
   @Prop({ default: true, type: Boolean })
   isFacebookContact: boolean;
 
-  @Prop({ default: Date.now(), type: Date })
-  lastContacted: Date;
+  @Prop({ type: Date, required: false })
+  lastContacted?: Date;
 }
 
 const FormSubmissionSchema = SchemaFactory.createForClass(FormSubmission);

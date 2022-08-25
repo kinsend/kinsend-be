@@ -11,7 +11,7 @@ import {
   Max,
   IsMongoId,
 } from 'class-validator';
-import { CONDITION, DATE_CONDITION, FILTERS_CONTACT, TEXT_CONDITION } from '../interfaces/const';
+import { FILTERS_CONTACT, CONDITION } from '../interfaces/const';
 
 export class Filter {
   @ApiProperty({
@@ -30,11 +30,10 @@ export class Filter {
     required: false,
     type: Number,
   })
-  @IsNumber()
   @IsNotEmpty()
-  @Min(0)
+  @IsString()
   @IsOptional()
-  numbers?: number;
+  value?: string;
 
   @ApiProperty({
     example: CONDITION.IS,
@@ -47,16 +46,6 @@ export class Filter {
   @IsNotEmpty()
   @IsOptional()
   condition?: CONDITION;
-
-  @ApiProperty({
-    example: '+123456789',
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  phoneNumber?: string;
 
   @ApiProperty({
     example: 2,
@@ -78,48 +67,6 @@ export class Filter {
   @IsNotEmpty()
   @IsOptional()
   month?: string;
-
-  @ApiProperty({
-    example: DATE_CONDITION.ON,
-    required: false,
-    enum: DATE_CONDITION,
-    type: String,
-  })
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  dateCondition?: DATE_CONDITION;
-
-  @ApiProperty({
-    example: '07/17/2022',
-    required: false,
-    type: String,
-  })
-  @IsIn(Object.values(DATE_CONDITION), { each: true })
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  date?: string;
-
-  @ApiProperty({
-    example: TEXT_CONDITION.STARTS_WITH,
-    required: false,
-    enum: TEXT_CONDITION,
-    type: String,
-  })
-  @IsIn(Object.values(TEXT_CONDITION), { each: true })
-  @IsString()
-  @IsOptional()
-  textCondition?: TEXT_CONDITION;
-
-  @ApiProperty({
-    example: 'Input something',
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  text?: string;
 
   @ApiProperty({
     example: 'Form ID',
