@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -10,6 +11,7 @@ import {
   Min,
   Max,
   IsMongoId,
+  ValidateNested,
 } from 'class-validator';
 import { FILTERS_CONTACT, CONDITION } from '../interfaces/const';
 
@@ -91,7 +93,6 @@ export class Filter {
     required: false,
     type: String,
   })
-  @IsMongoId()
   @IsOptional()
   tagId?: string | string[];
 
@@ -131,5 +132,7 @@ export class SegmentCreatePayload {
   @IsArray({
     each: true,
   })
+  @ValidateNested()
+  @Type(() => Filter)
   filters: Filter[][];
 }
