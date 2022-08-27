@@ -4,7 +4,7 @@ import { BackgroudJobService } from '../../../../shared/services/backgroud.job.s
 import { SmsService } from '../../../../shared/services/sms.service';
 import { buildCronSchedule } from '../../../../utils/buildCronSchedule';
 import { RequestContext } from '../../../../utils/RequestContext';
-import { INTERVAL_TRIGGER_TYPE } from '../../interfaces/const';
+import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from '../../interfaces/const';
 import { UpdateDocument } from '../../update.schema';
 import {
   FormSubmission,
@@ -14,6 +14,7 @@ import { fillMergeFieldsToMessage } from '../../../../utils/fillMergeFieldsToMes
 import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
+import { UpdateModelUpdateAction } from '../UpdateModelUpdateAction.service';
 
 export class UpdateBaseTriggerAction {
   private timesPerformedOtherWeek = 0;
@@ -29,6 +30,7 @@ export class UpdateBaseTriggerAction {
     smsService: SmsService,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    updateModelUpdateAction: UpdateModelUpdateAction,
   ): Promise<void> {
     const { logger } = context;
     const { triggerType: interval, datetime } = update;
@@ -46,6 +48,7 @@ export class UpdateBaseTriggerAction {
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
+          updateModelUpdateAction,
         );
         break;
       }
@@ -65,6 +68,7 @@ export class UpdateBaseTriggerAction {
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
+          updateModelUpdateAction,
         );
         break;
       }
@@ -84,6 +88,7 @@ export class UpdateBaseTriggerAction {
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
+          updateModelUpdateAction,
         );
         break;
       }
@@ -106,6 +111,7 @@ export class UpdateBaseTriggerAction {
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
+          updateModelUpdateAction,
         );
         break;
       }
@@ -128,6 +134,7 @@ export class UpdateBaseTriggerAction {
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
+          updateModelUpdateAction,
         );
         break;
       }
@@ -148,6 +155,7 @@ export class UpdateBaseTriggerAction {
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
+          updateModelUpdateAction,
         );
         break;
       }
@@ -169,6 +177,7 @@ export class UpdateBaseTriggerAction {
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
+          updateModelUpdateAction,
         );
         break;
       }
@@ -190,6 +199,7 @@ export class UpdateBaseTriggerAction {
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
+          updateModelUpdateAction,
         );
         break;
       }
@@ -257,6 +267,7 @@ export class UpdateBaseTriggerAction {
     smsService: SmsService,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    updateModelUpdateAction: UpdateModelUpdateAction,
   ) {
     const { logger } = context;
     return async () => {
@@ -296,6 +307,12 @@ export class UpdateBaseTriggerAction {
           );
         }),
       );
+      if (update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
+        // Note: update process for update type Once
+        updateModelUpdateAction.execute(context, update.id, {
+          progress: UPDATE_PROGRESS.DONE,
+        });
+      }
     };
   }
 
@@ -309,6 +326,7 @@ export class UpdateBaseTriggerAction {
     smsService: SmsService,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    updateModelUpdateAction: UpdateModelUpdateAction,
   ) {
     backgroudJobService.job(
       datatime,
@@ -321,6 +339,7 @@ export class UpdateBaseTriggerAction {
         smsService,
         linkRediectCreateByMessageAction,
         formSubmissionUpdateLastContactedAction,
+        updateModelUpdateAction,
       ),
     );
   }

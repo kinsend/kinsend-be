@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Filter } from '../../segment/dtos/SegmentCreatePayload.dto';
-import { INTERVAL_TRIGGER_TYPE } from '../interfaces/const';
+import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from '../interfaces/const';
 
 export class UpdateModelUpdatePayload {
   @ApiProperty({
@@ -48,4 +48,16 @@ export class UpdateModelUpdatePayload {
   @IsNotEmpty()
   @IsOptional()
   triggerType?: INTERVAL_TRIGGER_TYPE;
+
+  @ApiProperty({
+    example: UPDATE_PROGRESS.DONE,
+    required: true,
+    enum: UPDATE_PROGRESS,
+    type: String,
+  })
+  @IsIn(Object.values(UPDATE_PROGRESS), { each: true })
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  progress?: UPDATE_PROGRESS;
 }

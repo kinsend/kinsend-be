@@ -49,16 +49,16 @@ export class FormSubmission {
   updatedAt: Date;
 
   // TODO data for test
-  @Prop({ default: true, type: Boolean })
+  @Prop({ default: false, type: Boolean })
   isContactHidden: boolean;
 
-  @Prop({ default: true, type: Boolean })
+  @Prop({ default: false, type: Boolean })
   isContactArchived: boolean;
 
   @Prop({ default: true, type: Boolean })
   isSubscribed: boolean;
 
-  @Prop({ default: true, type: Boolean })
+  @Prop({ default: false, type: Boolean })
   isFacebookContact: boolean;
 
   @Prop({ type: Date, required: false })

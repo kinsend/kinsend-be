@@ -15,8 +15,7 @@ export class UpdateModelUpdateAction {
     payload: UpdateModelUpdatePayload,
   ): Promise<UpdateDocument> {
     const update = await this.updateFindByIdAction.execute(context, id);
-
-    const { message, filter, datetime, triggerType } = payload;
+    const { message, filter, datetime, triggerType, progress } = payload;
     if (message) {
       update.message = message;
     }
@@ -31,6 +30,10 @@ export class UpdateModelUpdateAction {
 
     if (filter) {
       update.filter = filter;
+    }
+
+    if (progress) {
+      update.progress = progress;
     }
 
     return (await update.save()).populate([{ path: 'createdBy', select: ['_id'] }]);

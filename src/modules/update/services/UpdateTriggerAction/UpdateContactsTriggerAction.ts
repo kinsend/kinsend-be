@@ -21,6 +21,7 @@ import { LinkRedirectFinddByUpdateIdAction } from '../link.redirect/LinkRedirect
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
 import { UpdateFindAction } from '../UpdateFindAction.service';
 import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
+import { UpdateModelUpdateAction } from '../UpdateModelUpdateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
 @Injectable()
@@ -36,6 +37,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
     private linkRedirectFinddByUpdateIdAction: LinkRedirectFinddByUpdateIdAction,
     private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    private updateModelUpdateAction: UpdateModelUpdateAction,
   ) {
     super();
   }
@@ -66,6 +68,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
       this.smsService,
       this.linkRediectCreateByMessageAction,
       this.formSubmissionUpdateLastContactedAction,
+      this.updateModelUpdateAction,
     );
   }
 
@@ -100,9 +103,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
       case FILTERS_CONTACT.BIRTHDAYS_TODAY: {
         logger.info('Filter BIRTHDAYS_TODAY is running');
         const today = new Date();
-        const todayPattern = `"birthday":"${
-          today.getMonth() + 1
-        }/${today.getDate()}/${today.getFullYear()}"`;
+        const todayPattern = `"birthday":"${today.getMonth() + 1}/${today.getDate()}/.*"`;
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           metaData: { $regex: todayPattern, $options: 'i' },
@@ -128,7 +129,12 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         const formSubs = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
         });
-        subscribers = this.filterFormSubmissionByBirthday(formSubs, startOfMonth, endOfMonth);
+        subscribers = this.filterFormSubmissionByBirthday(
+          formSubs,
+          startOfMonth,
+          endOfMonth,
+          'month',
+        );
         break;
       }
 
@@ -894,6 +900,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
     formSubs: FormSubmissionDocument[],
     startDate: Date,
     endDate: Date,
+    filterBy: 'month' | 'day' = 'day',
   ) {
     return formSubs.filter((sub) => {
       if (!sub.metaData) {
@@ -904,10 +911,23 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         return undefined;
       }
       const birthday = moment(metaData.birthday, 'MM/DD/YYYY').toDate();
-      if (!moment(birthday).isBetween(startDate, endDate, null, '[]')) {
-        return undefined;
+      switch (filterBy) {
+        case 'month': {
+          if (startDate.getMonth() === birthday.getMonth()) return sub;
+          return undefined;
+        }
+
+        case 'day': {
+          const startDay = startDate.getDate();
+          const endDay = endDate.getDate();
+          const birthdayDay = birthday.getDate();
+          if (birthdayDay >= startDay && birthdayDay <= endDay) {
+            return sub;
+          }
+          return undefined;
+        }
       }
-      return sub;
+      return undefined;
     });
   }
 

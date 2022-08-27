@@ -19,6 +19,7 @@ import { UserDocument } from '../../../user/user.schema';
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
+import { UpdateModelUpdateAction } from '../UpdateModelUpdateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 import { UpdateContactsTriggerAction } from './UpdateContactsTriggerAction';
 @Injectable()
@@ -33,6 +34,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     private updateContactsTriggerAction: UpdateContactsTriggerAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    private updateModelUpdateAction: UpdateModelUpdateAction,
   ) {
     super();
   }
@@ -64,6 +66,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
       this.smsService,
       this.linkRediectCreateByMessageAction,
       this.formSubmissionUpdateLastContactedAction,
+      this.updateModelUpdateAction,
     );
   }
 

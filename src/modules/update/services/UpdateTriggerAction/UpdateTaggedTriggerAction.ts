@@ -9,6 +9,7 @@ import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmis
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
+import { UpdateModelUpdateAction } from '../UpdateModelUpdateAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
 @Injectable()
@@ -20,6 +21,7 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
     private smsService: SmsService,
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    private updateModelUpdateAction: UpdateModelUpdateAction,
   ) {
     super();
   }
@@ -52,6 +54,7 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
       this.smsService,
       this.linkRediectCreateByMessageAction,
       this.formSubmissionUpdateLastContactedAction,
+      this.updateModelUpdateAction,
     );
   }
 }
