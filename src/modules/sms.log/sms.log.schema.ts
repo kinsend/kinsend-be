@@ -33,7 +33,7 @@ export class SmsLog {
   @Prop({ required: false })
   metaData: string;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 }
 

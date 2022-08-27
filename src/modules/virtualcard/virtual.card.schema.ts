@@ -72,10 +72,10 @@ export class VCard {
   @Prop({ required: false })
   cellphone?: string;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   updatedAt: Date;
 }
 

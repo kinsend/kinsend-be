@@ -42,10 +42,10 @@ export class FormSubmission {
   @Prop({ required: false })
   metaData?: string;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   updatedAt: Date;
 
   // TODO data for test

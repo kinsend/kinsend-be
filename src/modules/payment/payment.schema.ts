@@ -28,10 +28,10 @@ export class Payment {
   @Prop()
   status: STATUS;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   updatedAt: Date;
 }
 

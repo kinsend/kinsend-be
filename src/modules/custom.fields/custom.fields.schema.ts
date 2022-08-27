@@ -36,10 +36,10 @@ export class CustomFields {
   @Prop({ required: false })
   options?: [Options];
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   updatedAt: Date;
 }
 

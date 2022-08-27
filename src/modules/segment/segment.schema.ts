@@ -26,7 +26,7 @@ export class Segment {
   @Prop({ required: true })
   filters: [[Filter]];
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 }
 

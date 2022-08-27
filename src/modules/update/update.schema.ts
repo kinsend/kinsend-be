@@ -46,7 +46,7 @@ export class Update {
   @Prop({ type: String, default: UPDATE_PROGRESS.SCHEDULED })
   progress: UPDATE_PROGRESS;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 }
 

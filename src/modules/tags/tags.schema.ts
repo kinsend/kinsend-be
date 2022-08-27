@@ -27,10 +27,10 @@ export class Tags {
   @Prop({ default: 0, type: Number })
   unknown: number;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   updatedAt: Date;
 }
 

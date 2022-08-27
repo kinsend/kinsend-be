@@ -29,7 +29,7 @@ export class Task {
   @Prop({ required: false })
   delay?: Delay;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 }
 

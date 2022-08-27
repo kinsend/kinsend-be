@@ -35,7 +35,7 @@ export class LinkRedirect {
   @Prop({ type: Boolean, required: false })
   isRoot: boolean;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 }
 

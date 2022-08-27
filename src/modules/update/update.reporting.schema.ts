@@ -57,7 +57,7 @@ export class UpdateReporting {
   @Prop({ type: Number, default: 0 })
   cleaned: number;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 }
 

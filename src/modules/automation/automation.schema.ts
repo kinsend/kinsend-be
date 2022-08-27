@@ -43,10 +43,10 @@ export class Automation {
   @Prop({ required: true, default: AUTOMATION_STATUS.ENABLE })
   status: AUTOMATION_STATUS;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
-  @Prop({ default: Date.now(), type: Date })
+  @Prop({ default: Date.now, type: Date })
   updatedAt: Date;
 }
 
