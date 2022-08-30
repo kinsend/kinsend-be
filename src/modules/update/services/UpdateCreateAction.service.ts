@@ -25,12 +25,15 @@ export class UpdateCreateAction {
   async execute(context: RequestContext, payload: UpdateCreatePayload): Promise<UpdateDocument> {
     const { user } = context;
     const userModel = new this.userModel({ ...user, _id: new mongoose.Types.ObjectId(user.id) });
+    const createdAt = new Date();
     const update = await new this.updateModel({
       ...payload,
       messageReview: payload.message,
       createdBy: userModel,
+      createdAt,
+      updatedAt: createdAt,
     }).save();
-    this.updateHandleTrigerAction.execute(context, update, update.filter, userModel);
+    this.updateHandleTrigerAction.execute(context, update, update.filter, createdAt, userModel);
     const linkCreated = await this.linkRediectCreateByMessageAction.execute(
       context,
       update,

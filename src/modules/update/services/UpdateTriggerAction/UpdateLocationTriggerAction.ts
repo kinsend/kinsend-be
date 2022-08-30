@@ -10,7 +10,8 @@ import { FormSubmissionUpdateLastContactedAction } from '../../../form.submissio
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
-import { UpdateModelUpdateAction } from '../UpdateModelUpdateAction.service';
+import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
+import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
 @Injectable()
@@ -22,7 +23,8 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
     private updateReportingCreateAction: UpdateReportingCreateAction,
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
-    private updateModelUpdateAction: UpdateModelUpdateAction,
+    private updateUpdateProgressAction: UpdateUpdateProgressAction,
+    private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
   ) {
     super();
   }
@@ -32,6 +34,7 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
     ownerPhoneNumber: string,
     update: UpdateDocument,
     location: string,
+    datetimeTrigger: Date,
   ): Promise<void> {
     const { logger } = context;
     if (!location) {
@@ -44,14 +47,16 @@ export class UpdateLocationTriggerAction extends UpdateBaseTriggerAction {
     update.save();
     this.executeTrigger(
       context,
-      ownerPhoneNumber,
-      subscribers,
-      update,
       this.backgroudJobService,
       this.smsService,
       this.linkRediectCreateByMessageAction,
       this.formSubmissionUpdateLastContactedAction,
-      this.updateModelUpdateAction,
+      this.updateUpdateProgressAction,
+      this.updateFindByIdWithoutReportingAction,
+      ownerPhoneNumber,
+      subscribers,
+      update,
+      datetimeTrigger,
     );
   }
 }

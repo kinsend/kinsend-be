@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -32,6 +33,7 @@ import { UpdateFindByIdAction } from './services/UpdateFindByIdAction.service';
 import { UpdateSendTestAction } from './services/UpdateSendTestAction.service';
 import { UpdateSendTestPayload } from './dtos/UpdateSendTestPayload.dto';
 import { LinkRedirectClickedAction } from './services/link.redirect/LinkRedirectClickedAction.service';
+import { UpdateDeleteByIdAction } from './services/UpdateDeleteByIdAction.service';
 
 @ApiTags('Updates')
 @UseInterceptors(MongooseClassSerializerInterceptor(UpdateModule))
@@ -44,6 +46,7 @@ export class UpdateController {
     private updateFindByIdAction: UpdateFindByIdAction,
     private updateSendTestAction: UpdateSendTestAction,
     private linkRedirectClickedAction: LinkRedirectClickedAction,
+    private updateDeleteByIdAction: UpdateDeleteByIdAction,
   ) {}
 
   @ApiBearerAuth()
@@ -106,5 +109,13 @@ export class UpdateController {
   async redirect(@Req() request: AppRequest, @Param('url') url: string, @Res() response: Response) {
     const redirectUrl = await this.linkRedirectClickedAction.execute(request, url);
     return response.redirect(redirectUrl);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/:id')
+  deleteUpdate(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
+    return this.updateDeleteByIdAction.execute(request, id);
   }
 }

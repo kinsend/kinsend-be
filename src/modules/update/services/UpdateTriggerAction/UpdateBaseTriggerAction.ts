@@ -1,5 +1,6 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable new-cap */
+import * as schedule from 'node-schedule';
 import { BackgroudJobService } from '../../../../shared/services/backgroud.job.service';
 import { SmsService } from '../../../../shared/services/sms.service';
 import { buildCronSchedule } from '../../../../utils/buildCronSchedule';
@@ -14,7 +15,8 @@ import { fillMergeFieldsToMessage } from '../../../../utils/fillMergeFieldsToMes
 import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
-import { UpdateModelUpdateAction } from '../UpdateModelUpdateAction.service';
+import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
+import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
 
 export class UpdateBaseTriggerAction {
   private timesPerformedOtherWeek = 0;
@@ -23,14 +25,16 @@ export class UpdateBaseTriggerAction {
 
   async executeTrigger(
     context: RequestContext,
-    ownerPhoneNumber: string,
-    subscribers: FormSubmission[],
-    update: UpdateDocument,
     backgroudJobService: BackgroudJobService,
     smsService: SmsService,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
-    updateModelUpdateAction: UpdateModelUpdateAction,
+    updateUpdateProgressAction: UpdateUpdateProgressAction,
+    updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
+    ownerPhoneNumber: string,
+    subscribers: FormSubmission[],
+    update: UpdateDocument,
+    datetimeTrigger: Date,
   ): Promise<void> {
     const { logger } = context;
     const { triggerType: interval, datetime } = update;
@@ -40,15 +44,17 @@ export class UpdateBaseTriggerAction {
       case INTERVAL_TRIGGER_TYPE.ONCE: {
         this.createScheduleTrigger(
           context,
-          ownerPhoneNumber,
-          subscribers,
-          update,
-          datetime,
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
-          updateModelUpdateAction,
+          updateUpdateProgressAction,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          datetime,
+          datetimeTrigger,
         );
         break;
       }
@@ -60,15 +66,17 @@ export class UpdateBaseTriggerAction {
         );
         this.createScheduleTrigger(
           context,
-          ownerPhoneNumber,
-          subscribers,
-          update,
-          sronSchedule,
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
-          updateModelUpdateAction,
+          updateUpdateProgressAction,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          sronSchedule,
+          datetimeTrigger,
         );
         break;
       }
@@ -80,15 +88,17 @@ export class UpdateBaseTriggerAction {
         );
         this.createScheduleTrigger(
           context,
-          ownerPhoneNumber,
-          subscribers,
-          update,
-          sronSchedule,
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
-          updateModelUpdateAction,
+          updateUpdateProgressAction,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          sronSchedule,
+          datetimeTrigger,
         );
         break;
       }
@@ -103,15 +113,17 @@ export class UpdateBaseTriggerAction {
         );
         this.createScheduleTrigger(
           context,
-          ownerPhoneNumber,
-          subscribers,
-          update,
-          sronSchedule,
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
-          updateModelUpdateAction,
+          updateUpdateProgressAction,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          sronSchedule,
+          datetimeTrigger,
         );
         break;
       }
@@ -126,15 +138,17 @@ export class UpdateBaseTriggerAction {
         );
         this.createScheduleTrigger(
           context,
-          ownerPhoneNumber,
-          subscribers,
-          update,
-          sronSchedule,
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
-          updateModelUpdateAction,
+          updateUpdateProgressAction,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          sronSchedule,
+          datetimeTrigger,
         );
         break;
       }
@@ -147,15 +161,17 @@ export class UpdateBaseTriggerAction {
         );
         this.createScheduleTrigger(
           context,
-          ownerPhoneNumber,
-          subscribers,
-          update,
-          sronSchedule,
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
-          updateModelUpdateAction,
+          updateUpdateProgressAction,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          sronSchedule,
+          datetimeTrigger,
         );
         break;
       }
@@ -169,15 +185,17 @@ export class UpdateBaseTriggerAction {
         );
         this.createScheduleTrigger(
           context,
-          ownerPhoneNumber,
-          subscribers,
-          update,
-          sronSchedule,
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
-          updateModelUpdateAction,
+          updateUpdateProgressAction,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          sronSchedule,
+          datetimeTrigger,
         );
         break;
       }
@@ -191,15 +209,17 @@ export class UpdateBaseTriggerAction {
         );
         this.createScheduleTrigger(
           context,
-          ownerPhoneNumber,
-          subscribers,
-          update,
-          sronSchedule,
           backgroudJobService,
           smsService,
           linkRediectCreateByMessageAction,
           formSubmissionUpdateLastContactedAction,
-          updateModelUpdateAction,
+          updateUpdateProgressAction,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          sronSchedule,
+          datetimeTrigger,
         );
         break;
       }
@@ -261,19 +281,32 @@ export class UpdateBaseTriggerAction {
 
   private handleSendSms(
     context: RequestContext,
+    linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
+    formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    updateUpdateProgressAction: UpdateUpdateProgressAction,
+    smsService: SmsService,
+    updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
     ownerPhoneNumber: string,
     subscribers: FormSubmission[],
     update: UpdateDocument,
-    smsService: SmsService,
-    linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
-    formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
-    updateModelUpdateAction: UpdateModelUpdateAction,
+    datetimeTrigger: Date,
   ) {
     const { logger } = context;
     return async () => {
       if (this.isSkipTrigger(context, update.triggerType)) {
         return;
       }
+
+      const isCleanSchedule = await this.handleCleanSchedule(
+        context,
+        updateFindByIdWithoutReportingAction,
+        update.id,
+        datetimeTrigger,
+      );
+      if (isCleanSchedule) {
+        return;
+      }
+
       logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
       await Promise.all(
         subscribers.map(async (sub) => {
@@ -309,38 +342,79 @@ export class UpdateBaseTriggerAction {
       );
       if (update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
         // Note: update process for update type Once
-        updateModelUpdateAction.execute(context, update.id, {
-          progress: UPDATE_PROGRESS.DONE,
-        });
+        updateUpdateProgressAction.execute(context, update.id, UPDATE_PROGRESS.DONE);
       }
     };
   }
 
   private createScheduleTrigger(
     context: RequestContext,
-    ownerPhoneNumber: string,
-    subscribers: FormSubmission[],
-    update: UpdateDocument,
-    datatime: Date | string,
     backgroudJobService: BackgroudJobService,
     smsService: SmsService,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
-    updateModelUpdateAction: UpdateModelUpdateAction,
+    updateUpdateProgressAction: UpdateUpdateProgressAction,
+    updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
+    ownerPhoneNumber: string,
+    subscribers: FormSubmission[],
+    update: UpdateDocument,
+    datatime: Date | string,
+    datetimeTrigger: Date,
   ) {
     backgroudJobService.job(
       datatime,
       undefined,
       this.handleSendSms(
         context,
+        linkRediectCreateByMessageAction,
+        formSubmissionUpdateLastContactedAction,
+        updateUpdateProgressAction,
+        smsService,
+        updateFindByIdWithoutReportingAction,
         ownerPhoneNumber,
         subscribers,
         update,
-        smsService,
-        linkRediectCreateByMessageAction,
-        formSubmissionUpdateLastContactedAction,
-        updateModelUpdateAction,
+        datetimeTrigger,
       ),
+      `${update.id}-${datetimeTrigger.getTime()}`,
     );
+  }
+
+  private async handleCleanSchedule(
+    context: RequestContext,
+    updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
+    updateId: string,
+    datetimeTrigger: Date,
+  ) {
+    try {
+      const lastestUpdate = await updateFindByIdWithoutReportingAction.execute(context, updateId);
+      const isMatchDate = lastestUpdate.updatedAt.getTime() === datetimeTrigger.getTime();
+      if (!isMatchDate) {
+        // clean
+        context.logger.info(`Clean schedule update`, {
+          updateId: updateId,
+          versionAt: datetimeTrigger,
+          reason: 'OutDate',
+        });
+        this.cleanJobByName(`${updateId}-${datetimeTrigger.getTime()}`);
+        return true;
+      }
+    } catch (error) {
+      // clean
+      context.logger.info(`Clean schedule update`, {
+        updateId: updateId,
+        versionAt: datetimeTrigger,
+        reason: 'Update has been deleted',
+      });
+      this.cleanJobByName(`${updateId}-${datetimeTrigger.getTime()}`);
+      return true;
+    }
+    return false;
+  }
+
+  private cleanJobByName(jobName: string) {
+    const my_job = schedule.scheduledJobs[jobName];
+    if (!my_job) return;
+    my_job.cancel();
   }
 }

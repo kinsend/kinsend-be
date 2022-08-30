@@ -31,6 +31,8 @@ import { LinkRedirectFinddByUpdateIdAction } from './services/link.redirect/Link
 import { UpdateReportingFindByUpdateIdWithoutErrorAction } from './services/update.reporting/UpdateReportingFindByUpdateIdWithoutErrorAction.service';
 import { UpdateContactsTriggerAction } from './services/UpdateTriggerAction/UpdateContactsTriggerAction';
 import { UpdateFindByIdWithoutReportingAction } from './services/UpdateFindByIdWithoutReportingAction.service';
+import { UpdateDeleteByIdAction } from './services/UpdateDeleteByIdAction.service';
+import { UpdateUpdateProgressAction } from './services/UpdateUpdateProgressAction.service';
 
 @Module({
   controllers: [UpdateController],
@@ -69,6 +71,8 @@ import { UpdateFindByIdWithoutReportingAction } from './services/UpdateFindByIdW
     UpdateReportingFindByUpdateIdWithoutErrorAction,
     UpdateContactsTriggerAction,
     UpdateFindByIdWithoutReportingAction,
+    UpdateDeleteByIdAction,
+    UpdateUpdateProgressAction,
   ],
   exports: [
     UpdateReportingUpdateAction,

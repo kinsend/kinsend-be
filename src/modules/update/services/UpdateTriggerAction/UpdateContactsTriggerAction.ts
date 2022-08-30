@@ -22,6 +22,7 @@ import { UpdateReportingCreateAction } from '../update.reporting/UpdateReporting
 import { UpdateFindAction } from '../UpdateFindAction.service';
 import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
 import { UpdateModelUpdateAction } from '../UpdateModelUpdateAction.service';
+import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 
 @Injectable()
@@ -37,7 +38,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
     private linkRedirectFinddByUpdateIdAction: LinkRedirectFinddByUpdateIdAction,
     private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
-    private updateModelUpdateAction: UpdateModelUpdateAction,
+    private updateUpdateProgressAction: UpdateUpdateProgressAction,
   ) {
     super();
   }
@@ -48,6 +49,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
     update: UpdateDocument,
     createdBy: UserDocument,
     filter: Filter,
+    datetimeTrigger: Date,
   ): Promise<void> {
     let subscribers: FormSubmissionDocument[] = await this.getSubscriberByFiltersContact(
       context,
@@ -61,14 +63,16 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
 
     this.executeTrigger(
       context,
-      ownerPhoneNumber,
-      subscribers,
-      update,
       this.backgroudJobService,
       this.smsService,
       this.linkRediectCreateByMessageAction,
       this.formSubmissionUpdateLastContactedAction,
-      this.updateModelUpdateAction,
+      this.updateUpdateProgressAction,
+      this.updateFindByIdWithoutReportingAction,
+      ownerPhoneNumber,
+      subscribers,
+      update,
+      datetimeTrigger,
     );
   }
 

@@ -48,6 +48,9 @@ export class Update {
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
+
+  @Prop({ default: Date.now, type: Date })
+  updatedAt: Date;
 }
 
 const UpdateSchema = SchemaFactory.createForClass(Update);

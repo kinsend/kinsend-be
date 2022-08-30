@@ -19,7 +19,8 @@ import { UserDocument } from '../../../user/user.schema';
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateReportingCreateAction } from '../update.reporting/UpdateReportingCreateAction.service';
-import { UpdateModelUpdateAction } from '../UpdateModelUpdateAction.service';
+import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
+import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
 import { UpdateBaseTriggerAction } from './UpdateBaseTriggerAction';
 import { UpdateContactsTriggerAction } from './UpdateContactsTriggerAction';
 @Injectable()
@@ -34,7 +35,8 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     private updateContactsTriggerAction: UpdateContactsTriggerAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
-    private updateModelUpdateAction: UpdateModelUpdateAction,
+    private updateUpdateProgressAction: UpdateUpdateProgressAction,
+    private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
   ) {
     super();
   }
@@ -45,6 +47,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     update: UpdateDocument,
     createdBy: UserDocument,
     segmentId: string,
+    datetimeTrigger: Date,
   ): Promise<void> {
     const { logger } = context;
     if (!segmentId) {
@@ -59,14 +62,16 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
 
     this.executeTrigger(
       context,
-      ownerPhoneNumber,
-      subscribers,
-      update,
       this.backgroudJobService,
       this.smsService,
       this.linkRediectCreateByMessageAction,
       this.formSubmissionUpdateLastContactedAction,
-      this.updateModelUpdateAction,
+      this.updateUpdateProgressAction,
+      this.updateFindByIdWithoutReportingAction,
+      ownerPhoneNumber,
+      subscribers,
+      update,
+      datetimeTrigger,
     );
   }
 

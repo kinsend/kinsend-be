@@ -26,6 +26,7 @@ export class UpdateHandleTrigerAction {
     context: RequestContext,
     update: UpdateDocument,
     filter: Filter,
+    datetimeTrigger: Date,
     createdBy: UserDocument,
     skip?: number,
   ): Promise<void> {
@@ -40,19 +41,26 @@ export class UpdateHandleTrigerAction {
 
     if (tagId) {
       logger.info('Start tag trigger update');
-      this.updateTaggedTriggerAction.execute(context, from, update, tagId);
+      this.updateTaggedTriggerAction.execute(context, from, update, tagId, datetimeTrigger);
       return;
     }
 
     if (location) {
       logger.info('Start localtion trigger update');
-      this.updateLocationTriggerAction.execute(context, from, update, location);
+      this.updateLocationTriggerAction.execute(context, from, update, location, datetimeTrigger);
       return;
     }
 
     if (segmentId) {
       logger.info('Start segment trigger update');
-      this.updateSegmentTriggerAction.execute(context, from, update, createdBy, segmentId);
+      this.updateSegmentTriggerAction.execute(
+        context,
+        from,
+        update,
+        createdBy,
+        segmentId,
+        datetimeTrigger,
+      );
       return;
     }
     // case lastest update
@@ -66,10 +74,17 @@ export class UpdateHandleTrigerAction {
       if (updateLatest.length === 0) {
         return;
       }
-      this.execute(context, update, updateLatest[0].filter, createdBy, nextSkip);
+      this.execute(context, update, updateLatest[0].filter, datetimeTrigger, createdBy, nextSkip);
       return;
     }
     // Contacts filter
-    this.updateContactsTriggerAction.execute(context, from, update, createdBy, filter);
+    this.updateContactsTriggerAction.execute(
+      context,
+      from,
+      update,
+      createdBy,
+      filter,
+      datetimeTrigger,
+    );
   }
 }

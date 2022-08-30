@@ -7,13 +7,19 @@ import { sleep } from '../../utils/sleep';
 export class BackgroudJobService {
   constructor(private readonly configService: ConfigService) {}
 
-  public job(date: Date | string, delay: number | undefined, callback: () => Promise<void>) {
-    const job1 = new schedule.Job(async () => {
+  public job(
+    date: Date | string,
+    delay: number | undefined,
+    callback: () => Promise<void>,
+    name?: string,
+  ) {
+    const nameJob = name || Date.now().toString();
+    const job = new schedule.Job(nameJob, async () => {
       if (delay) {
         await (() => sleep(delay))();
       }
       callback();
     });
-    job1.schedule(date);
+    job.schedule(date);
   }
 }
