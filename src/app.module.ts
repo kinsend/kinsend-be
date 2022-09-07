@@ -22,6 +22,7 @@ import { SmsLogModel } from './modules/sms.log/sms.log.module';
 import { SegmentModule } from './modules/segment/segment.module';
 import { UpdateModule } from './modules/update/update.module';
 import { RedirectModule } from './modules/redirect/redirect.module';
+import { MessageModule } from './modules/messages/message.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { RedirectModule } from './modules/redirect/redirect.module';
     SegmentModule,
     UpdateModule,
     RedirectModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
