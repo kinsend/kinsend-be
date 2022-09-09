@@ -5,6 +5,7 @@ import { Transform } from 'class-transformer';
 import { User } from '../user/user.schema';
 import { Form } from '../form/form.schema';
 import { PhoneNumber } from '../user/dtos/UserResponse.dto';
+import { MessageDocument } from '../messages/message.schema';
 
 export type FormSubmissionDocument = FormSubmission & Document;
 
@@ -63,6 +64,9 @@ export class FormSubmission {
 
   @Prop({ type: Date, required: false })
   lastContacted?: Date;
+
+  @Prop({ required: false })
+  messages?: MessageDocument[];
 }
 
 const FormSubmissionSchema = SchemaFactory.createForClass(FormSubmission);
