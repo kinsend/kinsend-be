@@ -225,6 +225,7 @@ export class SmsService {
     fileUrl: string | undefined,
     to: string,
     callbackUrl?: string,
+    callbackSaveSms?: (status?: string, error?: any) => Promise<any>,
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
@@ -250,6 +251,9 @@ export class SmsService {
         result,
         to,
       });
+      if (callbackSaveSms) {
+        await callbackSaveSms();
+      }
     } catch (error: unknown) {
       logger.error({
         correlationId,
@@ -257,6 +261,9 @@ export class SmsService {
         error,
         to,
       });
+      if (callbackSaveSms) {
+        await callbackSaveSms('failed', JSON.stringify(error));
+      }
     }
   }
 
@@ -266,6 +273,7 @@ export class SmsService {
     message: string,
     fileUrl: string | undefined,
     to: string,
+    callbackSaveSms?: (status?: string, error?: any) => Promise<any>,
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
@@ -286,6 +294,9 @@ export class SmsService {
         result,
         to,
       });
+      if (callbackSaveSms) {
+        await callbackSaveSms();
+      }
     } catch (error: unknown) {
       logger.error({
         correlationId,
@@ -293,6 +304,9 @@ export class SmsService {
         error,
         to,
       });
+      if (callbackSaveSms) {
+        await callbackSaveSms('failed', JSON.stringify(error));
+      }
       throw new IllegalStateException(error as any);
     }
   }

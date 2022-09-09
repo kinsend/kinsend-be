@@ -1,18 +1,24 @@
 /* eslint-disable no-await-in-loop */
+import { Inject } from '@nestjs/common';
 import * as date from 'date-and-time';
 import { SmsService } from '../../../../shared/services/sms.service';
 import { Logger } from '../../../../utils/Logger';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { sleep } from '../../../../utils/sleep';
 import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
+import { MessageCreateAction } from '../../../messages/services/MessageCreateAction.service';
 import { SmsLogsGetByFromAction } from '../../../sms.log/services/SmsLogsGetByFromAction.service';
 import { PhoneNumber } from '../../../user/dtos/UserResponse.dto';
 import { AutomationDocument } from '../../automation.schema';
 import { Delay } from '../../dtos/AutomationCreatePayload.dto';
 import { AutomationBaseTriggerAction } from '../../interfaces/automation.interface';
 import { DURATION, TRIGGER_TYPE } from '../../interfaces/const';
+import { TaskDocument } from '../../task.schema';
 
 export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
+  @Inject(MessageCreateAction) private messageCreateAction: MessageCreateAction;
+  constructor() {}
+
   public handleCaculateDatetimeDelay(startTimeTrigger: Date, delay: Delay): number {
     switch (delay.duration) {
       case DURATION.TIME_FROM_TRIGGER: {
@@ -123,9 +129,31 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
           formSubmissionUpdateLastContactedAction.execute(context, to);
 
           // Send sms
-          await smsService.sendMessage(context, from, task.message || '', task.fileAttached, to);
+          await smsService.sendMessage(
+            context,
+            from,
+            task.message || '',
+            task.fileAttached,
+            to,
+            undefined,
+            this.saveSms(context, from, to, task),
+          );
         }
       }
     };
+  }
+
+  private saveSms(context: RequestContext, from: string, to: string, task: TaskDocument) {
+    const { message, fileAttached } = task;
+    return () =>
+      this.messageCreateAction.execute(context, {
+        content: message as string,
+        dateSent: new Date(),
+        isSubscriberMessage: false,
+        status: 'success',
+        fileAttached,
+        phoneNumberSent: from,
+        phoneNumberReceipted: to,
+      });
   }
 }

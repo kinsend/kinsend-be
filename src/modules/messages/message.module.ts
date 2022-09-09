@@ -1,15 +1,21 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FormSubmissionModule } from '../form.submission/form.submission.module';
+import { UserModule } from '../user/user.module';
 import { MessageController } from './message.controller';
 import { Message, MessageSchema } from './message.schema';
+import { MessageCreateAction } from './services/MessageCreateAction.service';
+import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
+import { MessagesFindAction } from './services/MessagesFindAction.service';
 
 @Module({
   imports: [
-    FormSubmissionModule,
+    forwardRef(() => FormSubmissionModule),
+    UserModule,
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
   controllers: [MessageController],
-  providers: [],
+  providers: [MessageCreateAction, MessagesFindAction, MessagesFindbyFormSubmissionAction],
+  exports: [MessageCreateAction],
 })
 export class MessageModule {}

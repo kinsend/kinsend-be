@@ -61,7 +61,6 @@ export class FormSubmissionCreateAction {
     if (formExist.isVcardSend || formExist.isEnabled) {
       await this.sendVcardToSubscriber(context, owner, formExist, payload.phoneNumber);
     }
-
     this.automationCreateTriggerAutomationAction.execute(
       context,
       owner,

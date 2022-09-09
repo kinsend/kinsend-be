@@ -17,11 +17,15 @@ import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCr
 import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
 import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
+import { MessageCreateAction } from '../../../messages/services/MessageCreateAction.service';
+import { Inject } from '@nestjs/common';
 
 export class UpdateBaseTriggerAction {
   private timesPerformedOtherWeek = 0;
 
   private timesPerformedOtherDay = 0;
+
+  @Inject(MessageCreateAction) private messageCreateAction: MessageCreateAction;
 
   async executeTrigger(
     context: RequestContext,
@@ -337,6 +341,7 @@ export class UpdateBaseTriggerAction {
             update.fileUrl,
             to,
             `api/hook/sms/update/status/${update.id}`,
+            this.saveSms(context, ownerPhoneNumber, to, messageFilled, update.fileUrl),
           );
         }),
       );
@@ -416,5 +421,25 @@ export class UpdateBaseTriggerAction {
     const my_job = schedule.scheduledJobs[jobName];
     if (!my_job) return;
     my_job.cancel();
+  }
+
+  private saveSms(
+    context: RequestContext,
+    from: string,
+    to: string,
+    message: string,
+    file?: string,
+  ) {
+    return (status = 'success', error?: string) =>
+      this.messageCreateAction.execute(context, {
+        content: message,
+        dateSent: new Date(),
+        isSubscriberMessage: false,
+        status,
+        fileAttached: file,
+        phoneNumberSent: from,
+        phoneNumberReceipted: to,
+        errorMessage: error,
+      });
   }
 }

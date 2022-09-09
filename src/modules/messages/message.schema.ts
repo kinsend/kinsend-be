@@ -19,29 +19,38 @@ export class Message {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'User' })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   user: User;
 
-  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'FormSubmission' })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'FormSubmission' })
   formSubmission: FormSubmission;
 
   @Prop({ type: String, required: true })
   content: string;
 
+  @Prop({ type: String, required: false })
+  fileAttached?: string;
+
   @Prop({ type: Date, required: true })
   dateSent: Date;
 
   @Prop({ type: Number, required: false })
-  errorCode: number;
+  errorCode?: number;
 
   @Prop({ type: String, required: false })
-  errorMessage: string;
+  errorMessage?: string;
 
   @Prop({ type: String, required: true })
   status: string;
 
   @Prop({ type: String, required: true })
-  phoneNumberSent: PhoneNumber;
+  phoneNumberSent: string;
+
+  @Prop({ type: String, required: true })
+  phoneNumberReceipted: string;
+
+  @Prop({ type: Boolean, required: true, default: false })
+  isSubscriberMessage: boolean;
 }
 
 const MessageSchema = SchemaFactory.createForClass(Message);

@@ -17,7 +17,8 @@ export type NotFoundResourceTypes =
   | 'Segment'
   | 'Update'
   | 'FormSubmission'
-  | 'UpdateReporting';
+  | 'UpdateReporting'
+  | 'Message';
 export class NotFoundException extends HttpException {
   constructor(resourceType: NotFoundResourceTypes, debugMessage: string) {
     super(

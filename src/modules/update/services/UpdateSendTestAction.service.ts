@@ -7,6 +7,7 @@ import { SmsService } from '../../../shared/services/sms.service';
 import { fillMergeFieldsToMessage } from '../../../utils/fillMergeFieldsToMessage';
 import { RequestContext } from '../../../utils/RequestContext';
 import { FormSubmissionFindByIdAction } from '../../form.submission/services/FormSubmissionFindByIdAction.service';
+import { MessageCreateAction } from '../../messages/services/MessageCreateAction.service';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
 import { User, UserDocument } from '../../user/user.schema';
@@ -21,6 +22,7 @@ export class UpdateSendTestAction {
     private userFindByIdAction: UserFindByIdAction,
     private smsService: SmsService,
     private formSubmissionFindByIdAction: FormSubmissionFindByIdAction,
+    private messageCreateAction: MessageCreateAction,
   ) {}
 
   async execute(context: RequestContext, payload: UpdateSendTestPayload): Promise<string> {
@@ -56,6 +58,26 @@ export class UpdateSendTestAction {
     const fromStr = `+${from.code}${from.phone}`;
     const toStr = ` +${to.code}${to.phone}`;
     // Note: pass update lastContacted
-    await this.smsService.sendMessageHasThrowError(context, fromStr, message, undefined, toStr);
+    await this.smsService.sendMessageHasThrowError(
+      context,
+      fromStr,
+      message,
+      undefined,
+      toStr,
+      this.saveSms(context, fromStr, toStr, message),
+    );
+  }
+
+  private saveSms(context: RequestContext, from: string, to: string, message: string) {
+    return (status = 'success', error?: string) =>
+      this.messageCreateAction.execute(context, {
+        content: message,
+        dateSent: new Date(),
+        isSubscriberMessage: false,
+        status,
+        phoneNumberSent: from,
+        phoneNumberReceipted: to,
+        errorMessage: error,
+      });
   }
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
 import { UserModule } from '../user/user.module';
@@ -33,6 +33,7 @@ import { UpdateContactsTriggerAction } from './services/UpdateTriggerAction/Upda
 import { UpdateFindByIdWithoutReportingAction } from './services/UpdateFindByIdWithoutReportingAction.service';
 import { UpdateDeleteByIdAction } from './services/UpdateDeleteByIdAction.service';
 import { UpdateUpdateProgressAction } from './services/UpdateUpdateProgressAction.service';
+import { MessageModule } from '../messages/message.module';
 
 @Module({
   controllers: [UpdateController],
@@ -48,6 +49,7 @@ import { UpdateUpdateProgressAction } from './services/UpdateUpdateProgressActio
     TagsModule,
     FormModule,
     SegmentModule,
+    forwardRef(() => MessageModule),
   ],
   providers: [
     UpdateCreateAction,
