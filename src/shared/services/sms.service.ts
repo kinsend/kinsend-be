@@ -273,7 +273,7 @@ export class SmsService {
     message: string,
     fileUrl: string | undefined,
     to: string,
-    callbackSaveSms?: (status?: string, error?: any) => Promise<any>,
+    callbackSaveSms?: (status?: string, error?: any) => void,
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
@@ -294,6 +294,7 @@ export class SmsService {
         result,
         to,
       });
+
       if (callbackSaveSms) {
         await callbackSaveSms();
       }

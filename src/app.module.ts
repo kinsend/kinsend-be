@@ -23,6 +23,7 @@ import { SegmentModule } from './modules/segment/segment.module';
 import { UpdateModule } from './modules/update/update.module';
 import { RedirectModule } from './modules/redirect/redirect.module';
 import { MessageModule } from './modules/messages/message.module';
+import { SmsModel } from './modules/sms/sms.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { MessageModule } from './modules/messages/message.module';
     UpdateModule,
     RedirectModule,
     MessageModule,
+    SmsModel,
   ],
   controllers: [AppController],
   providers: [AppService],

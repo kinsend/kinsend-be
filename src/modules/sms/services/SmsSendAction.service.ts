@@ -1,39 +1,90 @@
 import { BadGatewayException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { convertStringToPhoneNumber } from '../../../utils/convertStringToPhoneNumber';
-import { UpdateSendTestPayload } from '../../update/dtos/UpdateSendTestPayload.dto';
+import { SmsService } from '../../../shared/services/sms.service';
+import { fillMergeFieldsToMessage } from '../../../utils/fillMergeFieldsToMessage';
+import { RequestContext } from '../../../utils/RequestContext';
+import { FormSubmissionFindByIdAction } from '../../form.submission/services/FormSubmissionFindByIdAction.service';
+import { FormSubmissionUpdateLastContactedAction } from '../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
+import { MessageCreateAction } from '../../messages/services/MessageCreateAction.service';
+import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
-import { UserFindByPhoneSystemAction } from '../../user/services/UserFindByPhoneSystemAction.service';
+import { SmsSentPayload } from '../dtos/SmsSentPayload.dto';
 
 @Injectable()
-export class SmsLogCreateAction {
+export class SmsSendAction {
   constructor(
-    private userFindByPhoneSystemAction: UserFindByPhoneSystemAction,
     private userFindByIdAction: UserFindByIdAction,
+    private formSubmissionFindByIdAction: FormSubmissionFindByIdAction,
+    private messageCreateAction: MessageCreateAction,
+    private smsService: SmsService,
+    private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
   ) {}
 
-  async execute(payload: UpdateSendTestPayload): Promise<string> {
-    // const { user, logger } = context;
-    // const userExist = await this.userFindByIdAction.execute(context, user.id);
-    // const contacts = await this.formSubmissionFindByIdAction.execute(context, payload.contactsId);
+  async execute(context: RequestContext, payload: SmsSentPayload): Promise<string> {
+    const { user, logger } = context;
 
-    // if (!userExist.phoneSystem || (userExist.phoneSystem as PhoneNumber[]).length === 0) {
-    //   logger.info('User no phone number for send sms feature!');
-    //   throw new BadGatewayException('Send sms fail!');
-    // }
+    const userExist = await this.userFindByIdAction.execute(context, user.id);
+    const formSub = await this.formSubmissionFindByIdAction.execute(
+      context,
+      payload.formSubmissionId,
+    );
+    if (!userExist.phoneSystem || (userExist.phoneSystem as PhoneNumber[]).length === 0) {
+      logger.info('User no phone number for send sms feature!');
+      throw new BadGatewayException('Send update test fail!');
+    }
 
-    // const phoneNumberOwner = userExist.phoneSystem[0];
-    // const { phoneNumber } = contacts;
-    // const { phoneNumber: payloadPhoneNumber } = payload;
-    // const messageFilled = fillMergeFieldsToMessage(payload.message, {
-    //   ...payload,
-    //   mobile: payloadPhoneNumber
-    //     ? `+${payloadPhoneNumber.code}${payloadPhoneNumber.phone}`
-    //     : undefined,
-    // });
-    // await this.sendUpdate(context, messageFilled, phoneNumberOwner, phoneNumber);
+    const phoneNumberOwner = userExist.phoneSystem[0];
+    const { phoneNumber, firstName, lastName, email } = formSub;
+    const messageFilled = fillMergeFieldsToMessage(payload.message, {
+      ...payload,
+      mobile: phoneNumber ? `+${phoneNumber.code}${phoneNumber.phone}` : undefined,
+      fname: firstName,
+      lname: lastName,
+      name: `${firstName} ${lastName}`,
+      email,
+    });
+
+    await this.sendUpdate(context, messageFilled, phoneNumberOwner, phoneNumber);
 
     return 'Send update test successfully!';
+  }
+
+  private async sendUpdate(
+    context: RequestContext,
+    message: string,
+    from: PhoneNumber,
+    to: PhoneNumber,
+  ) {
+    const fromStr = `+${from.code}${from.phone}`;
+    const toStr = ` +${to.code}${to.phone}`;
+    await this.smsService.sendMessageHasThrowError(
+      context,
+      fromStr,
+      message,
+      undefined,
+      toStr,
+      this.saveSms(context, fromStr, toStr, message),
+    );
+  }
+
+  private saveSms(context: RequestContext, from: string, to: string, message: string) {
+    return async (status = 'success', error?: string) => {
+      const promiseActions: any[] = [];
+      if (!error) {
+        promiseActions.push(this.formSubmissionUpdateLastContactedAction.execute(context, to));
+      }
+
+      promiseActions.push(
+        this.messageCreateAction.execute(context, {
+          content: message,
+          dateSent: new Date(),
+          isSubscriberMessage: false,
+          status,
+          phoneNumberSent: from,
+          phoneNumberReceipted: to,
+          errorMessage: error,
+        }),
+      );
+      await Promise.all(promiseActions);
+    };
   }
 }
