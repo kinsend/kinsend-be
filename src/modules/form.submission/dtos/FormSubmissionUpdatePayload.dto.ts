@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsOptional, MaxLength, IsLowercase, IsEmail } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsLowercase,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
+import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 
 export class FormSubmissionUpdatePayload {
   @ApiProperty({ example: 'lorem@gmail.com', type: String, required: false })
@@ -30,4 +39,38 @@ export class FormSubmissionUpdatePayload {
   @IsString()
   @IsOptional()
   metaData?: string;
+
+  @ApiProperty({ example: ['234', '234'], required: false, type: String })
+  @IsString({ each: true })
+  @IsOptional()
+  tagIds?: string[];
+
+  @ApiProperty({ example: true, required: false, type: Boolean })
+  @IsBoolean()
+  @IsOptional()
+  isContactArchived?: boolean;
+
+  @ApiProperty({ example: true, required: false, type: Boolean })
+  @IsBoolean()
+  @IsOptional()
+  isContactHidden?: boolean;
+
+  @ApiProperty({ example: true, required: false, type: Boolean })
+  @IsBoolean()
+  @IsOptional()
+  isFacebookContact?: boolean;
+
+  @ApiProperty({ example: true, required: false, type: Boolean })
+  @IsBoolean()
+  @IsOptional()
+  isSubscribed?: boolean;
+
+  @ApiProperty({ example: PhoneNumber, required: true, type: PhoneNumber })
+  @IsOptional()
+  phoneNumber?: PhoneNumber;
+
+  @ApiProperty({ example: true, required: false, type: Boolean })
+  @IsBoolean()
+  @IsOptional()
+  isVip?: boolean;
 }

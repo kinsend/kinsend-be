@@ -1,11 +1,11 @@
 /* eslint-disable max-classes-per-file */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { Transform } from 'class-transformer';
-import { User } from '../user/user.schema';
+import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { Form } from '../form/form.schema';
+import { Tags } from '../tags/tags.schema';
 import { PhoneNumber } from '../user/dtos/UserResponse.dto';
-import { MessageDocument } from '../messages/message.schema';
+import { User } from '../user/user.schema';
 
 export type FormSubmissionDocument = FormSubmission & Document;
 
@@ -24,6 +24,9 @@ export class FormSubmission {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', index: true })
   form: Form;
+
+  @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Tags', required: false })
+  tags?: Tags[];
 
   @Prop({ required: false })
   email?: string;
@@ -49,7 +52,6 @@ export class FormSubmission {
   @Prop({ default: Date.now, type: Date })
   updatedAt: Date;
 
-  // TODO data for test
   @Prop({ default: false, type: Boolean })
   isContactHidden: boolean;
 
@@ -61,6 +63,9 @@ export class FormSubmission {
 
   @Prop({ default: false, type: Boolean })
   isFacebookContact: boolean;
+
+  @Prop({ default: false, type: Boolean })
+  isVip: boolean;
 
   @Prop({ type: Date, required: false })
   lastContacted?: Date;

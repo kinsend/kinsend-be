@@ -54,6 +54,7 @@ export class FormSubmissionCreateAction {
     const response = new this.formSubmissionModel({
       ...payload,
       form: formExist,
+      tags: [formExist.tags],
       owner,
     });
     await response.save();

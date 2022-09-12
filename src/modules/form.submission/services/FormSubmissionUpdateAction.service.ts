@@ -1,42 +1,35 @@
 /* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
+import { TagsGetByIdsAction } from 'src/modules/tags/services/TagsGetByIdsAction.service';
+import { dynamicUpdateModel } from '../../../utils/dynamicUpdateModel';
 import { RequestContext } from '../../../utils/RequestContext';
-import { FormSubmissionDocument } from '../form.submission.schema';
 import { FormSubmissionUpdatePayload } from '../dtos/FormSubmissionUpdatePayload.dto';
+import { FormSubmissionModule } from '../form.submission.module';
+import { FormSubmissionDocument } from '../form.submission.schema';
 import { FormSubmissionFindByIdAction } from './FormSubmissionFindByIdAction.service';
 
 @Injectable()
 export class FormSubmissionUpdateAction {
-  constructor(private formSubmissionFindByIdAction: FormSubmissionFindByIdAction) {}
+  constructor(
+    private formSubmissionFindByIdAction: FormSubmissionFindByIdAction,
+    private tagsGetByIdsAction: TagsGetByIdsAction,
+  ) {}
 
   async execute(
     context: RequestContext,
     formSubId: string,
     payload: FormSubmissionUpdatePayload,
   ): Promise<FormSubmissionDocument> {
-    const { email, firstName, lastName, location, metaData } = payload;
+    const { tagIds } = payload;
     const formSubmissionExist = await this.formSubmissionFindByIdAction.execute(context, formSubId);
-    if (email) {
-      formSubmissionExist.email = email;
-    }
-    if (firstName) {
-      formSubmissionExist.firstName = firstName;
-    }
-    if (lastName) {
-      formSubmissionExist.lastName = lastName;
-    }
-    if (location) {
-      formSubmissionExist.location = location;
-    }
-    if (metaData) {
-      formSubmissionExist.metaData = metaData;
-    }
-    await formSubmissionExist.save();
+    const formUpdate = dynamicUpdateModel<FormSubmissionDocument>(payload, formSubmissionExist);
 
-    return formSubmissionExist.populate([
-      { path: 'form' },
-      { path: 'owner', select: ['-password'] },
-    ]);
+    if (tagIds && tagIds.length > 0) {
+      formUpdate.tags = await this.tagsGetByIdsAction.execute(context, tagIds);
+    }
+    await formUpdate.save();
+
+    return formUpdate.populate([{ path: 'form' }, { path: 'owner', select: ['-password'] }]);
   }
 }

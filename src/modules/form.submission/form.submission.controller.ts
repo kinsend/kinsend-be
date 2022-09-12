@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
   UseInterceptors,
@@ -13,6 +14,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOkResponse } from '@nestjs/swagger';
+import { TranformObjectIdPipe } from 'src/utils/ParseBigIntPipe';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { AppRequest } from '../../utils/AppRequest';
@@ -22,8 +24,9 @@ import { FormSubmissionCreateAction } from './services/FormSubmissionCreateActio
 import { FormSubmissionGetLocationsAction } from './services/FormSubmissionGetLocationsAction.service';
 import { SubmissionLocationResponseDto } from './dtos/SubmissionLocationResponseDto';
 import { FormSubmissionsGetAction } from './services/FormSubmissionsGetAction.service';
+import { FormSubmissionUpdateAction } from './services/FormSubmissionUpdateAction.service';
 import { FormSubmission } from './form.submission.schema';
-import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
+import { FormSubmissionUpdatePayload } from './dtos/FormSubmissionUpdatePayload.dto';
 import { FormSubmissionSendVcardAction } from './services/FormSubmissionSendVcardAction.service';
 
 @ApiTags('FormSubmission')
@@ -34,6 +37,7 @@ export class FormSubmissionController {
     private formSubmissionCreateAction: FormSubmissionCreateAction,
     private formSubmissionGetLocationsAction: FormSubmissionGetLocationsAction,
     private formSubmissionsGetAction: FormSubmissionsGetAction,
+    private formSubmissionUpdateAction: FormSubmissionUpdateAction,
     private formSubmissionSendVcardAction: FormSubmissionSendVcardAction,
   ) {}
 
@@ -72,6 +76,24 @@ export class FormSubmissionController {
   @Get('')
   getSubmissions(@Req() request: AppRequest) {
     return this.formSubmissionsGetAction.execute(request);
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'The subscribers response',
+    type: FormSubmission,
+    isArray: true,
+  })
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Put('/:id')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  updateFormSubmission(
+    @Req() request: AppRequest,
+    @Body() payload: FormSubmissionUpdatePayload,
+    @Param('id', TranformObjectIdPipe) id: string,
+  ) {
+    return this.formSubmissionUpdateAction.execute(request, id, payload);
   }
 
   @ApiBearerAuth()

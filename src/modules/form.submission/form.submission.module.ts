@@ -19,6 +19,7 @@ import { FormSubmissionFindByConditionAction } from './services/FormSubmissionFi
 import { FormSubmissionUpdateAction } from './services/FormSubmissionUpdateAction.service';
 import { FormSubmissionUpdateLastContactedAction } from './services/FormSubmissionUpdateLastContactedAction.service';
 import { FormSubmissionFindByIdsAction } from './services/FormSubmissionFindByIdsAction.service';
+import { TagsModule } from '../tags/tags.module';
 import { FormSubmissionSendVcardAction } from './services/FormSubmissionSendVcardAction.service';
 import { MessageModule } from '../messages/message.module';
 
@@ -30,6 +31,7 @@ import { MessageModule } from '../messages/message.module';
     VirtualCardModule,
     AutomationModule,
     UserModule,
+    TagsModule,
     forwardRef(() => FormModule),
     forwardRef(() => MessageModule),
   ],
