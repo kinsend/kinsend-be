@@ -20,8 +20,8 @@ import { AppRequest } from '../../utils/AppRequest';
 import { MessageCreatePayloadDto } from './dtos/MessageCreatePayloadDto.dto';
 import { MessageModule } from './message.module';
 import { MessageCreateAction } from './services/MessageCreateAction.service';
-import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
 import { MessagesFindAction } from './services/MessagesFindAction.service';
+import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
 
 @ApiTags('Messages')
 @ApiBearerAuth()
@@ -31,7 +31,7 @@ export class MessageController {
   constructor(
     private messageCreateAction: MessageCreateAction,
     private messagesFindAction: MessagesFindAction,
-    private messageFindColletionAction: MessagesFindbyFormSubmissionAction,
+    private messagesFindbyFormSubmissionAction: MessagesFindbyFormSubmissionAction,
   ) {}
 
   @ApiBearerAuth()
@@ -65,6 +65,6 @@ export class MessageController {
     @Req() request: AppRequest,
     @Param('id', TranformObjectIdPipe) id: string,
   ) {
-    return this.messageFindColletionAction.execute(request, id);
+    return this.messagesFindbyFormSubmissionAction.execute(request, id);
   }
 }

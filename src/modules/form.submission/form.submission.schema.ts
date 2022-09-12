@@ -64,9 +64,6 @@ export class FormSubmission {
 
   @Prop({ type: Date, required: false })
   lastContacted?: Date;
-
-  @Prop({ required: false })
-  messages?: MessageDocument[];
 }
 
 const FormSubmissionSchema = SchemaFactory.createForClass(FormSubmission);
