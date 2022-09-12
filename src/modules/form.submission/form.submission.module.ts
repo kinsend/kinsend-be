@@ -19,6 +19,8 @@ import { FormSubmissionFindByConditionAction } from './services/FormSubmissionFi
 import { FormSubmissionUpdateAction } from './services/FormSubmissionUpdateAction.service';
 import { FormSubmissionUpdateLastContactedAction } from './services/FormSubmissionUpdateLastContactedAction.service';
 import { FormSubmissionFindByIdsAction } from './services/FormSubmissionFindByIdsAction.service';
+import { FormSubmissionSendVcardAction } from './services/FormSubmissionSendVcardAction.service';
+import { MessageModule } from '../messages/message.module';
 
 @Module({
   controllers: [FormSubmissionController],
@@ -29,6 +31,7 @@ import { FormSubmissionFindByIdsAction } from './services/FormSubmissionFindById
     AutomationModule,
     UserModule,
     forwardRef(() => FormModule),
+    forwardRef(() => MessageModule),
   ],
   providers: [
     FormSubmissionCreateAction,
@@ -43,6 +46,7 @@ import { FormSubmissionFindByIdsAction } from './services/FormSubmissionFindById
     FormSubmissionUpdateAction,
     FormSubmissionUpdateLastContactedAction,
     FormSubmissionFindByIdsAction,
+    FormSubmissionSendVcardAction,
   ],
   exports: [
     FormSubmissionsFindByEmailAction,

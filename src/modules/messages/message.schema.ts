@@ -25,8 +25,8 @@ export class Message {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'FormSubmission' })
   formSubmission: FormSubmission;
 
-  @Prop({ type: String, required: true })
-  content: string;
+  @Prop({ type: String, required: false })
+  content?: string;
 
   @Prop({ type: String, required: false })
   fileAttached?: string;

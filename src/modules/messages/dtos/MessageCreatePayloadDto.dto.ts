@@ -10,7 +10,8 @@ export class MessageCreatePayloadDto {
   })
   @IsString()
   @IsNotEmpty()
-  content: string;
+  @IsOptional()
+  content?: string;
 
   @ApiProperty({
     example: '/image.jpg',

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -22,6 +23,8 @@ import { FormSubmissionGetLocationsAction } from './services/FormSubmissionGetLo
 import { SubmissionLocationResponseDto } from './dtos/SubmissionLocationResponseDto';
 import { FormSubmissionsGetAction } from './services/FormSubmissionsGetAction.service';
 import { FormSubmission } from './form.submission.schema';
+import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
+import { FormSubmissionSendVcardAction } from './services/FormSubmissionSendVcardAction.service';
 
 @ApiTags('FormSubmission')
 @UseInterceptors(MongooseClassSerializerInterceptor(FormSubmissionModule))
@@ -31,6 +34,7 @@ export class FormSubmissionController {
     private formSubmissionCreateAction: FormSubmissionCreateAction,
     private formSubmissionGetLocationsAction: FormSubmissionGetLocationsAction,
     private formSubmissionsGetAction: FormSubmissionsGetAction,
+    private formSubmissionSendVcardAction: FormSubmissionSendVcardAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -68,5 +72,14 @@ export class FormSubmissionController {
   @Get('')
   getSubmissions(@Req() request: AppRequest) {
     return this.formSubmissionsGetAction.execute(request);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('/:id/send-vcard')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  sendVcard(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
+    return this.formSubmissionSendVcardAction.execute(request, id);
   }
 }

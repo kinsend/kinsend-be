@@ -190,6 +190,7 @@ export class SmsService {
     vCardUrl: string | undefined,
     from: string,
     to: string,
+    callback?: (status?: string, error?: any) => Promise<void>,
   ): Promise<void> {
     const { logger, correlationId } = context;
     try {
@@ -203,18 +204,25 @@ export class SmsService {
       if (vCardUrl) {
         payload.mediaUrl = vCardUrl;
       }
+      console.log('payload :>> ', payload);
       const result = await this.twilioClient.messages.create(payload);
       logger.info({
         correlationId,
         message: 'Send VCard to subscriber successful!',
         result,
       });
+      if (callback) {
+        await callback();
+      }
     } catch (error: unknown) {
       logger.error({
         correlationId,
         message: 'Send VCard to subscriber fail!',
         error,
       });
+      if (callback) {
+        await callback('failed', JSON.stringify(error));
+      }
     }
   }
 
