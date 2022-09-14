@@ -1,6 +1,8 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FormSubmissionModule } from '../form.submission/form.submission.module';
+import { SegmentModule } from '../segment/segment.module';
+import { UpdateModule } from '../update/update.module';
 import { UserModule } from '../user/user.module';
 import { MessageController } from './message.controller';
 import { Message, MessageSchema } from './message.schema';
@@ -11,6 +13,8 @@ import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFor
 @Module({
   imports: [
     forwardRef(() => FormSubmissionModule),
+    forwardRef(() => UpdateModule),
+    forwardRef(() => SegmentModule),
     UserModule,
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],

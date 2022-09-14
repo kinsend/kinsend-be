@@ -44,12 +44,12 @@ import { MessageModule } from '../messages/message.module';
       { name: UpdateReporting.name, schema: UpdateReportingSchema },
       { name: LinkRedirect.name, schema: LinkRedirectSchema },
     ]),
-    UserModule,
-    FormSubmissionModule,
     TagsModule,
-    FormModule,
     SegmentModule,
+    forwardRef(() => UserModule),
+    forwardRef(() => FormModule),
     forwardRef(() => MessageModule),
+    forwardRef(() => FormSubmissionModule),
   ],
   providers: [
     UpdateCreateAction,
@@ -84,6 +84,9 @@ import { MessageModule } from '../messages/message.module';
     LinkRediectCreateAction,
     LinkRediectCreateByMessageAction,
     LinkRedirectClickedAction,
+    LinkRedirectFinddByUpdateIdAction,
+    UpdateFindByIdWithoutReportingAction,
+    UpdateFindAction,
   ],
 })
 export class UpdateModule {}

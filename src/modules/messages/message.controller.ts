@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -18,6 +19,7 @@ import { TranformObjectIdPipe } from 'src/utils/ParseBigIntPipe';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import { AppRequest } from '../../utils/AppRequest';
 import { MessageCreatePayloadDto } from './dtos/MessageCreatePayloadDto.dto';
+import { MessageFindDto, MessageFindQueryQueryDto } from './dtos/MessageFindQueryDto';
 import { MessageModule } from './message.module';
 import { MessageCreateAction } from './services/MessageCreateAction.service';
 import { MessagesFindAction } from './services/MessagesFindAction.service';
@@ -52,8 +54,13 @@ export class MessageController {
   @HttpCode(HttpStatus.OK)
   @Get('/')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  getMessages(@Req() request: AppRequest) {
-    return this.messagesFindAction.execute(request);
+  getMessages(
+    @Req() request: AppRequest,
+    @Query() query: MessageFindQueryQueryDto,
+    @Body()
+    payload: MessageFindDto,
+  ) {
+    return this.messagesFindAction.execute(request, query, payload);
   }
 
   @ApiBearerAuth()

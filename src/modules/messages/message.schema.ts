@@ -55,6 +55,6 @@ export class Message {
 
 const MessageSchema = SchemaFactory.createForClass(Message);
 
-MessageSchema.index({ status: 'text' });
+MessageSchema.index({ status: 'text', content: 'text' });
 
 export { MessageSchema };

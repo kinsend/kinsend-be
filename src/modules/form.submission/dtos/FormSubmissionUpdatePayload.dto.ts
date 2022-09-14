@@ -73,4 +73,14 @@ export class FormSubmissionUpdatePayload {
   @IsBoolean()
   @IsOptional()
   isVip?: boolean;
+
+  @ApiProperty({ example: true, required: false, type: Boolean })
+  @IsBoolean()
+  @IsOptional()
+  isConversationArchived?: boolean;
+
+  @ApiProperty({ example: true, required: false, type: Boolean })
+  @IsBoolean()
+  @IsOptional()
+  isConversationHidden?: boolean;
 }

@@ -22,6 +22,9 @@ import { FormSubmissionFindByIdsAction } from './services/FormSubmissionFindById
 import { TagsModule } from '../tags/tags.module';
 import { FormSubmissionSendVcardAction } from './services/FormSubmissionSendVcardAction.service';
 import { MessageModule } from '../messages/message.module';
+import { FormSubmissionFindByFiltersContactAction } from './services/FormSubmissionFindByFiltersContactAction.service';
+import { UpdateModule } from '../update/update.module';
+import { FormSubmissionsFindByTadIdsAction } from './services/FormSubmissionsFindByTadIdsAction.service';
 
 @Module({
   controllers: [FormSubmissionController],
@@ -33,6 +36,7 @@ import { MessageModule } from '../messages/message.module';
     UserModule,
     TagsModule,
     forwardRef(() => FormModule),
+    forwardRef(() => UpdateModule),
     forwardRef(() => MessageModule),
   ],
   providers: [
@@ -49,6 +53,8 @@ import { MessageModule } from '../messages/message.module';
     FormSubmissionUpdateLastContactedAction,
     FormSubmissionFindByIdsAction,
     FormSubmissionSendVcardAction,
+    FormSubmissionFindByFiltersContactAction,
+    FormSubmissionsFindByTadIdsAction,
   ],
   exports: [
     FormSubmissionsFindByEmailAction,
@@ -59,6 +65,8 @@ import { MessageModule } from '../messages/message.module';
     FormSubmissionFindByConditionAction,
     FormSubmissionUpdateLastContactedAction,
     FormSubmissionFindByIdsAction,
+    FormSubmissionFindByFiltersContactAction,
+    FormSubmissionsFindByTadIdsAction,
   ],
 })
 export class FormSubmissionModule {}

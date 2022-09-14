@@ -65,6 +65,12 @@ export class FormSubmission {
   isFacebookContact: boolean;
 
   @Prop({ default: false, type: Boolean })
+  isConversationArchived: boolean;
+
+  @Prop({ default: false, type: Boolean })
+  isConversationHidden: boolean;
+
+  @Prop({ default: false, type: Boolean })
   isVip: boolean;
 
   @Prop({ type: Date, required: false })
