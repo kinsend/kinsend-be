@@ -28,6 +28,7 @@ import { FormSubmissionUpdateAction } from './services/FormSubmissionUpdateActio
 import { FormSubmission } from './form.submission.schema';
 import { FormSubmissionUpdatePayload } from './dtos/FormSubmissionUpdatePayload.dto';
 import { FormSubmissionSendVcardAction } from './services/FormSubmissionSendVcardAction.service';
+import { FormSubmissionFindByIdAction } from './services/FormSubmissionFindByIdAction.service';
 
 @ApiTags('FormSubmission')
 @UseInterceptors(MongooseClassSerializerInterceptor(FormSubmissionModule))
@@ -39,6 +40,7 @@ export class FormSubmissionController {
     private formSubmissionsGetAction: FormSubmissionsGetAction,
     private formSubmissionUpdateAction: FormSubmissionUpdateAction,
     private formSubmissionSendVcardAction: FormSubmissionSendVcardAction,
+    private formSubmissionFindByIdAction: FormSubmissionFindByIdAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -76,6 +78,19 @@ export class FormSubmissionController {
   @Get('')
   getSubmissions(@Req() request: AppRequest) {
     return this.formSubmissionsGetAction.execute(request);
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'The subscribers response',
+    type: FormSubmission,
+    isArray: true,
+  })
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/:id')
+  getFormSubmission(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
+    return this.formSubmissionFindByIdAction.execute(request, id);
   }
 
   @ApiBearerAuth()

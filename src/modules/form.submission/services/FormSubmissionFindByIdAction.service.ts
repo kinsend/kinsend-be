@@ -16,6 +16,6 @@ export class FormSubmissionFindByIdAction {
     if (!formSubmission) {
       throw new NotFoundException('FormSubmission', 'FormSubmission not found!');
     }
-    return formSubmission;
+    return formSubmission.populate('tags');
   }
 }
