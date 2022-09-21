@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AutomationModule } from '../../modules/automation/automation.module';
 import { FormSubmissionModule } from '../../modules/form.submission/form.submission.module';
+import { MessageModule } from '../../modules/messages/message.module';
 import { SmsLogModel } from '../../modules/sms.log/sms.log.module';
 import { UpdateModule } from '../../modules/update/update.module';
 import { UserModule } from '../../modules/user/user.module';
@@ -18,6 +19,7 @@ import { SmsHookController } from './sms.hook.controller';
     UserModule,
     UpdateModule,
     FormSubmissionModule,
+    MessageModule,
   ],
   providers: [SmsReceiveHookAction, SmsStatusCallbackHookAction],
   exports: [],

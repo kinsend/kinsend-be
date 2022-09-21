@@ -126,7 +126,7 @@ export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
             triggerType: automation.triggerType,
           });
           // Note: run async to update lastContacted
-          formSubmissionUpdateLastContactedAction.execute(context, to);
+          formSubmissionUpdateLastContactedAction.execute(context, to, from);
 
           // Send sms
           await smsService.sendMessage(

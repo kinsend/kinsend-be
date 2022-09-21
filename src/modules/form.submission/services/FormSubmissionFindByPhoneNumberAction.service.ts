@@ -12,14 +12,11 @@ export class FormSubmissionFindByPhoneNumberAction {
     @InjectModel(FormSubmission.name) private formSubmissionModel: Model<FormSubmissionDocument>,
   ) {}
 
-  async execute(context: RequestContext, phone: PhoneNumber): Promise<FormSubmissionDocument> {
-    const formSubmission = await this.formSubmissionModel.findOne({
+  async execute(context: RequestContext, phone: PhoneNumber): Promise<FormSubmissionDocument[]> {
+    const formSubmission = await this.formSubmissionModel.find({
       'phoneNumber.phone': phone.phone,
       'phoneNumber.code': phone.code,
     });
-    if (!formSubmission) {
-      throw new NotFoundException('FormSubmission', 'FormSubmission not found!');
-    }
     return formSubmission;
   }
 }

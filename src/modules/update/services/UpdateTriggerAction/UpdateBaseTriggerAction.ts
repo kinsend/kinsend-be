@@ -332,7 +332,7 @@ export class UpdateBaseTriggerAction {
           });
 
           // Note: run async for update lastContacted
-          formSubmissionUpdateLastContactedAction.execute(context, to);
+          formSubmissionUpdateLastContactedAction.execute(context, to, ownerPhoneNumber);
 
           return smsService.sendMessage(
             context,

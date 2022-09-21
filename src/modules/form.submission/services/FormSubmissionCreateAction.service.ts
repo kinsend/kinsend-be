@@ -16,6 +16,7 @@ import { FormDocument } from '../../form/form.schema';
 import { VirtualCardGetByUserIdWithoutAction } from '../../virtualcard/services/VirtualCardGetByUserIdWithoutAction.service';
 import { FormSubmissionUpdateAction } from './FormSubmissionUpdateAction.service';
 import { FormSubmissionUpdateLastContactedAction } from './FormSubmissionUpdateLastContactedAction.service';
+import { MessageCreateAction } from '../../messages/services/MessageCreateAction.service';
 
 @Injectable()
 export class FormSubmissionCreateAction {
@@ -28,6 +29,7 @@ export class FormSubmissionCreateAction {
     private automationCreateTriggerAutomationAction: AutomationCreateTriggerAutomationAction,
     private formSubmissionUpdateAction: FormSubmissionUpdateAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    private messageCreateAction: MessageCreateAction,
   ) {}
 
   async execute(
@@ -94,8 +96,38 @@ export class FormSubmissionCreateAction {
     const message = isEnabled ? submission || '' : undefined;
     const vcardUrl = isVcardSend ? vCard.url || '' : undefined;
     // Note: run async for update lastContacted
-    this.formSubmissionUpdateLastContactedAction.execute(context, to);
+    this.formSubmissionUpdateLastContactedAction.execute(context, to, from);
 
-    await this.smsService.sendVitualCardToSubscriber(context, message, vcardUrl, from, to);
+    await this.smsService.sendVitualCardToSubscriber(
+      context,
+      message,
+      vcardUrl,
+      from,
+      to,
+      this.saveSms(context, from, to, vcardUrl || ''),
+    );
+  }
+  private saveSms(context: RequestContext, from: string, to: string, fileAttached: string) {
+    return async (status = 'success', error?: string) => {
+      const promiseActions: any[] = [];
+      if (!error) {
+        promiseActions.push(
+          this.formSubmissionUpdateLastContactedAction.execute(context, to, from),
+        );
+      }
+
+      promiseActions.push(
+        this.messageCreateAction.execute(context, {
+          fileAttached,
+          dateSent: new Date(),
+          isSubscriberMessage: false,
+          status,
+          phoneNumberSent: from,
+          phoneNumberReceipted: to,
+          errorMessage: error,
+        }),
+      );
+      await Promise.all(promiseActions);
+    };
   }
 }

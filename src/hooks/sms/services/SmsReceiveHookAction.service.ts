@@ -2,15 +2,20 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@nestjs/common';
 import { AutomationCreateTriggerAutomationAction } from '../../../modules/automation/services/AutomationCreateTriggerAutomationAction.service';
-import { FormSubmission } from '../../../modules/form.submission/form.submission.schema';
+import {
+  FormSubmission,
+  FormSubmissionDocument,
+} from '../../../modules/form.submission/form.submission.schema';
 import { FormSubmissionFindByPhoneNumberAction } from '../../../modules/form.submission/services/FormSubmissionFindByPhoneNumberAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../modules/form.submission/services/FormSubmissionUpdateLastContactedAction.service';
+import { MessageCreateAction } from '../../../modules/messages/services/MessageCreateAction.service';
 import { SmsLogCreateAction } from '../../../modules/sms.log/services/SmsLogCreateAction.service';
 import { SmsLogsGetByFromAction } from '../../../modules/sms.log/services/SmsLogsGetByFromAction.service';
 import { UpdateReportingUpdateByResponseAction } from '../../../modules/update/services/update.reporting/UpdateReportingUpdateByResponseAction.service';
 import { UpdatesFindByCreatedByAction } from '../../../modules/update/services/UpdatesFindByCreatedByAction.service';
 import { UpdateDocument } from '../../../modules/update/update.schema';
 import { UserFindByPhoneSystemAction } from '../../../modules/user/services/UserFindByPhoneSystemAction.service';
+import { UserDocument } from '../../../modules/user/user.schema';
 import { convertStringToPhoneNumber } from '../../../utils/convertStringToPhoneNumber';
 import { RequestContext } from '../../../utils/RequestContext';
 
@@ -25,6 +30,7 @@ export class SmsReceiveHookAction {
     private formSubmissionFindByPhoneNumberAction: FormSubmissionFindByPhoneNumberAction,
     private updateReportingUpdateByResponseAction: UpdateReportingUpdateByResponseAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
+    private messageCreateAction: MessageCreateAction,
   ) {}
 
   async execute(context: RequestContext, payload: any): Promise<void> {
@@ -77,10 +83,11 @@ export class SmsReceiveHookAction {
         return;
       }
 
-      const subscriber = await this.formSubmissionFindByPhoneNumberAction.execute(
+      const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
         context,
         convertStringToPhoneNumber(payload.From),
       );
+      const subscriber = this.getSubcriberByOwner(subscribers, createdBy[0]);
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
       await this.updateReportingUpdateByResponseAction.execute(
         context,
@@ -88,7 +95,7 @@ export class SmsReceiveHookAction {
         subscriber,
         payload.Body,
       );
-      await this.formSubmissionUpdateLastContactedAction.execute(context, payload.From);
+      await this.saveSms(context, payload.From, payload.To, payload.Body);
     } catch (error) {
       context.logger.error({
         message: 'Handle sms receive update fail!',
@@ -96,7 +103,10 @@ export class SmsReceiveHookAction {
       });
     }
   }
-
+  private getSubcriberByOwner(subscribers: FormSubmissionDocument[], owner: UserDocument) {
+    const subs = subscribers.filter((sub) => sub.owner.toString() === owner._id.toString());
+    return subs[0];
+  }
   private filterUpdatesSubscribedbySubscriber(
     updates: UpdateDocument[],
     subscriber: FormSubmission,
@@ -106,5 +116,25 @@ export class SmsReceiveHookAction {
         (recipient) => recipient._id.toString() === subscriber._id.toString(),
       );
     });
+  }
+  private async saveSms(
+    context: RequestContext,
+    from: string,
+    to: string,
+    content: string,
+    fileAttached?: string,
+  ) {
+    await Promise.all([
+      this.formSubmissionUpdateLastContactedAction.execute(context, to, from),
+      this.messageCreateAction.execute(context, {
+        content,
+        fileAttached,
+        dateSent: new Date(),
+        isSubscriberMessage: true,
+        status: 'success',
+        phoneNumberSent: from,
+        phoneNumberReceipted: to,
+      }),
+    ]);
   }
 }

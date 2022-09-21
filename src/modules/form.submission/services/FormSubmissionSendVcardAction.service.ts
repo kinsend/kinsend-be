@@ -75,7 +75,9 @@ export class FormSubmissionSendVcardAction {
     return async (status = 'success', error?: string) => {
       const promiseActions: any[] = [];
       if (!error) {
-        promiseActions.push(this.formSubmissionUpdateLastContactedAction.execute(context, to));
+        promiseActions.push(
+          this.formSubmissionUpdateLastContactedAction.execute(context, to, from),
+        );
       }
 
       promiseActions.push(
