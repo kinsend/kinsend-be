@@ -40,7 +40,10 @@ export class FormCreateAction {
       payload.customFieldsIds || [],
     );
     const fileKey = `${user.id}.form`;
-    const imageUrl = await this.imageUploadAction.execute(context, file, fileKey);
+    let imageUrl = '';
+    if (file) {
+      await this.imageUploadAction.execute(context, file, fileKey);
+    }
     // Create cname
     const cname = await this.cnameCreateAction.execute(context, { title: payload.cnameTitle });
 
@@ -50,7 +53,7 @@ export class FormCreateAction {
       tags: tagsExist,
       customFields: customFieldsExist,
       userId: user.id,
-      cname,
+      // cname,
     }).save();
     return response.populate([
       { path: 'tags' },
