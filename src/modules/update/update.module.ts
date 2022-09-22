@@ -34,6 +34,8 @@ import { UpdateFindByIdWithoutReportingAction } from './services/UpdateFindByIdW
 import { UpdateDeleteByIdAction } from './services/UpdateDeleteByIdAction.service';
 import { UpdateUpdateProgressAction } from './services/UpdateUpdateProgressAction.service';
 import { MessageModule } from '../messages/message.module';
+import { UpdatesGetCountByCreatedByAction } from './services/UpdatesGetCountByCreatedByAction.service';
+import { LinkRedirectFindLinkClickedByCreatedByAction } from './services/link.redirect/LinkRedirectFindLinkClickedByCreatedByAction.service';
 
 @Module({
   controllers: [UpdateController],
@@ -75,6 +77,8 @@ import { MessageModule } from '../messages/message.module';
     UpdateFindByIdWithoutReportingAction,
     UpdateDeleteByIdAction,
     UpdateUpdateProgressAction,
+    UpdatesGetCountByCreatedByAction,
+    LinkRedirectFindLinkClickedByCreatedByAction,
   ],
   exports: [
     UpdateReportingUpdateAction,
@@ -87,6 +91,8 @@ import { MessageModule } from '../messages/message.module';
     LinkRedirectFinddByUpdateIdAction,
     UpdateFindByIdWithoutReportingAction,
     UpdateFindAction,
+    UpdatesGetCountByCreatedByAction,
+    LinkRedirectFindLinkClickedByCreatedByAction,
   ],
 })
 export class UpdateModule {}

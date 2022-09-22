@@ -17,8 +17,8 @@ export class LinkRedirect {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Update', index: true })
-  update: Update;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Update', index: true, required: false })
+  update?: Update;
 
   @Prop({ type: String, required: true, unique: true })
   url: string;
@@ -37,6 +37,9 @@ export class LinkRedirect {
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
+
+  @Prop({ type: String, index: true })
+  createdBy: string;
 }
 
 const LinkRedirectSchema = SchemaFactory.createForClass(LinkRedirect);

@@ -25,6 +25,7 @@ import { MessageModule } from '../messages/message.module';
 import { FormSubmissionFindByFiltersContactAction } from './services/FormSubmissionFindByFiltersContactAction.service';
 import { UpdateModule } from '../update/update.module';
 import { FormSubmissionsFindByTadIdsAction } from './services/FormSubmissionsFindByTadIdsAction.service';
+import { FormSubmissionGetCountByUserIdAction } from './services/FormSubmissionGetCountByUserIdAction.service';
 
 @Module({
   controllers: [FormSubmissionController],
@@ -55,6 +56,7 @@ import { FormSubmissionsFindByTadIdsAction } from './services/FormSubmissionsFin
     FormSubmissionSendVcardAction,
     FormSubmissionFindByFiltersContactAction,
     FormSubmissionsFindByTadIdsAction,
+    FormSubmissionGetCountByUserIdAction,
   ],
   exports: [
     FormSubmissionsFindByEmailAction,
@@ -67,6 +69,7 @@ import { FormSubmissionsFindByTadIdsAction } from './services/FormSubmissionsFin
     FormSubmissionFindByIdsAction,
     FormSubmissionFindByFiltersContactAction,
     FormSubmissionsFindByTadIdsAction,
+    FormSubmissionGetCountByUserIdAction,
   ],
 })
 export class FormSubmissionModule {}

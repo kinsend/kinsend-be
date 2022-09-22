@@ -9,6 +9,7 @@ import { Message, MessageSchema } from './message.schema';
 import { MessageCreateAction } from './services/MessageCreateAction.service';
 import { MessagesFindAction } from './services/MessagesFindAction.service';
 import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
+import { MessageGetStatisticAction } from './services/MessageGetStatisticAction.service';
 
 @Module({
   imports: [
@@ -19,7 +20,12 @@ import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFor
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
   controllers: [MessageController],
-  providers: [MessageCreateAction, MessagesFindAction, MessagesFindbyFormSubmissionAction],
+  providers: [
+    MessageCreateAction,
+    MessagesFindAction,
+    MessagesFindbyFormSubmissionAction,
+    MessageGetStatisticAction,
+  ],
   exports: [MessageCreateAction],
 })
 export class MessageModule {}

@@ -13,7 +13,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import MongooseClassSerializerInterceptor from 'src/utils/interceptors/MongooseClassSerializer.interceptor';
 import { TranformObjectIdPipe } from 'src/utils/ParseBigIntPipe';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
@@ -24,6 +24,8 @@ import { MessageModule } from './message.module';
 import { MessageCreateAction } from './services/MessageCreateAction.service';
 import { MessagesFindAction } from './services/MessagesFindAction.service';
 import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
+import { MessageGetStatisticAction } from './services/MessageGetStatisticAction.service';
+import { MesageStatisticDto } from './dtos/MesageStatisticDto';
 
 @ApiTags('Messages')
 @ApiBearerAuth()
@@ -34,6 +36,7 @@ export class MessageController {
     private messageCreateAction: MessageCreateAction,
     private messagesFindAction: MessagesFindAction,
     private messagesFindbyFormSubmissionAction: MessagesFindbyFormSubmissionAction,
+    private messagesGetStatisticAction: MessageGetStatisticAction,
   ) {}
 
   @ApiBearerAuth()
@@ -61,6 +64,17 @@ export class MessageController {
     payload: MessageFindDto,
   ) {
     return this.messagesFindAction.execute(request, query, payload);
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: MesageStatisticDto,
+  })
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/statistic')
+  getMessagesStatistic(@Req() request: AppRequest) {
+    return this.messagesGetStatisticAction.execute(request);
   }
 
   @ApiBearerAuth()

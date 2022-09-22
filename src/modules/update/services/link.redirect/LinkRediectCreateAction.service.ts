@@ -25,12 +25,14 @@ export class LinkRediectCreateAction {
     isRoot = false,
   ): Promise<LinkRedirectDocument> {
     const randomUrl = randomstring.generate(7);
+
     return new this.linkRedirectModel({
       update,
       url: randomUrl,
       redirect: link,
       clicked: subscriber ? [subscriber] : [],
       isRoot,
+      createdBy: context.user.id,
     }).save();
   }
 }
