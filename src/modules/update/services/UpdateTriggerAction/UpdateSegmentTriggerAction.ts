@@ -10,6 +10,7 @@ import { SmsService } from '../../../../shared/services/sms.service';
 import { filterDuplicateArray } from '../../../../utils/filterDuplicateArray';
 import { RequestContext } from '../../../../utils/RequestContext';
 import { FormSubmission } from '../../../form.submission/form.submission.schema';
+import { FormSubmissionsFindByTadIdsAction } from '../../../form.submission/services/FormSubmissionsFindByTadIdsAction.service';
 import { FormSubmissionsGetByLocationsAction } from '../../../form.submission/services/FormSubmissionsGetByLocationsAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { FormGetSubmissionsByTagIds } from '../../../form/services/FormGetSubmissionsByTagIds';
@@ -37,6 +38,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
     private updateUpdateProgressAction: UpdateUpdateProgressAction,
     private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
+    private formSubmissionsFindByTadIdsAction: FormSubmissionsFindByTadIdsAction,
   ) {
     super();
   }
@@ -88,7 +90,7 @@ export class UpdateSegmentTriggerAction extends UpdateBaseTriggerAction {
     for (const filter of filters) {
       const { tagId, location, segmentId } = filter;
       if (tagId) {
-        const subscribers = await this.formGetSubmissionsByTagId.execute(
+        const subscribers = await this.formSubmissionsFindByTadIdsAction.execute(
           context,
           Array.isArray(tagId) ? tagId : [tagId],
         );
