@@ -30,6 +30,10 @@ export class FormSubmissionUpdateAction {
     }
     await formUpdate.save();
 
-    return formUpdate.populate([{ path: 'form' }, { path: 'owner', select: ['-password'] }]);
+    return formUpdate.populate([
+      { path: 'form' },
+      { path: 'tags' },
+      { path: 'owner', select: ['-password'] },
+    ]);
   }
 }
