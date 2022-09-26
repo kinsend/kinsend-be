@@ -43,7 +43,7 @@ export class SmsSendAction {
       email,
     });
 
-    await this.sendUpdate(context, messageFilled, phoneNumberOwner, phoneNumber);
+    await this.sendUpdate(context, messageFilled, payload.fileUrl, phoneNumberOwner, phoneNumber);
 
     return 'Send update test successfully!';
   }
@@ -51,6 +51,7 @@ export class SmsSendAction {
   private async sendUpdate(
     context: RequestContext,
     message: string,
+    fileUrl: string | undefined,
     from: PhoneNumber,
     to: PhoneNumber,
   ) {
@@ -60,13 +61,19 @@ export class SmsSendAction {
       context,
       fromStr,
       message,
-      undefined,
+      fileUrl,
       toStr,
-      this.saveSms(context, fromStr, toStr, message),
+      this.saveSms(context, fromStr, toStr, message, fileUrl),
     );
   }
 
-  private saveSms(context: RequestContext, from: string, to: string, message: string) {
+  private saveSms(
+    context: RequestContext,
+    from: string,
+    to: string,
+    message: string,
+    fileUrl?: string,
+  ) {
     return async (status = 'success', error?: string) => {
       const promiseActions: any[] = [];
       if (!error) {
@@ -84,6 +91,7 @@ export class SmsSendAction {
           phoneNumberSent: from,
           phoneNumberReceipted: to,
           errorMessage: error,
+          fileAttached: fileUrl,
         }),
       );
       await Promise.all(promiseActions);
