@@ -1,29 +1,51 @@
-# README #
+## Description
 
-This README would normally document whatever steps are necessary to get your application up and running.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[ExpressJS](https://expressjs.com/) main core of Nest.
+[MongoDB](https://www.mongodb.com/) No-SQL database.
+[TypeScript](https://www.typescriptlang.org/) Main programing language
+[Architecture](https://en.wikipedia.org/wiki/Domain-driven_design) Domain-driven design
+[TemplateEngine] (https://handlebarsjs.com/contributing/interactive-examples.html) Handlebars is an open-source project. 
+[CleanCode](https://eslint.org/) auto format code and remove use code
+## Installation
 
-### What is this repository for? ###
+```bash
+$ npm install
+```
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+## Running the app
 
-### How do I get set up? ###
+```bash
+# development
+$ npm run start
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+# watch mode
+$ npm run start:dev
 
-### Contribution guidelines ###
+# production mode
+$ npm run start:prod
+```
 
-* Writing tests
-* Code review
-* Other guidelines
+## Test
 
-### Who do I talk to? ###
+```bash
+# unit tests
+$ npm run test
 
-* Repo owner or admin
-* Other community or team contact
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+
+```
+
+# AWS
+AWS_REGION=
+BUCKET_NAME=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+
+## License
+
+  Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).

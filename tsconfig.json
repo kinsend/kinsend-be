@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "allowJs": true,
+    "lib": [
+      "es2018",
+      "es2020",
+      "esnext.asynciterable",
+      "DOM"
+    ],
+    "types": [
+      "jest",
+      "node"
+    ]
+  },
+    "include": [
+    "src/**/*",
+    "knexfile.ts",
+    "typings/**/*",
+    "public/**/*",
+    "views/**/*"
+  ]
+}
