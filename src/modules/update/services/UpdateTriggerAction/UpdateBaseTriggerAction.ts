@@ -1,24 +1,28 @@
+/* eslint-disable curly */
 /* eslint-disable no-plusplus */
 /* eslint-disable new-cap */
+import { Inject } from '@nestjs/common';
 import * as schedule from 'node-schedule';
+import { REGION_DOMESTIC, TYPE_MESSAGE } from '../../../../domain/const';
 import { BackgroudJobService } from '../../../../shared/services/backgroud.job.service';
 import { SmsService } from '../../../../shared/services/sms.service';
 import { buildCronSchedule } from '../../../../utils/buildCronSchedule';
+import { fillMergeFieldsToMessage } from '../../../../utils/fillMergeFieldsToMessage';
+import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
 import { RequestContext } from '../../../../utils/RequestContext';
-import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from '../../interfaces/const';
-import { UpdateDocument } from '../../update.schema';
+import { regionPhoneNumber } from '../../../../utils/utilsPhoneNumber';
 import {
   FormSubmission,
   FormSubmissionDocument,
 } from '../../../form.submission/form.submission.schema';
-import { fillMergeFieldsToMessage } from '../../../../utils/fillMergeFieldsToMessage';
-import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
-import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
-import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
-import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
 import { MessageCreateAction } from '../../../messages/services/MessageCreateAction.service';
-import { Inject } from '@nestjs/common';
+import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from '../../interfaces/const';
+import { UpdateDocument } from '../../update.schema';
+import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
+import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
+import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
+import { UpdateChargeMessageTriggerAction } from './UpdateChargeMessageTriggerAction';
 
 export class UpdateBaseTriggerAction {
   private timesPerformedOtherWeek = 0;
@@ -26,6 +30,9 @@ export class UpdateBaseTriggerAction {
   private timesPerformedOtherDay = 0;
 
   @Inject(MessageCreateAction) private messageCreateAction: MessageCreateAction;
+
+  @Inject(UpdateChargeMessageTriggerAction)
+  private updateChargeMessageTriggerAction: UpdateChargeMessageTriggerAction;
 
   async executeTrigger(
     context: RequestContext,
@@ -341,13 +348,18 @@ export class UpdateBaseTriggerAction {
             update.fileUrl,
             to,
             `api/hook/sms/update/status/${update.id}`,
-            this.saveSms(context, ownerPhoneNumber, to, messageFilled, update.fileUrl),
+            this.saveSms(context, ownerPhoneNumber, to, messageFilled, update.fileUrl, update.id),
           );
         }),
       );
       if (update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
         // Note: update process for update type Once
         updateUpdateProgressAction.execute(context, update.id, UPDATE_PROGRESS.DONE);
+      }
+      try {
+        await this.updateChargeMessageTriggerAction.execute(context, update.id, datetimeTrigger);
+      } catch (error) {
+        logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
       }
     };
   }
@@ -429,10 +441,12 @@ export class UpdateBaseTriggerAction {
     to: string,
     message: string,
     file?: string,
+    updateId?: string,
   ) {
     return (status = 'success', error?: string) =>
       this.messageCreateAction.execute(context, {
         content: message,
+        updateId,
         dateSent: new Date(),
         isSubscriberMessage: false,
         status,
@@ -440,6 +454,13 @@ export class UpdateBaseTriggerAction {
         phoneNumberSent: from,
         phoneNumberReceipted: to,
         errorMessage: error,
+        typeMessage: this.handleTypeMessage(to),
       });
+  }
+
+  private handleTypeMessage(phoneNumberReceipted: string): TYPE_MESSAGE {
+    const region = regionPhoneNumber(phoneNumberReceipted);
+    if (!region || region === REGION_DOMESTIC) return TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC;
+    return TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL;
   }
 }

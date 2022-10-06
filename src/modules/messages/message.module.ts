@@ -7,9 +7,10 @@ import { UserModule } from '../user/user.module';
 import { MessageController } from './message.controller';
 import { Message, MessageSchema } from './message.schema';
 import { MessageCreateAction } from './services/MessageCreateAction.service';
-import { MessagesFindAction } from './services/MessagesFindAction.service';
-import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
 import { MessageGetStatisticAction } from './services/MessageGetStatisticAction.service';
+import { MessagesFindAction } from './services/MessagesFindAction.service';
+import { MessagesFindByConditionAction } from './services/MessagesFindByConditionAction.service';
+import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { MessageGetStatisticAction } from './services/MessageGetStatisticAction.
     MessagesFindAction,
     MessagesFindbyFormSubmissionAction,
     MessageGetStatisticAction,
+    MessagesFindByConditionAction,
   ],
-  exports: [MessageCreateAction],
+  exports: [MessageCreateAction, MessagesFindByConditionAction],
 })
 export class MessageModule {}

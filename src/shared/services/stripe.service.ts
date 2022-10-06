@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '../../configs/config.service';
 import { CreateSubscriptionByCustomerIdDto } from '../../modules/subscription/dtos/CreateSubscriptionByCustomerId.dto';
-import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 import { RequestContext } from '../../utils/RequestContext';
 
 @Injectable()
@@ -28,14 +27,17 @@ export class StripeService {
         email,
       });
       return customerInfo;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception created customer method error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -55,14 +57,42 @@ export class StripeService {
         confirm: true,
       });
       return paymentInfo;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception charged payment method error by Stripe';
       logger.error({
         correlationId,
         message,
-        error,
+        error: error.message || error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
+    }
+  }
+
+  async confirmPaymentIntentUser(
+    context: RequestContext,
+    paymentIntentId: string,
+    payload: { paymentMethod: string },
+  ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
+    const { logger, correlationId } = context;
+    try {
+      const payment = await this.stripe.paymentIntents.confirm(paymentIntentId, {
+        payment_method: payload.paymentMethod,
+      });
+      return payment;
+    } catch (error: any) {
+      const message = 'Exception charged payment method error by Stripe';
+      logger.error({
+        correlationId,
+        message,
+        error: error.message || error,
+      });
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -80,14 +110,17 @@ export class StripeService {
         payment_method_types: paymentMethodTypes,
       });
       return cardInfo;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception stored payment method error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -103,14 +136,17 @@ export class StripeService {
       });
 
       return paymentInfo;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception attached payment method error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -125,14 +161,17 @@ export class StripeService {
         type: 'card',
       });
       return listCardInfo;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception list stored cards error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -147,14 +186,17 @@ export class StripeService {
         payment_method: paymentMethod,
       });
       return cardInfo;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception confirmed card error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -165,14 +207,17 @@ export class StripeService {
     const { logger, correlationId } = context;
     try {
       return await this.stripe.setupIntents.cancel(setupIntentId);
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception cancel card error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -186,14 +231,17 @@ export class StripeService {
         limit,
       });
       return data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception get subscriptions error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -207,14 +255,17 @@ export class StripeService {
         limit,
       });
       return data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception get products error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -229,14 +280,17 @@ export class StripeService {
         expand: ['data.product'],
       });
       return data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception get prices error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -248,14 +302,17 @@ export class StripeService {
     try {
       const data = await this.stripe.subscriptions.create(payload);
       return data;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception created subscription for customer error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 
@@ -273,14 +330,39 @@ export class StripeService {
       });
 
       return customerInfo;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception updated default payment method for customer error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new IllegalStateException(message);
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
+    }
+  }
+
+  async payChargesCustomerStripe(
+    context: RequestContext,
+    payload: any,
+  ): Promise<Stripe.Response<Stripe.Charge>> {
+    const { logger, correlationId } = context;
+    try {
+      const charges = await this.stripe.charges.create(payload);
+      return charges;
+    } catch (error) {
+      const message = 'Exception payment charges error by Stripe';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
     }
   }
 }

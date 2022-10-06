@@ -1,3 +1,4 @@
+/* eslint-disable curly */
 /* eslint-disable no-param-reassign */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
@@ -24,7 +25,9 @@ export class UpdateCreateAction {
 
   async execute(context: RequestContext, payload: UpdateCreatePayload): Promise<UpdateDocument> {
     const { user } = context;
-    const userModel = new this.userModel({ ...user, _id: new mongoose.Types.ObjectId(user.id) });
+    const userModel = await this.userModel.findOne({ _id: new mongoose.Types.ObjectId(user.id) });
+    if (!userModel) throw new Error('User not found');
+
     const createdAt = new Date();
     const update = await new this.updateModel({
       ...payload,

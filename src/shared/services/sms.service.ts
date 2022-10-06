@@ -1,6 +1,6 @@
 /* eslint-disable spaced-comment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { TollFreeInstance } from 'twilio/lib/rest/api/v2010/account/availablePhoneNumber/tollFree';
 import { MessageListInstanceCreateOptions } from 'twilio/lib/rest/api/v2010/account/message';
@@ -165,6 +165,7 @@ export class SmsService {
       const result = await this.twilioClient.incomingPhoneNumbers.create({
         phoneNumber: `+${code}${phone}`,
         smsUrl: `${this.configService.backendDomain}/api/hook/sms`,
+        // smsUrl: `https://dev.api.kinsend.io/api/hook/sms`,
         smsMethod: 'POST',
       });
       logger.info({
@@ -174,13 +175,17 @@ export class SmsService {
       });
 
       return result;
-    } catch (error: unknown) {
+    } catch (error: any) {
+      const errorMessage = error.message || error;
       logger.error({
         correlationId,
         msg: 'Request buy phone numbers error',
-        error,
+        error: errorMessage,
       });
-      throw new IllegalStateException('Request buy phone numbers error');
+      throw new InternalServerErrorException({
+        message: 'Request buy phone numbers error',
+        error: errorMessage,
+      });
     }
   }
 
@@ -204,7 +209,6 @@ export class SmsService {
       if (vCardUrl) {
         payload.mediaUrl = vCardUrl;
       }
-      console.log('payload :>> ', payload);
       const result = await this.twilioClient.messages.create(payload);
       logger.info({
         correlationId,

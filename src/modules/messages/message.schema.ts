@@ -5,6 +5,7 @@ import { Transform } from 'class-transformer';
 import { User } from '../user/user.schema';
 import { FormSubmission } from '../form.submission/form.submission.schema';
 import { PhoneNumber } from '../user/dtos/UserResponse.dto';
+import { TYPE_MESSAGE } from '../../domain/const';
 
 export type MessageDocument = Message & Document;
 
@@ -24,6 +25,9 @@ export class Message {
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'FormSubmission' })
   formSubmission: FormSubmission;
+
+  @Prop({ type: String, required: false })
+  updateId?: string;
 
   @Prop({ type: String, required: false })
   content?: string;
@@ -51,6 +55,9 @@ export class Message {
 
   @Prop({ type: Boolean, required: true, default: false })
   isSubscriberMessage: boolean;
+
+  @Prop({ type: String, required: true })
+  typeMessage: TYPE_MESSAGE;
 }
 
 const MessageSchema = SchemaFactory.createForClass(Message);
