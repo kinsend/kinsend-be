@@ -216,13 +216,7 @@ export class SubscriptionCreateByCustomerIdAction {
       startDate,
       endDate,
     );
-    const { priceSubs, totalSubs } = await this.handleSubscriber(
-      context,
-      userId,
-      pricePlan,
-      startDate,
-      endDate,
-    );
+    const { priceSubs, totalSubs } = await this.handleSubscriber(context, userId, pricePlan);
 
     // Rate is cent
     const totalFeeUsed = totalMessageFee + priceSubs + chargedMessagesUpdate;
@@ -404,12 +398,9 @@ export class SubscriptionCreateByCustomerIdAction {
     context: RequestContext,
     userId: string,
     pricePlan: number,
-    dateTimeStart: Date,
-    dateTimeEnd: Date,
   ): Promise<{ priceSubs: number; totalSubs: number }> {
     const subs = await this.formSubmissionFindByConditionAction.execute(context, {
       owner: userId,
-      createdAt: { $gt: dateTimeStart, $lte: dateTimeEnd },
     });
     let feeSub = 0;
     switch (pricePlan) {
