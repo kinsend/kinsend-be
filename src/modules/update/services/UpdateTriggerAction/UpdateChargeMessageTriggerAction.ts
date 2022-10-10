@@ -71,8 +71,8 @@ export class UpdateChargeMessageTriggerAction {
       stripeCustomerUserId,
     );
     const paymentMethodId = paymentMethod.data[0]?.id || '';
-    // const amount = fee * 100;
-    const amount = 1001;
+    const amount = fee * 100;
+    // const amount = 1001;
     const paymentIntent = await this.stripeService.chargePaymentUser(
       context,
       amount,
