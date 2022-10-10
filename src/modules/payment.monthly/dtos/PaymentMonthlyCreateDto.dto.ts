@@ -34,10 +34,11 @@ export class PaymentMonthlyCreateDto {
   @IsNumber()
   totalPrice: number;
 
-  @ApiProperty({ example: 1, type: Number, required: true })
+  @ApiProperty({ example: 1, type: Number, required: false })
   @IsNotEmpty()
   @IsNumber()
-  totalMessages: number;
+  @IsOptional()
+  totalMessages?: number;
 
   @ApiProperty({ example: 1, type: Number, required: false })
   @IsNotEmpty()

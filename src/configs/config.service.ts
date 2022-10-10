@@ -183,6 +183,12 @@ export class ConfigService {
     return process.env.STRIPE_CURRENCY || this.envConfig['STRIPE_CURRENCY'] || '';
   }
 
+  get stripeStatementDescriptor(): string {
+    return (
+      process.env.STRIPE_STATEMENT_DESCRIPTOR || this.envConfig['STRIPE_STATEMENT_DESCRIPTOR'] || ''
+    );
+  }
+
   get publishableKey(): string {
     return process.env.STRIPE_PUBLISHABLE_KEY || this.envConfig['STRIPE_PUBLISHABLE_KEY'] || '';
   }
@@ -218,5 +224,19 @@ export class ConfigService {
 
   get amplifyAppId(): string {
     return process.env.AMPLIFY_APP_ID || this.envConfig['AMPLIFY_APP_ID'] || 'd2yvpp1imqxni5';
+  }
+
+  get secondsTriggerPaymentMonthly(): number {
+    const result =
+      process.env.SECONDS_TRIGGER_PAYMENT_MONTHLY ||
+      this.envConfig['SECONDS_TRIGGER_PAYMENT_MONTHLY'] ||
+      3000; // 3s
+    return Number(result);
+  }
+
+  get isTestModePaymentMonthly(): boolean {
+    const result =
+      process.env.IS_TEST_PAYMENT_MONTHLY || this.envConfig['IS_TEST_PAYMENT_MONTHLY'] || false;
+    return Boolean(result);
   }
 }

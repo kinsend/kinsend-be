@@ -11,7 +11,7 @@ export class PaymentMonthlyFindConditionAction {
   ) {}
 
   async execute(context: RequestContext, filter: any): Promise<any> {
-    const payment = await this.paymentMonthlyModel.findOne(filter);
+    const payment = await this.paymentMonthlyModel.find(filter);
     if (!payment) {
       throw new BadRequestException('Payment not found');
     }

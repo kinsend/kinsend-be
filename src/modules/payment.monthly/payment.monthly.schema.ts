@@ -33,8 +33,8 @@ export class PaymentMonthly {
   @Prop({ required: true })
   totalPrice: number;
 
-  @Prop({ required: true })
-  totalMessages: number;
+  @Prop({ required: false })
+  totalMessages?: number;
 
   @Prop({ required: false })
   totalSubs?: string;

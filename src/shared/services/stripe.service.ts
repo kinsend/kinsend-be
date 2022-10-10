@@ -3,6 +3,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '../../configs/config.service';
 import { CreateSubscriptionByCustomerIdDto } from '../../modules/subscription/dtos/CreateSubscriptionByCustomerId.dto';
+import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 import { RequestContext } from '../../utils/RequestContext';
 
 @Injectable()
@@ -27,17 +28,14 @@ export class StripeService {
         email,
       });
       return customerInfo;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception created customer method error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -46,15 +44,28 @@ export class StripeService {
     amount: number,
     paymentMethodId: string,
     customerId: string,
+    description?: string,
   ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
     const { logger, correlationId } = context;
     try {
-      const paymentInfo = await this.stripe.paymentIntents.create({
-        amount,
+      const payload = {
+        amount: Math.ceil(amount),
         customer: customerId,
         payment_method: paymentMethodId,
         currency: this.configService.stripeCurrency,
+        statement_descriptor: this.configService.stripeStatementDescriptor,
         confirm: true,
+        description,
+      };
+      logger.info({
+        message: 'Payload charging',
+        payload,
+      });
+      const paymentInfo = await this.stripe.paymentIntents.create(payload);
+      logger.info({
+        correlationId,
+        message: 'Charged successful',
+        result: paymentInfo,
       });
       return paymentInfo;
     } catch (error: any) {
@@ -65,6 +76,7 @@ export class StripeService {
         error: error.message || error,
       });
       throw new InternalServerErrorException({
+        correlationId,
         message,
         error: error.message || error,
       });
@@ -89,10 +101,7 @@ export class StripeService {
         message,
         error: error.message || error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -110,17 +119,14 @@ export class StripeService {
         payment_method_types: paymentMethodTypes,
       });
       return cardInfo;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception stored payment method error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -136,17 +142,14 @@ export class StripeService {
       });
 
       return paymentInfo;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception attached payment method error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -161,17 +164,14 @@ export class StripeService {
         type: 'card',
       });
       return listCardInfo;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception list stored cards error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -186,17 +186,14 @@ export class StripeService {
         payment_method: paymentMethod,
       });
       return cardInfo;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception confirmed card error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -207,17 +204,14 @@ export class StripeService {
     const { logger, correlationId } = context;
     try {
       return await this.stripe.setupIntents.cancel(setupIntentId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception cancel card error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -231,17 +225,14 @@ export class StripeService {
         limit,
       });
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception get subscriptions error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -255,17 +246,14 @@ export class StripeService {
         limit,
       });
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception get products error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -280,17 +268,14 @@ export class StripeService {
         expand: ['data.product'],
       });
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception get prices error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -302,17 +287,14 @@ export class StripeService {
     try {
       const data = await this.stripe.subscriptions.create(payload);
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception created subscription for customer error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -330,17 +312,14 @@ export class StripeService {
       });
 
       return customerInfo;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = 'Exception updated default payment method for customer error by Stripe';
       logger.error({
         correlationId,
         message,
         error,
       });
-      throw new InternalServerErrorException({
-        message,
-        error: error.message || error,
-      });
+      throw new IllegalStateException(message);
     }
   }
 
@@ -363,6 +342,25 @@ export class StripeService {
         message,
         error: error.message || error,
       });
+    }
+  }
+
+  async getDetailPrice(
+    context: RequestContext,
+    priceId: string,
+  ): Promise<Stripe.Response<Stripe.Price>> {
+    const { logger, correlationId } = context;
+    try {
+      const price = await this.stripe.prices.retrieve(priceId);
+      return price;
+    } catch (error: unknown) {
+      const message = 'Exception get price error by Stripe';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
     }
   }
 }

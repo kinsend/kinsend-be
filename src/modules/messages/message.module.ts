@@ -11,6 +11,7 @@ import { MessageGetStatisticAction } from './services/MessageGetStatisticAction.
 import { MessagesFindAction } from './services/MessagesFindAction.service';
 import { MessagesFindByConditionAction } from './services/MessagesFindByConditionAction.service';
 import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
+import { MessageUpdateManyAction } from './services/MessageUpdateManyAction.service';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFor
     MessagesFindbyFormSubmissionAction,
     MessageGetStatisticAction,
     MessagesFindByConditionAction,
+    MessageUpdateManyAction,
   ],
-  exports: [MessageCreateAction, MessagesFindByConditionAction],
+  exports: [MessageCreateAction, MessagesFindByConditionAction, MessageUpdateManyAction],
 })
 export class MessageModule {}

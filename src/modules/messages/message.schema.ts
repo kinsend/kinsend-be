@@ -47,6 +47,9 @@ export class Message {
   @Prop({ type: String, required: true })
   status: string;
 
+  @Prop({ type: Boolean, required: true, default: false })
+  statusPaid: boolean;
+
   @Prop({ type: String, required: true })
   phoneNumberSent: string;
 
@@ -56,8 +59,8 @@ export class Message {
   @Prop({ type: Boolean, required: true, default: false })
   isSubscriberMessage: boolean;
 
-  @Prop({ type: String, required: true })
-  typeMessage: TYPE_MESSAGE;
+  @Prop({ type: String, required: false })
+  typeMessage?: TYPE_MESSAGE;
 }
 
 const MessageSchema = SchemaFactory.createForClass(Message);

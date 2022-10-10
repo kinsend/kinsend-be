@@ -1,8 +1,12 @@
+/* eslint-disable no-underscore-dangle */
 import { Injectable } from '@nestjs/common';
+import { MessageDocument } from 'src/modules/messages/message.schema';
 import Stripe from 'stripe';
 import {
+  PRICE_ATTACH_CHARGE,
   PRICE_PER_MESSAGE_DOMESTIC,
   PRICE_PER_MESSAGE_INTERNATIONAL,
+  RATE_CENT_USD,
   TYPE_MESSAGE,
   TYPE_PAYMENT,
 } from '../../../../domain/const';
@@ -11,12 +15,14 @@ import { RequestContext } from '../../../../utils/RequestContext';
 import { MessagesFindByConditionAction } from '../../../messages/services/MessagesFindByConditionAction.service';
 import { PaymentMonthlyCreateAction } from '../../../payment.monthly/services/PaymentMonthlyCreateAction.service';
 import { UserFindByIdAction } from '../../../user/services/UserFindByIdAction.service';
+import { MessageUpdateManyAction } from '../../../messages/services/MessageUpdateManyAction.service';
 
 @Injectable()
 export class UpdateChargeMessageTriggerAction {
   constructor(
     private userFindByIdAction: UserFindByIdAction,
     private stripeService: StripeService,
+    private messageUpdateManyAction: MessageUpdateManyAction,
     private paymentMonthlyCreateAction: PaymentMonthlyCreateAction,
     private messageFindByConditionAction: MessagesFindByConditionAction,
   ) {}
@@ -41,24 +47,37 @@ export class UpdateChargeMessageTriggerAction {
         PRICE_PER_MESSAGE_INTERNATIONAL,
       ),
     ]);
-    if (items.length > 0) {
-      const totalFee = items[0] + items[1];
-      if (totalFee === 0) return;
+    const totalFee = items[0] + items[1];
+    const messages = await this.totalMessage(updateId, datetimeTrigger);
+    const isValid = await this.verifyPriceCharge(context, totalFee);
+
+    if (isValid) {
       const bill = await this.handleChargeStripeCustomer(
         context,
         totalFee,
         userModel.stripeCustomerUserId,
       );
-      const totalMessages = await this.totalMessage(updateId, datetimeTrigger);
-      const billCharged = await this.saveBillCharged(
+      await this.saveBillCharged(
         context,
         user.id,
         bill,
         updateId,
         userModel.stripeCustomerUserId,
-        totalMessages,
+        messages.length,
       );
+      const ids = messages.map((message) => message._id);
+      await this.messageUpdateManyAction.execute(ids, {
+        statusPaid: true,
+      });
     }
+  }
+
+  private async verifyPriceCharge(context: RequestContext, totalFee: number): Promise<boolean> {
+    // ex: totalFee <= 5$
+    if (totalFee <= PRICE_ATTACH_CHARGE) {
+      return false;
+    }
+    return true;
   }
 
   private async handleChargeStripeCustomer(
@@ -71,11 +90,9 @@ export class UpdateChargeMessageTriggerAction {
       stripeCustomerUserId,
     );
     const paymentMethodId = paymentMethod.data[0]?.id || '';
-    const amount = fee * 100;
-    // const amount = 1001;
     const paymentIntent = await this.stripeService.chargePaymentUser(
       context,
-      amount,
+      fee * RATE_CENT_USD,
       paymentMethodId,
       stripeCustomerUserId,
     );
@@ -96,7 +113,7 @@ export class UpdateChargeMessageTriggerAction {
       chargeId: id,
       updateId,
       customerId: stripeCustomerUserId,
-      statusPaid: status === 'succeeded' ? true : false,
+      statusPaid: status === 'succeeded' || false,
       totalPrice: amount,
       totalMessages,
       typePayment: TYPE_PAYMENT.MESSAGE_UPDATE,
@@ -104,7 +121,7 @@ export class UpdateChargeMessageTriggerAction {
     });
   }
 
-  private async totalMessage(updateId: string, datetimeTrigger: Date): Promise<number> {
+  private async totalMessage(updateId: string, datetimeTrigger: Date): Promise<MessageDocument[]> {
     const messages = await this.messageFindByConditionAction.execute({
       updateId,
       status: 'success',
@@ -114,7 +131,7 @@ export class UpdateChargeMessageTriggerAction {
         { typePayment: TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL },
       ],
     });
-    return messages.length;
+    return messages;
   }
 
   private async totalFeeMessage(

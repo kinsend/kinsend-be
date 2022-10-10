@@ -290,7 +290,7 @@ export class UpdateBaseTriggerAction {
     return linkCreated.messageReview;
   }
 
-  private handleSendSms(
+  private async handleSendSms(
     context: RequestContext,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
@@ -301,67 +301,65 @@ export class UpdateBaseTriggerAction {
     subscribers: FormSubmission[],
     update: UpdateDocument,
     datetimeTrigger: Date,
-  ) {
+  ): Promise<void> {
     const { logger } = context;
-    return async () => {
-      if (this.isSkipTrigger(context, update.triggerType)) {
-        return;
-      }
+    if (this.isSkipTrigger(context, update.triggerType)) {
+      return;
+    }
 
-      const isCleanSchedule = await this.handleCleanSchedule(
-        context,
-        updateFindByIdWithoutReportingAction,
-        update.id,
-        datetimeTrigger,
-      );
-      if (isCleanSchedule) {
-        return;
-      }
+    const isCleanSchedule = await this.handleCleanSchedule(
+      context,
+      updateFindByIdWithoutReportingAction,
+      update.id,
+      datetimeTrigger,
+    );
+    if (isCleanSchedule) {
+      return;
+    }
 
-      logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
-      await Promise.all(
-        subscribers.map(async (sub) => {
-          const { phoneNumber, firstName, lastName, email } = sub;
-          const to = `+${phoneNumber.code}${phoneNumber.phone}`;
-          const messageReview = await this.handleGenerateLinkRedirect(
-            update,
-            sub,
-            context,
-            linkRediectCreateByMessageAction,
-          );
-          const message = messageReview === null ? update.message : messageReview;
-          const messageFilled = fillMergeFieldsToMessage(message, {
-            fname: firstName,
-            lname: lastName,
-            name: firstName + lastName,
-            mobile: to,
-            email,
-          });
+    logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
+    await Promise.all(
+      subscribers.map(async (sub) => {
+        const { phoneNumber, firstName, lastName, email } = sub;
+        const to = `+${phoneNumber.code}${phoneNumber.phone}`;
+        const messageReview = await this.handleGenerateLinkRedirect(
+          update,
+          sub,
+          context,
+          linkRediectCreateByMessageAction,
+        );
+        const message = messageReview === null ? update.message : messageReview;
+        const messageFilled = fillMergeFieldsToMessage(message, {
+          fname: firstName,
+          lname: lastName,
+          name: firstName + lastName,
+          mobile: to,
+          email,
+        });
 
-          // Note: run async for update lastContacted
-          formSubmissionUpdateLastContactedAction.execute(context, to, ownerPhoneNumber);
+        // Note: run async for update lastContacted
+        formSubmissionUpdateLastContactedAction.execute(context, to, ownerPhoneNumber);
 
-          return smsService.sendMessage(
-            context,
-            ownerPhoneNumber,
-            messageFilled,
-            update.fileUrl,
-            to,
-            `api/hook/sms/update/status/${update.id}`,
-            this.saveSms(context, ownerPhoneNumber, to, messageFilled, update.fileUrl, update.id),
-          );
-        }),
-      );
-      if (update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
-        // Note: update process for update type Once
-        updateUpdateProgressAction.execute(context, update.id, UPDATE_PROGRESS.DONE);
-      }
-      try {
-        await this.updateChargeMessageTriggerAction.execute(context, update.id, datetimeTrigger);
-      } catch (error) {
-        logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
-      }
-    };
+        return smsService.sendMessage(
+          context,
+          ownerPhoneNumber,
+          messageFilled,
+          update.fileUrl,
+          to,
+          `api/hook/sms/update/status/${update.id}`,
+          this.saveSms(context, ownerPhoneNumber, to, messageFilled, update.fileUrl, update.id),
+        );
+      }),
+    );
+    if (update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
+      // Note: update process for update type Once
+      updateUpdateProgressAction.execute(context, update.id, UPDATE_PROGRESS.DONE);
+    }
+    try {
+      await this.updateChargeMessageTriggerAction.execute(context, update.id, datetimeTrigger);
+    } catch (error) {
+      logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
+    }
   }
 
   private createScheduleTrigger(
@@ -381,18 +379,19 @@ export class UpdateBaseTriggerAction {
     backgroudJobService.job(
       datatime,
       undefined,
-      this.handleSendSms(
-        context,
-        linkRediectCreateByMessageAction,
-        formSubmissionUpdateLastContactedAction,
-        updateUpdateProgressAction,
-        smsService,
-        updateFindByIdWithoutReportingAction,
-        ownerPhoneNumber,
-        subscribers,
-        update,
-        datetimeTrigger,
-      ),
+      () =>
+        this.handleSendSms(
+          context,
+          linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
+          updateUpdateProgressAction,
+          smsService,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          datetimeTrigger,
+        ),
       `${update.id}-${datetimeTrigger.getTime()}`,
     );
   }
