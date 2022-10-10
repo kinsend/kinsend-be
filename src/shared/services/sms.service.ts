@@ -257,13 +257,13 @@ export class SmsService {
       if (callbackUrl) {
         payload.statusCallback = `${this.configService.backendDomain}/${callbackUrl}`;
       }
-      // const result = await this.twilioClient.messages.create(payload);
-      // logger.info({
-      //   correlationId,
-      //   message: 'Send message successful!',
-      //   result,
-      //   to,
-      // });
+      const result = await this.twilioClient.messages.create(payload);
+      logger.info({
+        correlationId,
+        message: 'Send message successful!',
+        result,
+        to,
+      });
       if (callbackSaveSms) {
         await callbackSaveSms();
       }
@@ -300,13 +300,13 @@ export class SmsService {
       if (fileUrl) {
         payload.mediaUrl = fileUrl;
       }
-      // const result = await this.twilioClient.messages.create(payload);
-      // logger.info({
-      //   correlationId,
-      //   message: 'Send message successful!',
-      //   result,
-      //   to,
-      // });
+      const result = await this.twilioClient.messages.create(payload);
+      logger.info({
+        correlationId,
+        message: 'Send message successful!',
+        result,
+        to,
+      });
 
       if (callbackSaveSms) {
         await callbackSaveSms();
