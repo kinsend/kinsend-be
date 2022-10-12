@@ -8,10 +8,10 @@ export class PaymentMonthlyCreateDto {
   @IsString()
   userId: string;
 
-  @ApiProperty({ example: 'abc', type: String, required: true })
+  @ApiProperty({ example: 'abc', type: String, required: false })
   @IsNotEmpty()
   @IsString()
-  chargeId: string;
+  chargeId?: string;
 
   @ApiProperty({ example: 'abc', type: String, required: false })
   @IsNotEmpty()
@@ -24,10 +24,15 @@ export class PaymentMonthlyCreateDto {
   @IsString()
   customerId: string;
 
-  @ApiProperty({ example: true, type: Boolean, required: true })
+  @ApiProperty({ example: true, type: Boolean, required: false })
   @IsBoolean()
   @IsNotEmpty()
-  statusPaid: boolean;
+  statusPaid?: boolean;
+
+  @ApiProperty({ example: true, type: Boolean, required: true, default: 'paid' }) // paid or pending
+  @IsString()
+  @IsNotEmpty()
+  status?: string;
 
   @ApiProperty({ example: 1, type: Number, required: true })
   @IsNotEmpty()
@@ -64,5 +69,6 @@ export class PaymentMonthlyCreateDto {
     description: 'Datetime',
   })
   @IsString()
-  datePaid: Date;
+  @IsOptional()
+  datePaid?: Date;
 }

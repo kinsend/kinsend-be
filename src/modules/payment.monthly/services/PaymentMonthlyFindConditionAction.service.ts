@@ -10,7 +10,7 @@ export class PaymentMonthlyFindConditionAction {
     @InjectModel(PaymentMonthly.name) private paymentMonthlyModel: Model<PaymentMonthlyDocument>,
   ) {}
 
-  async execute(context: RequestContext, filter: any): Promise<any> {
+  async execute(context: RequestContext, filter: any): Promise<PaymentMonthlyDocument[]> {
     const payment = await this.paymentMonthlyModel.find(filter);
     if (!payment) {
       throw new BadRequestException('Payment not found');

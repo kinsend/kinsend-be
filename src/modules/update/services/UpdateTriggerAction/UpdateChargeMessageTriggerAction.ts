@@ -56,6 +56,7 @@ export class UpdateChargeMessageTriggerAction {
         context,
         totalFee,
         userModel.stripeCustomerUserId,
+        'Pay the update fee',
       );
       await this.saveBillCharged(
         context,
@@ -84,6 +85,7 @@ export class UpdateChargeMessageTriggerAction {
     context: RequestContext,
     fee: number,
     stripeCustomerUserId: string,
+    description: string,
   ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
     const paymentMethod = await this.stripeService.listStoredCreditCards(
       context,
@@ -95,6 +97,7 @@ export class UpdateChargeMessageTriggerAction {
       fee * RATE_CENT_USD,
       paymentMethodId,
       stripeCustomerUserId,
+      description,
     );
     return paymentIntent;
   }

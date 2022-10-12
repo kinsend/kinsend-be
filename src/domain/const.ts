@@ -32,6 +32,7 @@ export enum TYPE_PAYMENT {
   MESSAGE = 'MESSAGE',
   MESSAGE_UPDATE = 'MESSAGE_UPDATE',
   PLAN_SUBSCRIPTION = 'PLAN_SUBSCRIPTION',
+  PAYMENT_MONTHLY = 'PAYMENT_MONTHLY',
 }
 
 export enum PAYMENT_PROGRESS {
@@ -55,13 +56,12 @@ export const PRICE_ATTACH_CHARGE = 5;
 
 export const NUMBER_DAY_TRIGGER_CHARGE = 30;
 
-// Rate is cent
-export const PRICE_STARTER_PLANE = 1999;
-export const PRICE_GROWTH_PLANE = 9999;
-export const PRICE_HIGH_VOLUME_PLANE = 49900;
-// Rate USE
-export const PRICE_PER_SUB_STARTER_PLANE = 0.1;
-export const PRICE_PER_SUB_GROWTH_PLANE = 0.08;
-export const PRICE_PER_SUB_HIGH_VOLUME_PLANE = 0.01;
-
 export const RATE_CENT_USD = 100;
+
+// 500 cent
+export const MINIMUM_PRICE = 500;
+
+export enum PAYMENT_MONTHLY_STATUS {
+  PAID = 'paid',
+  PENDING = 'pending',
+}
