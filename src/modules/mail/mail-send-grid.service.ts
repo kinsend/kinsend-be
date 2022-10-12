@@ -21,4 +21,15 @@ export class MailSendGridService {
       return undefined;
     }
   }
+
+  async sendUserStatusPayment(
+    mail: SendGrid.MailDataRequired,
+  ): Promise<[SendGrid.ClientResponse, {}] | undefined> {
+    try {
+      const transport = await SendGrid.send(mail);
+      return transport;
+    } catch {
+      return undefined;
+    }
+  }
 }

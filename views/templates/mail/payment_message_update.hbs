@@ -1,0 +1,142 @@
+<html lang='en'>
+
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <title>Kinsend Invoice</title>
+
+    <style>
+      body { width: 80%; margin-top: 2%; margin: auto; } .header-container { display: flex;
+      text-align: left; } /* branch */ .header-branch-container { width: 60%; }
+      .header-branch-container .logo { width: 200px; height: 69px; display: inline-block; position:
+      relative; } .address { margin: 0; line-height: 22px; } .header-branch-container .logo img {
+      width: 200px; height: 69px; position: absolute; left: -20px; } /* */ .list-invoice {
+      list-style-type: none; padding: 0; } .list-invoice li { padding: 4px 0; } /* line */ .line {
+      display: inline-block; width: 79px; height: 2px; background-color: #c2c2c287; } .bold {
+      font-weight: bolder; } .pl-2 { padding-left: 12px; } /* Customer */ .customer { display: flex;
+      } .info-user { width: 60%; } .customer p { margin: 4px 0; } .customer h5 { margin-bottom: 5px;
+      } thead th { /*style 'th' for x-browser position: sticky; consistancy*/ text-align: left;
+      position: -webkit-sticky; /* IOS and Safari */ position: sticky; top: 0; border-bottom: 1px
+      solid #80808070; /*chrome shows 2px, FF hides 1px, bottom border scrolls away in both*/
+      /*solution is to use linear-gradient and border:none*/ /*background: linear-gradient(to
+      top,red, red 1px, #ffff00 1px, #ffff00 100%); border: none; */ white-space: nowrap; /*optional
+      to prevent heading text from wrapping to new lines*/ } .table-wrap { width: 100%; height:
+      auto; margin-top: 44px; overflow: auto; border-top: 1px solid #80808070; } table { width:
+      100%; empty-cells: show; border-collapse: collapse; } .bt { border-bottom: 1px solid
+      #80808070; } .py { padding: 16px 0; } .text-center { text-align: center; } .text-right {
+      text-align: right; } .mb-5 { margin-bottom: 50px; }
+    </style>
+  </head>
+
+  <body class=''>
+    <div class='header header-container'>
+      <div class='header-branch-container'>
+        <span class='logo'>
+          <img src='./logo.svg' alt='logo' />
+        </span>
+        <p class='address'>
+          Kinsend, Inc
+          <br />
+          72-77 Yellowstone Blvd
+          <br />
+          Queens, New York 11375
+          <br />
+          United States
+        </p>
+        <span class='line'></span>
+      </div>
+      <div class='header-invoice-container'>
+        <h1 style='margin-bottom: 16px;'>INVOICE</h1>
+        <ul class='list-invoice'>
+          <li>Invoice # <span class='bold pl-2'>10000</span></li>
+          <li>Invoice Date <span class='bold pl-2'>{{datetime}}</span></li>
+          <li>Invoice Amount <span class='bold pl-2'>${{amount}} ({{currency}})</span></li>
+          <li>Customer ID <span class='bold pl-2'>{{customer}}</span></li>
+          <li class='bold' style='color: rgb(42 180 42);'>PAID</li>
+        </ul>
+        <span class='line'></span>
+      </div>
+    </div>
+    <div class='customer'>
+      <div class='info-user'>
+        <h5 class='bold'>BILLED TO</h5>
+        <p>{{name}}</p>
+        <p>{{email}}</p>
+        <p>{{phoneUser}}</p>
+      </div>
+      <div class='info-customer'>
+        <p> Billing Period <span class='bold'> {{datetime}} to {{datetime}}</span></p>
+      </div>
+    </div>
+    <div class='table-wrap'>
+      <table>
+        <thead>
+          <tr style='font-size: 12px;'>
+            <th style='width: 56%; padding: 12px 0; '>DESCRIPTION</th>
+            <th class='text-center' style='padding: 0 16px;'>UNITS</th>
+            <th style='text-align: right;'>UNIT PRICE</th>
+            <th style='text-align: right;'>AMOUNT ({{currency}})</th>
+          </tr>
+        </thead>
+        <tr class='bt'>
+          <td class='bold py'>Charge for sending an update with 2 segments to
+            {{domestic.totalMessages}}
+            US numbers and
+            {{international.totalMessages}}
+            international numbers.
+          </td>
+          <td class='text-center'>{{units}}</td>
+          <td class='text-right'>${{amount}}</td>
+          <td class='bold text-right'>${{amount}} </td>
+        </tr>
+
+        <!-- total -->
+        <tr>
+          <td class='py'>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td class='bold text-right'>Total</td>
+          <td class='bold text-right'>${{amount}}</td>
+        </tr>
+        <tr>
+          <td class='py'>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td class='text-right bt'>Payments</td>
+          <td class='bold text-right bt'>(${{amount}})</td>
+        </tr>
+        <tr>
+          <td class='py'>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td class='bold text-right bt'>Amount Due ({{currency}})</td>
+          <td class='bold text-right bt'>${{amount}}</td>
+        </tr>
+
+      </table>
+    </div>
+    <div class='mb-5'>
+      <p class='bold' style='margin: 0;'>PAYMENTS</p>
+      <span class='line'></span>
+      <p style='margin: 3px 0;'><span class='bold'>${{amount}}</span>
+        was paid on
+        {{datetimeEdt}}
+        by Visa card ending
+        {{numberCard}}.</p>
+    </div>
+    <div class='mb-5'>
+      <p class='bold' style='margin:  0;'>NOTES</p>
+      <span class='line'></span>
+      <p style='margin:  0; white-space: 1.5px;'>FAQs: 1. SMS is billed at $0.01 per outbound
+        segment. Inbound is free. Please note: Any SMS longer than 160 characters is broken into
+        multiple segments so you may have a larger number than you recall sending. // 2. MMS is
+        billed at $0.04 per media message (inbound and outbound) this includes photos, video, audio,
+        etc. // 3. Voice is billed at $0.01 per minute (inbound and outbound). // 4. Phone numbers
+        are billed at $1/number. You have one number for every 500 conversations. // 5. Add ons are
+        billed by the mobile carriers to help ensure delivery. // 6. Conversations are billed based
+        on your plan at either $0.10 (Starter Plan), $0.08 (Growth), or $0.01 (High-Volume). // 7.
+        Already paid is your pre-paid amount for the previous month according to your plan. // *All
+        of the pricing mentioned is for USA - international rates can increase your bill
+        significantly. // Other questions? Please reach out via Intercom by logging into your
+        account on desktop and clicking the gold chat bubble in the bottom right corner. Thank you
+        for using SuperPhone®. We appreciate your business.</p>
+    </div>
+  </body>
+
+</html>
