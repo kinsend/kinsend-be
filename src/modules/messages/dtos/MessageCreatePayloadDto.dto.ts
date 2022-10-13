@@ -103,3 +103,15 @@ export class MessageCreatePayloadDto {
   @IsOptional()
   updateId?: string;
 }
+
+export class MessageTestCreatePayloadDto extends MessageCreatePayloadDto {
+  @ApiProperty({
+    example: 1000,
+    required: false,
+    type: Number,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  @IsOptional()
+  numberMessage: number;
+}

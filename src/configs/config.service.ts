@@ -279,4 +279,9 @@ export class ConfigService {
       0.01;
     return Number(result);
   }
+
+  get priceMMS(): number {
+    const result = process.env.PRICE_MMS || this.envConfig['PRICE_MMS'] || 0.04;
+    return Number(result);
+  }
 }

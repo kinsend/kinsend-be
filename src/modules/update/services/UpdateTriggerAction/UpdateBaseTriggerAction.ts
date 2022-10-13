@@ -453,7 +453,7 @@ export class UpdateBaseTriggerAction {
         phoneNumberSent: from,
         phoneNumberReceipted: to,
         errorMessage: error,
-        typeMessage: this.handleTypeMessage(to),
+        typeMessage: !file ? this.handleTypeMessage(to) : TYPE_MESSAGE.MMS,
       });
   }
 

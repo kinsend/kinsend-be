@@ -47,6 +47,10 @@ export enum Month {
   'Dec' = '12',
 }
 
+export const MonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+
 export function getNextDayOfWeek(day: DayEnum) {
   const today = new Date();
   const dayIndex = DayNumberEnum.get(day) || 0;

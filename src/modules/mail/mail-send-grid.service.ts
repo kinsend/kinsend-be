@@ -28,7 +28,7 @@ export class MailSendGridService {
     try {
       const transport = await SendGrid.send(mail);
       return transport;
-    } catch {
+    } catch (err) {
       return undefined;
     }
   }

@@ -257,6 +257,25 @@ export class StripeService {
     }
   }
 
+  async getProductById(
+    context: RequestContext,
+    id: string,
+  ): Promise<Stripe.Response<Stripe.Product>> {
+    const { logger, correlationId } = context;
+    try {
+      const data = await this.stripe.products.retrieve(id);
+      return data;
+    } catch (error: unknown) {
+      const message = 'Product not found!';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
   async getPricesList(
     context: RequestContext,
     limit = 10,

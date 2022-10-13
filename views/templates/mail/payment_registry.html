@@ -5,7 +5,7 @@
     <title>Kinsend Invoice</title>
 
     <style>
-      body { width: 80%; margin-top: 2%; margin: auto; } .header-container { display: flex;
+      body { width: 80%; margin-top: 2%; margin: auto; font-size: 14px; } .header-container { display: flex;
       text-align: left; } /* branch */ .header-branch-container { width: 60%; }
       .header-branch-container .logo { width: 200px; height: 69px; display: inline-block; position:
       relative; } .address { margin: 0; line-height: 22px; } .header-branch-container .logo img {
@@ -23,7 +23,7 @@
       auto; margin-top: 44px; overflow: auto; border-top: 1px solid #80808070; } table { width:
       100%; empty-cells: show; border-collapse: collapse; } .bt { border-bottom: 1px solid
       #80808070; } .py { padding: 16px 0; } .text-center { text-align: center; } .text-right {
-      text-align: right; } .mb-5 { margin-bottom: 50px; }
+      text-align: right; } .mb-5 { margin-bottom: 50px; } .info-customer{width: 40%;}
     </style>
   </head>
 
@@ -31,7 +31,7 @@
     <div class='header header-container'>
       <div class='header-branch-container'>
         <span class='logo'>
-          <img src='./logo.svg' alt='logo' />
+          <img src='{{logo}}' alt='logo' />
         </span>
         <p class='address'>
           Kinsend, Inc
@@ -45,12 +45,12 @@
         <span class='line'></span>
       </div>
       <div class='header-invoice-container'>
-        <h1 style='margin-bottom: 16px;'>INVOICE</h1>
+        <h3 style='margin: 29px 0 16px 0;'>INVOICE</h3>
         <ul class='list-invoice'>
-          <li>Invoice # <span class='bold pl-2'>10000</span></li>
-          <li>Invoice Date <span class='bold pl-2'>{{datetime}}</span></li>
-          <li>Invoice Amount <span class='bold pl-2'>${{amount}} ({{currency}})</span></li>
-          <li>Customer ID <span class='bold pl-2'>{{customer}}</span></li>
+          <li>Invoice # <span class='bold'>{{invoice_id}}</span></li>
+          <li>Invoice Date <span class='bold'>{{invoice_date}}</span></li>
+          <li>Invoice Amount <span class='bold'>${{total_paid}} (USD)</span></li>
+          <li>Customer ID <span class='bold'>{{customer}}</span></li>
           <li class='bold' style='color: rgb(42 180 42);'>PAID</li>
         </ul>
         <span class='line'></span>
@@ -64,65 +64,65 @@
         <p>{{phoneUser}}</p>
       </div>
       <div class='info-customer'>
-        <p> Billing Period <span class='bold'> {{datetime}} to {{datetime}}</span></p>
+        <h5 class='bold'>SUBSCRIPTION</h5>
+        <p> Next Billing Date <span class='bold'> {{next_billing_datetime}}</span></p>
       </div>
     </div>
     <div class='table-wrap'>
-      <table>
+      <table >
         <thead>
-          <tr style='font-size: 12px;'>
+          <tr style='font-size: 10px;'>
             <th style='width: 56%; padding: 12px 0; '>DESCRIPTION</th>
             <th class='text-center' style='padding: 0 16px;'>UNITS</th>
-            <th style='text-align: right;'>UNIT PRICE</th>
-            <th style='text-align: right;'>AMOUNT ({{currency}})</th>
+            <th style='text-align: right; padding-right: 6px;'>UNIT PRICE</th>
+            <th style='text-align: right;'>AMOUNT (USD)</th>
           </tr>
         </thead>
-        <tr class='bt'>
-          <td class='bold py'>Charge for sending an update with 2 segments to
-            {{domestic.totalMessages}}
-            US numbers and
-            {{international.totalMessages}}
-            international numbers.
-          </td>
-          <td class='text-center'>{{units}}</td>
-          <td class='text-right'>${{amount}}</td>
-          <td class='bold text-right'>${{amount}} </td>
-        </tr>
-
-        <!-- total -->
-        <tr>
-          <td class='py'>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td class='bold text-right'>Total</td>
-          <td class='bold text-right'>${{amount}}</td>
-        </tr>
-        <tr>
-          <td class='py'>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td class='text-right bt'>Payments</td>
-          <td class='bold text-right bt'>(${{amount}})</td>
-        </tr>
-        <tr>
-          <td class='py'>&nbsp;</td>
-          <td>&nbsp;</td>
-          <td class='bold text-right bt'>Amount Due ({{currency}})</td>
-          <td class='bold text-right bt'>${{amount}}</td>
-        </tr>
-
+        <tbody style="font-size: 12px;">
+          <tr class='bt'>
+            <td class='bold py'>Kinsend {{name_plane}}
+              <p style="color: #8f8f8f;">{{datePlane}}</p>
+            </td>
+            <td class='text-center'>1</td>
+            <td class='text-right'>${{price_plane}}</td>
+            <td class='bold text-right'>${{price_plane}} </td>
+          </tr>
+  
+          <!-- total -->
+          <tr>
+            <td class='py'>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td class='bold text-right'>Total</td>
+            <td class='bold text-right'>${{total_paid}}</td>
+          </tr>
+          <tr>
+            <td class='py'>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td class='text-right bt'>Payments</td>
+            <td class='bold text-right bt'>(${{total_paid}})</td>
+          </tr>
+          <tr>
+            <td class='py'>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td class='bold text-right bt'>Amount Due (USD)</td>
+            <td class='bold text-right bt'>$0.00</td>
+          </tr>
+  
+        </tbody>
       </table>
     </div>
     <div class='mb-5'>
       <p class='bold' style='margin: 0;'>PAYMENTS</p>
-      <span class='line'></span>
-      <p style='margin: 3px 0;'><span class='bold'>${{amount}}</span>
+      <span class='line' style="margin: 6px 0;"></span>
+      <p style='margin: 3px 0;'><span class='bold'>${{total_paid}}</span>
         was paid on
-        {{datetimeEdt}}
+        {{datetime_paid}}
         by Visa card ending
-        {{numberCard}}.</p>
+        {{number_card}}.</p>
     </div>
     <div class='mb-5'>
       <p class='bold' style='margin:  0;'>NOTES</p>
-      <span class='line'></span>
+      <span class='line' style="margin: 6px 0;"></span>
       <p style='margin:  0; white-space: 1.5px;'>FAQs: 1. SMS is billed at $0.01 per outbound
         segment. Inbound is free. Please note: Any SMS longer than 160 characters is broken into
         multiple segments so you may have a larger number than you recall sending. // 2. MMS is

@@ -5,6 +5,7 @@ import { FormSubmissionModule } from '../form.submission/form.submission.module'
 import { FormModule } from '../form/form.module';
 import { MessageModule } from '../messages/message.module';
 import { PaymentMonthlyModule } from '../payment.monthly/payment.monthly.module';
+import { PaymentModule } from '../payment/payment.module';
 import { SegmentModule } from '../segment/segment.module';
 import { TagsModule } from '../tags/tags.module';
 import { UserModule } from '../user/user.module';
@@ -55,6 +56,7 @@ import { Update, UpdateSchema } from './update.schema';
     forwardRef(() => FormModule),
     forwardRef(() => MessageModule),
     forwardRef(() => FormSubmissionModule),
+    forwardRef(() => PaymentModule),
   ],
   providers: [
     UpdateCreateAction,
