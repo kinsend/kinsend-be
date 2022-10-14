@@ -1,21 +1,22 @@
 /* eslint-disable spaced-comment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Twilio } from 'twilio';
 import { TollFreeInstance } from 'twilio/lib/rest/api/v2010/account/availablePhoneNumber/tollFree';
+import { IncomingPhoneNumberInstance } from 'twilio/lib/rest/api/v2010/account/incomingPhoneNumber';
 import { MessageListInstanceCreateOptions } from 'twilio/lib/rest/api/v2010/account/message';
 import { VerificationInstance } from 'twilio/lib/rest/verify/v2/service/verification';
-import { IncomingPhoneNumberInstance } from 'twilio/lib/rest/api/v2010/account/incomingPhoneNumber';
 import { VerificationCheckInstance } from 'twilio/lib/rest/verify/v2/service/verificationCheck';
 import { ConfigService } from '../../configs/config.service';
-import { BadRequestException } from '../../utils/exceptions/BadRequestException';
-import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
-import { RequestContext } from '../../utils/RequestContext';
+import { PRICE_PER_MESSAGE_INTERNATIONAL } from '../../domain/const';
 import {
   availablePhoneNumberMockResponse,
   verifyInstaceMockResponse,
 } from '../../modules/resource/mocks/twilio.mock';
 import { PhoneNumber } from '../../modules/user/dtos/UserResponse.dto';
+import { BadRequestException } from '../../utils/exceptions/BadRequestException';
+import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
+import { RequestContext } from '../../utils/RequestContext';
 
 @Injectable()
 export class SmsService {
@@ -165,6 +166,7 @@ export class SmsService {
       const result = await this.twilioClient.incomingPhoneNumbers.create({
         phoneNumber: `+${code}${phone}`,
         smsUrl: `${this.configService.backendDomain}/api/hook/sms`,
+        // smsUrl: `https://dev.api.kinsend.io/api/hook/sms`,
         smsMethod: 'POST',
       });
       logger.info({
@@ -174,13 +176,17 @@ export class SmsService {
       });
 
       return result;
-    } catch (error: unknown) {
+    } catch (error: any) {
+      const errorMessage = error.message || error;
       logger.error({
         correlationId,
         msg: 'Request buy phone numbers error',
-        error,
+        error: errorMessage,
       });
-      throw new IllegalStateException('Request buy phone numbers error');
+      throw new InternalServerErrorException({
+        message: 'Request buy phone numbers error',
+        error: errorMessage,
+      });
     }
   }
 
@@ -204,7 +210,6 @@ export class SmsService {
       if (vCardUrl) {
         payload.mediaUrl = vCardUrl;
       }
-      console.log('payload :>> ', payload);
       const result = await this.twilioClient.messages.create(payload);
       logger.info({
         correlationId,
@@ -317,6 +322,31 @@ export class SmsService {
         await callbackSaveSms('failed', JSON.stringify(error));
       }
       throw new IllegalStateException(error as any);
+    }
+  }
+
+  async getPriceSendMessage(context: RequestContext, region: string): Promise<number> {
+    const { logger, correlationId } = context;
+    try {
+      const twilioClientCountries = this.twilioClient.pricing.v1.messaging.countries;
+      if (!twilioClientCountries) {
+        logger.error({
+          correlationId,
+          message: 'Get price message fail!',
+        });
+        return PRICE_PER_MESSAGE_INTERNATIONAL;
+      }
+      const countryPricing = await twilioClientCountries(region).fetch();
+      const price = (countryPricing.outboundSmsPrices as any)[0].prices[0].current_price;
+      return price;
+    } catch (error: any) {
+      const errorMessage = error.message || error;
+      logger.error({
+        correlationId,
+        msg: 'Request buy phone numbers error',
+        error: errorMessage,
+      });
+      return PRICE_PER_MESSAGE_INTERNATIONAL;
     }
   }
 }

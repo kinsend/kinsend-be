@@ -34,6 +34,7 @@ import { UpdateSendTestAction } from './services/UpdateSendTestAction.service';
 import { UpdateSendTestPayload } from './dtos/UpdateSendTestPayload.dto';
 import { LinkRedirectClickedAction } from './services/link.redirect/LinkRedirectClickedAction.service';
 import { UpdateDeleteByIdAction } from './services/UpdateDeleteByIdAction.service';
+import { UpdateChargeMessageTriggerAction } from './services/UpdateTriggerAction/UpdateChargeMessageTriggerAction';
 
 @ApiTags('Updates')
 @UseInterceptors(MongooseClassSerializerInterceptor(UpdateModule))

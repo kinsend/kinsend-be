@@ -1,6 +1,7 @@
 /* eslint-disable unicorn/no-useless-undefined */
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@nestjs/common';
+import { TYPE_MESSAGE } from '../../../domain/const';
 import { AutomationCreateTriggerAutomationAction } from '../../../modules/automation/services/AutomationCreateTriggerAutomationAction.service';
 import {
   FormSubmission,
@@ -95,6 +96,7 @@ export class SmsReceiveHookAction {
         subscriber,
         payload.Body,
       );
+      const type = Number(payload.NumMedia) !== 0 ? TYPE_MESSAGE.MMS : undefined;
       await this.saveSms(context, payload.From, payload.To, payload.Body);
     } catch (error) {
       context.logger.error({
@@ -122,13 +124,13 @@ export class SmsReceiveHookAction {
     from: string,
     to: string,
     content: string,
-    fileAttached?: string,
+    type?: TYPE_MESSAGE,
   ) {
     await Promise.all([
       this.formSubmissionUpdateLastContactedAction.execute(context, to, from),
       this.messageCreateAction.execute(context, {
         content,
-        fileAttached,
+        typeMessage: type,
         dateSent: new Date(),
         isSubscriberMessage: true,
         status: 'success',

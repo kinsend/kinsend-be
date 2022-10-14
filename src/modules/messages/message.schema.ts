@@ -5,6 +5,7 @@ import { Transform } from 'class-transformer';
 import { User } from '../user/user.schema';
 import { FormSubmission } from '../form.submission/form.submission.schema';
 import { PhoneNumber } from '../user/dtos/UserResponse.dto';
+import { TYPE_MESSAGE } from '../../domain/const';
 
 export type MessageDocument = Message & Document;
 
@@ -26,6 +27,9 @@ export class Message {
   formSubmission: FormSubmission;
 
   @Prop({ type: String, required: false })
+  updateId?: string;
+
+  @Prop({ type: String, required: false })
   content?: string;
 
   @Prop({ type: String, required: false })
@@ -43,6 +47,9 @@ export class Message {
   @Prop({ type: String, required: true })
   status: string;
 
+  @Prop({ type: Boolean, required: true, default: false })
+  statusPaid: boolean;
+
   @Prop({ type: String, required: true })
   phoneNumberSent: string;
 
@@ -51,6 +58,9 @@ export class Message {
 
   @Prop({ type: Boolean, required: true, default: false })
   isSubscriberMessage: boolean;
+
+  @Prop({ type: String, required: false })
+  typeMessage?: TYPE_MESSAGE;
 }
 
 const MessageSchema = SchemaFactory.createForClass(Message);

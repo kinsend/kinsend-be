@@ -8,6 +8,7 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -18,7 +19,10 @@ import MongooseClassSerializerInterceptor from 'src/utils/interceptors/MongooseC
 import { TranformObjectIdPipe } from 'src/utils/ParseBigIntPipe';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import { AppRequest } from '../../utils/AppRequest';
-import { MessageCreatePayloadDto } from './dtos/MessageCreatePayloadDto.dto';
+import {
+  MessageCreatePayloadDto,
+  MessageTestCreatePayloadDto,
+} from './dtos/MessageCreatePayloadDto.dto';
 import { MessageFindDto, MessageFindQueryQueryDto } from './dtos/MessageFindQueryDto';
 import { MessageModule } from './message.module';
 import { MessageCreateAction } from './services/MessageCreateAction.service';
@@ -26,6 +30,7 @@ import { MessagesFindAction } from './services/MessagesFindAction.service';
 import { MessagesFindbyFormSubmissionAction } from './services/MessagesFindbyFormSubmissionAction.service';
 import { MessageGetStatisticAction } from './services/MessageGetStatisticAction.service';
 import { MesageStatisticDto } from './dtos/MesageStatisticDto';
+import { MessageTestCreateAction } from './services/MessageTestCreateAction.service';
 
 @ApiTags('Messages')
 @ApiBearerAuth()
@@ -34,6 +39,7 @@ import { MesageStatisticDto } from './dtos/MesageStatisticDto';
 export class MessageController {
   constructor(
     private messageCreateAction: MessageCreateAction,
+    private messageTestCreateAction: MessageTestCreateAction,
     private messagesFindAction: MessagesFindAction,
     private messagesFindbyFormSubmissionAction: MessagesFindbyFormSubmissionAction,
     private messagesGetStatisticAction: MessageGetStatisticAction,
@@ -87,5 +93,18 @@ export class MessageController {
     @Param('id', TranformObjectIdPipe) id: string,
   ) {
     return this.messagesFindbyFormSubmissionAction.execute(request, id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @Post('/test')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  createMessagesTest(
+    @Req() request: AppRequest,
+    @Body()
+    payload: MessageTestCreatePayloadDto,
+  ) {
+    return this.messageTestCreateAction.execute(request, payload);
   }
 }

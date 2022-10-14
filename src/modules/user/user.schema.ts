@@ -50,6 +50,9 @@ export class User {
   stripeCustomerUserId: string;
 
   @Prop({ required: false })
+  priceSubscribe?: string;
+
+  @Prop({ required: false })
   isEnabledPayment?: boolean;
 
   @Prop({ required: false })

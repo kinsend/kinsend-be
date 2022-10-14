@@ -19,6 +19,7 @@ import { SubscriptionCreateByCustomerIdAction } from './services/SubscriptionCre
 import { SubscriptionGetListAction } from './services/SubscriptionGetListAction.service';
 import { SubscriptionGetPricesListAction } from './services/SubscriptionGetPricesListAction.service';
 import { SubscriptionGetProductsListAction } from './services/SubscriptionGetProductsListAction.service';
+import { SubscriptionTriggerPaymentTestAction } from './services/SubscriptionTriggerPaymentTestAction.service';
 
 @ApiTags('Subscriptions')
 @Controller('api/subscriptions')
@@ -31,6 +32,7 @@ export class SubscriptionController {
     private readonly subscriptionGetProductsListAction: SubscriptionGetProductsListAction,
     private readonly subscriptionGetPricesListAction: SubscriptionGetPricesListAction,
     private readonly subscriptionCreateByCustomerIdAction: SubscriptionCreateByCustomerIdAction,
+    private readonly subscriptionTriggerPaymentTestAction: SubscriptionTriggerPaymentTestAction,
   ) {}
 
   @Get('')
@@ -44,6 +46,14 @@ export class SubscriptionController {
     @Body() payload: CreateSubscriptionByCustomerIdDto,
   ) {
     return this.subscriptionCreateByCustomerIdAction.execute(request, payload);
+  }
+
+  @Post('/trigger-payment')
+  async triggerPayment(
+    @Req() request: AppRequest,
+    @Body() payload: CreateSubscriptionByCustomerIdDto,
+  ) {
+    return this.subscriptionTriggerPaymentTestAction.execute(request, payload);
   }
 
   @HttpCode(HttpStatus.OK)

@@ -18,7 +18,7 @@ export class VCard {
   @Transform(({ value }) => value.toString())
   userId: string;
 
-  @Prop({ unique: true })
+  @Prop({ require: false })
   email?: string;
 
   @Prop({ required: false })

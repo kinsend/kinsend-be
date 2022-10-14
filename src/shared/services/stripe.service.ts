@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '../../configs/config.service';
 import { CreateSubscriptionByCustomerIdDto } from '../../modules/subscription/dtos/CreateSubscriptionByCustomerId.dto';
@@ -44,23 +44,62 @@ export class StripeService {
     amount: number,
     paymentMethodId: string,
     customerId: string,
+    description?: string,
   ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
     const { logger, correlationId } = context;
     try {
-      const paymentInfo = await this.stripe.paymentIntents.create({
-        amount,
+      const payload = {
+        amount: Math.ceil(amount),
         customer: customerId,
         payment_method: paymentMethodId,
         currency: this.configService.stripeCurrency,
+        statement_descriptor: this.configService.stripeStatementDescriptor,
         confirm: true,
+        description,
+      };
+      logger.info({
+        message: 'Payload charging',
+        payload,
+      });
+      const paymentInfo = await this.stripe.paymentIntents.create(payload);
+      logger.info({
+        correlationId,
+        message: 'Charged successful',
+        result: paymentInfo,
       });
       return paymentInfo;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = 'Exception charged payment method error by Stripe';
       logger.error({
         correlationId,
         message,
-        error,
+        error: error.message || error,
+      });
+      throw new InternalServerErrorException({
+        correlationId,
+        message,
+        error: error.message || error,
+      });
+    }
+  }
+
+  async confirmPaymentIntentUser(
+    context: RequestContext,
+    paymentIntentId: string,
+    payload: { paymentMethod: string },
+  ): Promise<Stripe.Response<Stripe.PaymentIntent>> {
+    const { logger, correlationId } = context;
+    try {
+      const payment = await this.stripe.paymentIntents.confirm(paymentIntentId, {
+        payment_method: payload.paymentMethod,
+      });
+      return payment;
+    } catch (error: any) {
+      const message = 'Exception charged payment method error by Stripe';
+      logger.error({
+        correlationId,
+        message,
+        error: error.message || error,
       });
       throw new IllegalStateException(message);
     }
@@ -218,6 +257,25 @@ export class StripeService {
     }
   }
 
+  async getProductById(
+    context: RequestContext,
+    id: string,
+  ): Promise<Stripe.Response<Stripe.Product>> {
+    const { logger, correlationId } = context;
+    try {
+      const data = await this.stripe.products.retrieve(id);
+      return data;
+    } catch (error: unknown) {
+      const message = 'Product not found!';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
   async getPricesList(
     context: RequestContext,
     limit = 10,
@@ -275,6 +333,47 @@ export class StripeService {
       return customerInfo;
     } catch (error: unknown) {
       const message = 'Exception updated default payment method for customer error by Stripe';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new IllegalStateException(message);
+    }
+  }
+
+  async payChargesCustomerStripe(
+    context: RequestContext,
+    payload: any,
+  ): Promise<Stripe.Response<Stripe.Charge>> {
+    const { logger, correlationId } = context;
+    try {
+      const charges = await this.stripe.charges.create(payload);
+      return charges;
+    } catch (error) {
+      const message = 'Exception payment charges error by Stripe';
+      logger.error({
+        correlationId,
+        message,
+        error,
+      });
+      throw new InternalServerErrorException({
+        message,
+        error: error.message || error,
+      });
+    }
+  }
+
+  async getDetailPrice(
+    context: RequestContext,
+    priceId: string,
+  ): Promise<Stripe.Response<Stripe.Price>> {
+    const { logger, correlationId } = context;
+    try {
+      const price = await this.stripe.prices.retrieve(priceId);
+      return price;
+    } catch (error: unknown) {
+      const message = 'Exception get price error by Stripe';
       logger.error({
         correlationId,
         message,

@@ -10,6 +10,7 @@ import { PaymentAttachCreditCardToConsumerAction } from './services/PaymentAttac
 import { PaymentCancelCreditCardAction } from './services/PaymentCancelCreditCardAction.service';
 import { PaymentConfirmCreditCardAction } from './services/PaymentConfirmCreditCardAction.service';
 import { PaymentCreateAction } from './services/PaymentCreateAction.service';
+import { PaymentSendInvoiceAction } from './services/PaymentSendInvoiceAction.service';
 import { PaymentStoreAndConfirmCreditCardAction } from './services/PaymentStoreAndConfirmCreditCardAction.service';
 import { PaymentStoredCreditCardAction } from './services/PaymentStoredCreditCardAction.service';
 import { PaymentUpdateDefaultMethodByCustomerIdAction } from './services/PaymentUpdateDefaultMethodByCustomerIdAction.service';
@@ -33,6 +34,8 @@ import { PaymentUpdateDefaultMethodByCustomerIdAction } from './services/Payment
     PaymentStoreAndConfirmCreditCardAction,
     PaymentCreateAction,
     PaymentAttachCreditCardToConsumerAction,
+    PaymentSendInvoiceAction
   ],
+  exports: [PaymentSendInvoiceAction]
 })
 export class PaymentModule {}

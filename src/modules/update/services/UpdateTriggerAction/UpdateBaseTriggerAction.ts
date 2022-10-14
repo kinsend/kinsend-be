@@ -1,24 +1,28 @@
+/* eslint-disable curly */
 /* eslint-disable no-plusplus */
 /* eslint-disable new-cap */
+import { Inject } from '@nestjs/common';
 import * as schedule from 'node-schedule';
+import { REGION_DOMESTIC, TYPE_MESSAGE } from '../../../../domain/const';
 import { BackgroudJobService } from '../../../../shared/services/backgroud.job.service';
 import { SmsService } from '../../../../shared/services/sms.service';
 import { buildCronSchedule } from '../../../../utils/buildCronSchedule';
+import { fillMergeFieldsToMessage } from '../../../../utils/fillMergeFieldsToMessage';
+import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
 import { RequestContext } from '../../../../utils/RequestContext';
-import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from '../../interfaces/const';
-import { UpdateDocument } from '../../update.schema';
+import { regionPhoneNumber } from '../../../../utils/utilsPhoneNumber';
 import {
   FormSubmission,
   FormSubmissionDocument,
 } from '../../../form.submission/form.submission.schema';
-import { fillMergeFieldsToMessage } from '../../../../utils/fillMergeFieldsToMessage';
-import { getLinksInMessage } from '../../../../utils/getLinksInMessage';
-import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
-import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
-import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
 import { MessageCreateAction } from '../../../messages/services/MessageCreateAction.service';
-import { Inject } from '@nestjs/common';
+import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from '../../interfaces/const';
+import { UpdateDocument } from '../../update.schema';
+import { LinkRediectCreateByMessageAction } from '../link.redirect/LinkRediectCreateByMessageAction.service';
+import { UpdateFindByIdWithoutReportingAction } from '../UpdateFindByIdWithoutReportingAction.service';
+import { UpdateUpdateProgressAction } from '../UpdateUpdateProgressAction.service';
+import { UpdateChargeMessageTriggerAction } from './UpdateChargeMessageTriggerAction';
 
 export class UpdateBaseTriggerAction {
   private timesPerformedOtherWeek = 0;
@@ -26,6 +30,9 @@ export class UpdateBaseTriggerAction {
   private timesPerformedOtherDay = 0;
 
   @Inject(MessageCreateAction) private messageCreateAction: MessageCreateAction;
+
+  @Inject(UpdateChargeMessageTriggerAction)
+  private updateChargeMessageTriggerAction: UpdateChargeMessageTriggerAction;
 
   async executeTrigger(
     context: RequestContext,
@@ -283,7 +290,7 @@ export class UpdateBaseTriggerAction {
     return linkCreated.messageReview;
   }
 
-  private handleSendSms(
+  private async handleSendSms(
     context: RequestContext,
     linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
@@ -294,62 +301,65 @@ export class UpdateBaseTriggerAction {
     subscribers: FormSubmission[],
     update: UpdateDocument,
     datetimeTrigger: Date,
-  ) {
+  ): Promise<void> {
     const { logger } = context;
-    return async () => {
-      if (this.isSkipTrigger(context, update.triggerType)) {
-        return;
-      }
+    if (this.isSkipTrigger(context, update.triggerType)) {
+      return;
+    }
 
-      const isCleanSchedule = await this.handleCleanSchedule(
-        context,
-        updateFindByIdWithoutReportingAction,
-        update.id,
-        datetimeTrigger,
-      );
-      if (isCleanSchedule) {
-        return;
-      }
+    const isCleanSchedule = await this.handleCleanSchedule(
+      context,
+      updateFindByIdWithoutReportingAction,
+      update.id,
+      datetimeTrigger,
+    );
+    if (isCleanSchedule) {
+      return;
+    }
 
-      logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
-      await Promise.all(
-        subscribers.map(async (sub) => {
-          const { phoneNumber, firstName, lastName, email } = sub;
-          const to = `+${phoneNumber.code}${phoneNumber.phone}`;
-          const messageReview = await this.handleGenerateLinkRedirect(
-            update,
-            sub,
-            context,
-            linkRediectCreateByMessageAction,
-          );
-          const message = messageReview === null ? update.message : messageReview;
-          const messageFilled = fillMergeFieldsToMessage(message, {
-            fname: firstName,
-            lname: lastName,
-            name: firstName + lastName,
-            mobile: to,
-            email,
-          });
+    logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
+    await Promise.all(
+      subscribers.map(async (sub) => {
+        const { phoneNumber, firstName, lastName, email } = sub;
+        const to = `+${phoneNumber.code}${phoneNumber.phone}`;
+        const messageReview = await this.handleGenerateLinkRedirect(
+          update,
+          sub,
+          context,
+          linkRediectCreateByMessageAction,
+        );
+        const message = messageReview === null ? update.message : messageReview;
+        const messageFilled = fillMergeFieldsToMessage(message, {
+          fname: firstName,
+          lname: lastName,
+          name: firstName + lastName,
+          mobile: to,
+          email,
+        });
 
-          // Note: run async for update lastContacted
-          formSubmissionUpdateLastContactedAction.execute(context, to, ownerPhoneNumber);
+        // Note: run async for update lastContacted
+        formSubmissionUpdateLastContactedAction.execute(context, to, ownerPhoneNumber);
 
-          return smsService.sendMessage(
-            context,
-            ownerPhoneNumber,
-            messageFilled,
-            update.fileUrl,
-            to,
-            `api/hook/sms/update/status/${update.id}`,
-            this.saveSms(context, ownerPhoneNumber, to, messageFilled, update.fileUrl),
-          );
-        }),
-      );
-      if (update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
-        // Note: update process for update type Once
-        updateUpdateProgressAction.execute(context, update.id, UPDATE_PROGRESS.DONE);
-      }
-    };
+        return smsService.sendMessage(
+          context,
+          ownerPhoneNumber,
+          messageFilled,
+          update.fileUrl,
+          to,
+          `api/hook/sms/update/status/${update.id}`,
+          this.saveSms(context, ownerPhoneNumber, to, messageFilled, update.fileUrl, update.id),
+        );
+      }),
+    );
+    if (update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
+      // Note: update process for update type Once
+      updateUpdateProgressAction.execute(context, update.id, UPDATE_PROGRESS.DONE);
+    }
+    try {
+      await this.updateChargeMessageTriggerAction.execute(context, update.id, datetimeTrigger);
+    } catch (error) {
+      logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
+    }
   }
 
   private createScheduleTrigger(
@@ -369,18 +379,19 @@ export class UpdateBaseTriggerAction {
     backgroudJobService.job(
       datatime,
       undefined,
-      this.handleSendSms(
-        context,
-        linkRediectCreateByMessageAction,
-        formSubmissionUpdateLastContactedAction,
-        updateUpdateProgressAction,
-        smsService,
-        updateFindByIdWithoutReportingAction,
-        ownerPhoneNumber,
-        subscribers,
-        update,
-        datetimeTrigger,
-      ),
+      () =>
+        this.handleSendSms(
+          context,
+          linkRediectCreateByMessageAction,
+          formSubmissionUpdateLastContactedAction,
+          updateUpdateProgressAction,
+          smsService,
+          updateFindByIdWithoutReportingAction,
+          ownerPhoneNumber,
+          subscribers,
+          update,
+          datetimeTrigger,
+        ),
       `${update.id}-${datetimeTrigger.getTime()}`,
     );
   }
@@ -429,10 +440,12 @@ export class UpdateBaseTriggerAction {
     to: string,
     message: string,
     file?: string,
+    updateId?: string,
   ) {
     return (status = 'success', error?: string) =>
       this.messageCreateAction.execute(context, {
         content: message,
+        updateId,
         dateSent: new Date(),
         isSubscriberMessage: false,
         status,
@@ -440,6 +453,13 @@ export class UpdateBaseTriggerAction {
         phoneNumberSent: from,
         phoneNumberReceipted: to,
         errorMessage: error,
+        typeMessage: !file ? this.handleTypeMessage(to) : TYPE_MESSAGE.MMS,
       });
+  }
+
+  private handleTypeMessage(phoneNumberReceipted: string): TYPE_MESSAGE {
+    const region = regionPhoneNumber(phoneNumberReceipted);
+    if (!region || region === REGION_DOMESTIC) return TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC;
+    return TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL;
   }
 }

@@ -38,7 +38,7 @@ import {
 import { PaymentSendInvoiceAction } from 'src/modules/payment/services/PaymentSendInvoiceAction.service';
 
 @Injectable()
-export class SubscriptionCreateByCustomerIdAction {
+export class SubscriptionTriggerPaymentTestAction {
   constructor(
     private smsService: SmsService,
     private configService: ConfigService,
@@ -64,9 +64,7 @@ export class SubscriptionCreateByCustomerIdAction {
 
     // Caculate total price manual and go to charge
     const userUpdate = await this.userFindByStripeCustomerUserIdAction.execute(payload.customer);
-    if (userUpdate.priceSubscribe) {
-      throw new BadRequestException(`User already subscribe to plan`);
-    }
+
     const { prices, productId } = await this.getPriceForCustomerSubscription(
       context,
       payload.items,
@@ -88,7 +86,6 @@ export class SubscriptionCreateByCustomerIdAction {
       product.name,
     );
     context.logger.info('***Create schedule successful!***');
-    await userUpdate.updateOne({ isEnabledBuyPlan: true, priceSubscribe: items[0].price });
     return schedule;
   }
 
@@ -103,12 +100,17 @@ export class SubscriptionCreateByCustomerIdAction {
   ): Promise<void> {
     // Create test mode for payment
     context.logger.info(`****** Build scron schedule ***`);
-
-    const sronSchedule = buildCronSchedule(
-      datetime.getMinutes().toString(),
-      datetime.getHours().toString(),
-      datetime.getDate().toString(),
+    context.logger.info(
+      `****** isTestModePaymentMonthly: ${this.configService.isTestModePaymentMonthly} ***`,
     );
+
+    const sronSchedule = this.configService.isTestModePaymentMonthly
+      ? now(this.configService.secondsTriggerPaymentMonthly)
+      : buildCronSchedule(
+          datetime.getMinutes().toString(),
+          datetime.getHours().toString(),
+          datetime.getDate().toString(),
+        );
     context.logger.info(`****** sronSchedule: ${sronSchedule} ***`);
     this.backgroudJobService.job(
       sronSchedule,
@@ -151,36 +153,6 @@ export class SubscriptionCreateByCustomerIdAction {
       context.logger.error('******Card user not found!***');
       throw new BadRequestException('Card user not found!');
     }
-    context.logger.info('******Charge plan fee***');
-    const bill = await this.stripeService.chargePaymentUser(
-      context,
-      price,
-      card.id,
-      stripeCustomerUserId,
-      'Payment for registry plan',
-    );
-    context.logger.info('******Charge plan fee successfull***');
-
-    if (bill.status === 'succeeded') {
-      context.logger.info('*****Send mail charge plan fee***');
-      const user = await this.userFindByStripeCustomerUserIdAction.execute(stripeCustomerUserId);
-      // Send mail after charge registry plan
-      await this.paymentSendInvoiceAction.execute(
-        context,
-        user,
-        bill,
-        numberCard,
-        'REGISTRY',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        price,
-        productName,
-      );
-    }
-    await this.saveBillCharged(context, user.id, bill, stripeCustomerUserId);
     context.logger.info('\n******Goto create schedule payment***\n');
     const schedule = await this.scheduleTriggerCharge(
       context,
@@ -225,28 +197,6 @@ export class SubscriptionCreateByCustomerIdAction {
     return schedule;
   }
 
-  private async saveBillCharged(
-    context: RequestContext,
-    userId: string,
-    bill: Stripe.PaymentIntent,
-    stripeCustomerUserId: string,
-  ): Promise<void> {
-    const { id, amount, created, status } = bill;
-    const result = await this.paymentMonthlyCreateAction.execute(context, {
-      userId,
-      chargeId: id,
-      customerId: stripeCustomerUserId,
-      statusPaid: status === 'succeeded' || false,
-      totalPrice: amount,
-      typePayment: TYPE_PAYMENT.MESSAGE_UPDATE,
-      datePaid: new Date(created),
-    });
-    context.logger.info({
-      message: 'Save payment_monthly',
-      paymentMonthlyId: result.id,
-    });
-  }
-
   private async handleChargeByCustomer(
     context: RequestContext,
     user: UserDocument,
@@ -278,7 +228,6 @@ export class SubscriptionCreateByCustomerIdAction {
     const totalFeeUsed = totalPriceSms + totalPriceMms + priceSubs + chargedMessagesUpdate;
     context.logger.info(`\ntotalPriceMms: ${totalPriceMms},totalPriceSms: ${totalPriceSms},
      chargedMessagesUpdate: ${chargedMessagesUpdate}, priceSubs: ${priceSubs},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}  `);
-
     if (totalFeeUsed > pricePlan) {
       context.logger.info(`\nGoto over plan\n`);
       await this.chargeFeeLimited(

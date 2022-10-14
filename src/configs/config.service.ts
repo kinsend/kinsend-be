@@ -183,6 +183,12 @@ export class ConfigService {
     return process.env.STRIPE_CURRENCY || this.envConfig['STRIPE_CURRENCY'] || '';
   }
 
+  get stripeStatementDescriptor(): string {
+    return (
+      process.env.STRIPE_STATEMENT_DESCRIPTOR || this.envConfig['STRIPE_STATEMENT_DESCRIPTOR'] || ''
+    );
+  }
+
   get publishableKey(): string {
     return process.env.STRIPE_PUBLISHABLE_KEY || this.envConfig['STRIPE_PUBLISHABLE_KEY'] || '';
   }
@@ -218,5 +224,64 @@ export class ConfigService {
 
   get amplifyAppId(): string {
     return process.env.AMPLIFY_APP_ID || this.envConfig['AMPLIFY_APP_ID'] || 'd2yvpp1imqxni5';
+  }
+
+  get secondsTriggerPaymentMonthly(): number {
+    const result =
+      process.env.SECONDS_TRIGGER_PAYMENT_MONTHLY ||
+      this.envConfig['SECONDS_TRIGGER_PAYMENT_MONTHLY'] ||
+      3000; // 3s
+    return Number(result);
+  }
+
+  get isTestModePaymentMonthly(): boolean {
+    const result =
+      process.env.IS_TEST_PAYMENT_MONTHLY || this.envConfig['IS_TEST_PAYMENT_MONTHLY'] || false;
+    return Boolean(result);
+  }
+
+  get priceStarterPlane(): number {
+    const result = process.env.PRICE_STARTER_PLANE || this.envConfig['PRICE_STARTER_PLANE'] || 1999;
+    return Number(result);
+  }
+
+  get priceGrowthPlane(): number {
+    const result = process.env.PRICE_GROWTH_PLANE || this.envConfig['PRICE_GROWTH_PLANE'] || 9999;
+    return Number(result);
+  }
+
+  get priceHighVolumePlane(): number {
+    const result =
+      process.env.PRICE_HIGH_VOLUME_PLANE || this.envConfig['PRICE_HIGH_VOLUME_PLANE'] || 49900;
+    return Number(result);
+  }
+
+  get pricePerSubStarterPlane(): number {
+    const result =
+      process.env.PRICE_PER_SUB_STARTER_PLANE ||
+      this.envConfig['PRICE_PER_SUB_STARTER_PLANE'] ||
+      0.1;
+    return Number(result);
+  }
+
+  get pricePerSubGrowthPlane(): number {
+    const result =
+      process.env.PRICE_PER_SUB_GROWTH_PLANE ||
+      this.envConfig['PRICE_PER_SUB_GROWTH_PLANE'] ||
+      0.08;
+    return Number(result);
+  }
+
+  get pricePerSubHighVolumePlane(): number {
+    const result =
+      process.env.PRICE_PER_SUB_HIGH_VOLUME_PLANE ||
+      this.envConfig['PRICE_PER_SUB_HIGH_VOLUME_PLANE'] ||
+      0.01;
+    return Number(result);
+  }
+
+  get priceMMS(): number {
+    const result = process.env.PRICE_MMS || this.envConfig['PRICE_MMS'] || 0.04;
+    return Number(result);
   }
 }
