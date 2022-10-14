@@ -11,6 +11,7 @@ import {
   PAYMENT_PROGRESS,
   PRICE_PER_MESSAGE_DOMESTIC,
   PRICE_PER_MESSAGE_INTERNATIONAL,
+  PRICE_PER_PHONE_NUMBER,
   RATE_CENT_USD,
   TYPE_MESSAGE,
   TYPE_PAYMENT,
@@ -153,7 +154,7 @@ export class SubscriptionTriggerPaymentTestAction {
       context.logger.error('******Card user not found!***');
       throw new BadRequestException('Card user not found!');
     }
-    context.logger.info('\n******Goto create schedule payment***\n');
+    context.logger.info('******Goto create schedule payment***');
     const schedule = await this.scheduleTriggerCharge(
       context,
       user,
@@ -181,9 +182,7 @@ export class SubscriptionTriggerPaymentTestAction {
       scheduleName,
       createdAt: datetime,
     });
-    context.logger.info(
-      `\n******Save schedule into db successfull, scheduleId: ${schedule.id} ***\n`,
-    );
+    context.logger.info(`******Save schedule into db successfull, scheduleId: ${schedule.id} ***`);
 
     await this.createScheduleTriggerCharge(
       context,
@@ -223,13 +222,16 @@ export class SubscriptionTriggerPaymentTestAction {
     );
 
     const { priceSubs, totalSubs } = await this.handleSubscriber(context, userId, pricePlan);
+    const numberPhoneNumber = user.phoneSystem?.length || 0;
+    const phoneNumberFee = user.phoneSystem?.length || 0 * PRICE_PER_PHONE_NUMBER;
 
     // Rate is cent
-    const totalFeeUsed = totalPriceSms + totalPriceMms + priceSubs + chargedMessagesUpdate;
-    context.logger.info(`\ntotalPriceMms: ${totalPriceMms},totalPriceSms: ${totalPriceSms},
-     chargedMessagesUpdate: ${chargedMessagesUpdate}, priceSubs: ${priceSubs},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}  `);
+    const totalFeeUsed =
+      totalPriceSms + totalPriceMms + priceSubs + chargedMessagesUpdate + phoneNumberFee;
+    context.logger.info(`totalPriceMms: ${totalPriceMms},totalPriceSms: ${totalPriceSms},
+     chargedMessagesUpdate: ${chargedMessagesUpdate}, priceSubs: ${priceSubs},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}, phoneNumberFee: ${phoneNumberFee}`);
     if (totalFeeUsed > pricePlan) {
-      context.logger.info(`\nGoto over plan\n`);
+      context.logger.info(`Goto over plan`);
       await this.chargeFeeLimited(
         context,
         user,
@@ -244,6 +246,7 @@ export class SubscriptionTriggerPaymentTestAction {
         stripeCustomerUserId,
         startDate,
         endDate,
+        numberPhoneNumber,
       );
       return;
     }
@@ -262,6 +265,7 @@ export class SubscriptionTriggerPaymentTestAction {
         stripeCustomerUserId,
         startDate,
         endDate,
+        numberPhoneNumber,
       );
       return;
     }
@@ -338,6 +342,7 @@ export class SubscriptionTriggerPaymentTestAction {
     stripeCustomerUserId: string,
     dateTimeStart: Date,
     dateTimeEnd: Date,
+    numberPhoneNumber: number,
   ): Promise<void> {
     const totalFeeCharge = pricePlan - totalBillMessageUpdate;
     const totalMessages = await this.totalMessages(context, user.id, dateTimeStart, dateTimeEnd);
@@ -354,6 +359,7 @@ export class SubscriptionTriggerPaymentTestAction {
       totalSubs,
       pricePlan,
       productName,
+      numberPhoneNumber,
     );
   }
 
@@ -371,6 +377,7 @@ export class SubscriptionTriggerPaymentTestAction {
     stripeCustomerUserId: string,
     dateTimeStart: Date,
     dateTimeEnd: Date,
+    numberPhoneNumber: number,
   ): Promise<void> {
     const feeLimit = totalFeeUsed - pricePlan - totalBillMessageUpdate;
     const totalFeeCharge = pricePlan + feeLimit;
@@ -390,6 +397,7 @@ export class SubscriptionTriggerPaymentTestAction {
       totalSubs,
       pricePlan,
       namePlane,
+      numberPhoneNumber,
     );
   }
 
@@ -421,6 +429,7 @@ export class SubscriptionTriggerPaymentTestAction {
     totalSubs: number,
     pricePlane: number,
     productName: string,
+    numberPhoneNumber: number,
   ) {
     let amountCharge = totalFee;
     const paymentLastMonth = await this.getPaymentLastMonth(context, user.id);
@@ -460,6 +469,7 @@ export class SubscriptionTriggerPaymentTestAction {
         totalFeeUpdateCharged,
         pricePlane,
         productName,
+        numberPhoneNumber,
       );
       return;
     }

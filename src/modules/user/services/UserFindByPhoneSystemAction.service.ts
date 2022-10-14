@@ -9,7 +9,6 @@ export class UserFindByPhoneSystemAction {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async execute(phone: PhoneNumber): Promise<UserDocument[]> {
-    console.log('phone :>> ', phone);
     const user = await this.userModel.find({
       phoneSystem: { $elemMatch: { $and: [{ phone: phone.phone }, { code: phone.code }] } },
     });

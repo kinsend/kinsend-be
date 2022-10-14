@@ -66,3 +66,5 @@ export enum PAYMENT_MONTHLY_STATUS {
   PAID = 'paid',
   PENDING = 'pending',
 }
+
+export const PRICE_PER_PHONE_NUMBER = 1;

@@ -8,19 +8,14 @@ import * as path from 'node:path';
 import * as puppeteer from 'puppeteer';
 import * as moment from 'moment';
 import { ConfigService } from '../../../configs/config.service';
-import { STATUS } from '../../../domain/const';
-import { StripeService } from '../../../shared/services/stripe.service';
-import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
-import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
-import { Payment, PaymentDocument } from '../payment.schema';
 import { unitAmountToPrice } from 'src/utils/convertPrice';
 import { MonthNames } from 'src/utils/getDayOfNextWeek';
 import { MailSendGridService } from 'src/modules/mail/mail-send-grid.service';
 import { UserDocument } from 'src/modules/user/user.schema';
 import { MessageContext } from 'src/modules/subscription/interfaces/message.interface';
 import { ICustomerInfoInvoice } from '../interface/interfaces';
-import { userInfo } from 'node:os';
+import { PRICE_PER_PHONE_NUMBER, RATE_CENT_USD } from '../../../domain/const';
 
 @Injectable()
 export class PaymentSendInvoiceAction {
@@ -42,30 +37,17 @@ export class PaymentSendInvoiceAction {
     alreadyPaid?: number,
     pricePlane?: number,
     namePlane?: string,
+    numberPhoneNumber?: number,
   ): Promise<void> {
     context.logger.info('Send mail after charged, type: ' + type);
-    const { customer, amount } = bill;
-    const { email, phoneNumber, firstName, lastName } = user;
-    const date = new Date();
-    const customerInfo: ICustomerInfoInvoice = {
-      invoice_id: Math.floor(100000 + Math.random() * 900000),
-      name: `${firstName} ${lastName}`,
-      phoneUser: `+${phoneNumber[0].code}${phoneNumber[0].phone}`,
-      email,
-      customer: customer as string,
-      unitsUsed: 1,
-      unitsPlane: 1,
-      units: 1,
-      name_plane: namePlane || '',
-      logo: 'https://www.dev.kinsend.io/static/media/logo.961c15e5ab6169b8a855d4db11ed84e7.svg',
-      number_card: numberCard,
-      total_paid: unitAmountToPrice(amount),
-      invoice_date: `${MonthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`,
-      price_plane: unitAmountToPrice(pricePlane || 0),
-      datetime_paid: `${date.getDate()} ${
-        MonthNames[date.getMonth()]
-      }, ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()} EDT`,
-    };
+
+    const customerInfo: ICustomerInfoInvoice = this.buildCustomerInfo(
+      user,
+      bill,
+      namePlane,
+      numberCard,
+      pricePlane,
+    );
     if (type === 'UPDATE') {
       await this.sendMailUpdateInvoice(
         user,
@@ -90,7 +72,40 @@ export class PaymentSendInvoiceAction {
       smsFeeUsed,
       mmsFeeUsed,
       alreadyPaid,
+      numberPhoneNumber,
     );
+  }
+
+  private buildCustomerInfo(
+    user: UserDocument,
+    bill: Stripe.PaymentIntent,
+    namePlane?: string,
+    numberCard?: string,
+    pricePlane?: number,
+  ): ICustomerInfoInvoice {
+    const { customer, amount } = bill;
+    const { email, phoneNumber, firstName, lastName } = user;
+    const date = new Date();
+    const customerInfo: ICustomerInfoInvoice = {
+      invoice_id: Math.floor(100000 + Math.random() * 900000),
+      name: `${firstName} ${lastName}`,
+      phoneUser: `+${phoneNumber[0].code}${phoneNumber[0].phone}`,
+      email,
+      customer: customer as string,
+      unitsUsed: 1,
+      unitsPlane: 1,
+      units: 1,
+      name_plane: namePlane || '',
+      logo: 'https://www.dev.kinsend.io/static/media/logo.961c15e5ab6169b8a855d4db11ed84e7.svg',
+      number_card: numberCard || '',
+      total_paid: unitAmountToPrice(amount),
+      invoice_date: `${MonthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`,
+      price_plane: unitAmountToPrice(pricePlane || 0),
+      datetime_paid: `${date.getDate()} ${
+        MonthNames[date.getMonth()]
+      }, ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()} EDT`,
+    };
+    return customerInfo;
   }
 
   private async sendMailUpdateInvoice(
@@ -175,6 +190,7 @@ export class PaymentSendInvoiceAction {
     smsFeeUsed?: number,
     mmsFeeUsed?: number,
     alreadyPaid?: number,
+    numberPhoneNumber?: number,
   ) {
     const { id, amount } = bill;
     const { email } = user;
@@ -186,7 +202,8 @@ export class PaymentSendInvoiceAction {
     const source = fs.readFileSync(filePath, 'utf-8').toString();
     const template = handlebars.compile(source);
     const { mailForm } = this.configService;
-    const totalPaid = (smsFeeUsed || 0) + (mmsFeeUsed || 0) + (alreadyPaid || 0);
+    const feePhoneNumber = (numberPhoneNumber || 0) * PRICE_PER_PHONE_NUMBER * RATE_CENT_USD;
+    const totalPaid = (smsFeeUsed || 0) + (mmsFeeUsed || 0) + (alreadyPaid || 0) + feePhoneNumber;
     const replacements: any = {
       ...customerInfo,
       total_fee_sms: unitAmountToPrice(smsFeeUsed || 0),
@@ -195,14 +212,15 @@ export class PaymentSendInvoiceAction {
       total_used: unitAmountToPrice(totalPaid),
       current_date_plane: `${MonthNames[lastMonth.getMonth()]} ${lastMonth.getDate()} to ${
         MonthNames[date.getMonth()]
-      } ${date.getDate()}, ${date.getFullYear()}`, //"Jun 13 to Jul 13, 2022"
+      } ${date.getDate()}, ${date.getFullYear()}`,
       next_date_plane: `${MonthNames[date.getMonth()]} ${date.getDate()} to ${
         MonthNames[nextMonth.getMonth()]
-      } ${(nextMonth.getDate(), nextMonth.getFullYear())}`, //"Jun 13 to Jul 13, 2022"
+      } ${(nextMonth.getDate(), nextMonth.getFullYear())}`,
       total_paid: unitAmountToPrice(amount),
       next_date_bill: `${
         MonthNames[nextMonth.getMonth()]
       } ${nextMonth.getDate()} ${nextMonth.getFullYear()}`,
+      fee_phone_number: unitAmountToPrice(feePhoneNumber),
     };
     const htmlToSend = template(replacements);
 
@@ -233,7 +251,7 @@ export class PaymentSendInvoiceAction {
       <br>
       Description :  Previous Billing Period Usage: SMS $${replacements.total_fee_sms}, MMS $${
         replacements.total_fee_mms
-      }, Already Paid $${replacements.already_paid}
+      },,Phone number $${replacements.fee_phone_number}, Already Paid $${replacements.already_paid}
       Unit Cost : $${replacements.totalPaid || 0}<br>
       Quantity : 1<br>
       Price : $${replacements.totalPaid || 0}<br>

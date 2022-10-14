@@ -148,10 +148,12 @@ export class UpdateChargeMessageTriggerAction {
     const messages = await this.messageFindByConditionAction.execute({
       updateId,
       status: 'success',
+      statusPaid: false,
       dateSent: { $gte: new Date(datetimeTrigger) },
       $and: [
         { typePayment: TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC },
         { typePayment: TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL },
+        { typeMessage: TYPE_MESSAGE.MMS },
       ],
     });
     return messages;
@@ -168,6 +170,7 @@ export class UpdateChargeMessageTriggerAction {
       status: 'success',
       dateSent: { $gte: new Date(datetimeTrigger) },
       typeMessage,
+      statusPaid: false,
     });
     let totalPrice = 0;
     if (
