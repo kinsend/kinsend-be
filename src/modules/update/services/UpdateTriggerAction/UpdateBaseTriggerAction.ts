@@ -318,6 +318,7 @@ export class UpdateBaseTriggerAction {
     }
 
     logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
+    const timeTriggerSchedule = new Date();
     await Promise.all(
       subscribers.map(async (sub) => {
         const { phoneNumber, firstName, lastName, email } = sub;
@@ -336,7 +337,6 @@ export class UpdateBaseTriggerAction {
           mobile: to,
           email,
         });
-
         // Note: run async for update lastContacted
         formSubmissionUpdateLastContactedAction.execute(context, to, ownerPhoneNumber);
 
@@ -356,7 +356,7 @@ export class UpdateBaseTriggerAction {
       updateUpdateProgressAction.execute(context, update.id, UPDATE_PROGRESS.DONE);
     }
     try {
-      await this.updateChargeMessageTriggerAction.execute(context, update.id, datetimeTrigger);
+      await this.updateChargeMessageTriggerAction.execute(context, update.id, timeTriggerSchedule);
     } catch (error) {
       logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
     }

@@ -294,7 +294,7 @@ export class SubscriptionCreateByCustomerIdAction {
       totalPriceSms + totalPriceMms + priceSubs + chargedMessagesUpdate + phoneNumberFee;
     context.logger.info(`\ntotalPriceMms: ${totalPriceMms},totalPriceSms: ${totalPriceSms},
      chargedMessagesUpdate: ${chargedMessagesUpdate}, priceSubs: ${priceSubs},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}, totalFeePhoneNumber: ${phoneNumberFee} `);
-    console.log('totalFeeUsed :>> ', totalFeeUsed);
+
     if (totalFeeUsed > pricePlan) {
       context.logger.info(`\nGoto over plan\n`);
       await this.chargeFeeLimited(
@@ -316,7 +316,6 @@ export class SubscriptionCreateByCustomerIdAction {
     }
     if (totalFeeUsed <= pricePlan) {
       context.logger.info(`Goto less plan`);
-      console.log('Goto less plan');
       await this.chargeFeeUsed(
         context,
         user,

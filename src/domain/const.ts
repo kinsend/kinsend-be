@@ -53,7 +53,7 @@ export const PRICE_PER_MESSAGE_INTERNATIONAL = 0.16;
 
 export const PRICE_BASE_PLAN = 19.99;
 
-export const PRICE_ATTACH_CHARGE = 5;
+export const PRICE_ATTACH_CHARGE = 5; // 5$
 
 export const NUMBER_DAY_TRIGGER_CHARGE = 30;
 

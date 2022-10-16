@@ -61,6 +61,7 @@ export class UpdateChargeMessageTriggerAction {
     const isValid = await this.verifyPriceCharge(context, totalFee);
 
     if (isValid) {
+      context.logger.info('Total fee more than limit. Go to charge');
       const { numberCard, bill } = await this.handleChargeStripeCustomer(
         context,
         totalFee,
@@ -76,6 +77,7 @@ export class UpdateChargeMessageTriggerAction {
         messageDomestic,
         messageInternational,
       );
+
       await this.saveBillCharged(
         context,
         user.id,
@@ -88,12 +90,14 @@ export class UpdateChargeMessageTriggerAction {
       await this.messageUpdateManyAction.execute(ids, {
         statusPaid: true,
       });
+      return;
     }
+    context.logger.info('Total fee less limit. Skip it');
   }
 
   private async verifyPriceCharge(context: RequestContext, totalFee: number): Promise<boolean> {
-    // ex: totalFee <= 5$
-    if (totalFee <= PRICE_ATTACH_CHARGE) {
+    // ex: totalFee <= 5 $ids
+    if (totalFee <= PRICE_ATTACH_CHARGE * RATE_CENT_USD) {
       return false;
     }
     return true;
@@ -150,11 +154,6 @@ export class UpdateChargeMessageTriggerAction {
       status: 'success',
       statusPaid: false,
       dateSent: { $gte: new Date(datetimeTrigger) },
-      $and: [
-        { typePayment: TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC },
-        { typePayment: TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL },
-        { typeMessage: TYPE_MESSAGE.MMS },
-      ],
     });
     return messages;
   }
