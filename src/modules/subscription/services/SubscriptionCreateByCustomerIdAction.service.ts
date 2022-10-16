@@ -311,6 +311,7 @@ export class SubscriptionCreateByCustomerIdAction {
         stripeCustomerUserId,
         startDate,
         endDate,
+        numberPhoneNumber,
       );
       return;
     }
@@ -329,6 +330,7 @@ export class SubscriptionCreateByCustomerIdAction {
         stripeCustomerUserId,
         startDate,
         endDate,
+        numberPhoneNumber,
       );
       return;
     }
@@ -405,6 +407,7 @@ export class SubscriptionCreateByCustomerIdAction {
     stripeCustomerUserId: string,
     dateTimeStart: Date,
     dateTimeEnd: Date,
+    numberPhoneNumber: number,
   ): Promise<void> {
     const totalFeeCharge = pricePlan - totalBillMessageUpdate;
     const totalMessages = await this.totalMessages(context, user.id, dateTimeStart, dateTimeEnd);
@@ -421,6 +424,7 @@ export class SubscriptionCreateByCustomerIdAction {
       totalSubs,
       pricePlan,
       productName,
+      numberPhoneNumber,
     );
   }
 
@@ -438,6 +442,7 @@ export class SubscriptionCreateByCustomerIdAction {
     stripeCustomerUserId: string,
     dateTimeStart: Date,
     dateTimeEnd: Date,
+    numberPhoneNumber: number,
   ): Promise<void> {
     const feeLimit = totalFeeUsed - pricePlan - totalBillMessageUpdate;
     const totalFeeCharge = pricePlan + feeLimit;
@@ -457,6 +462,7 @@ export class SubscriptionCreateByCustomerIdAction {
       totalSubs,
       pricePlan,
       namePlane,
+      numberPhoneNumber,
     );
   }
 
@@ -488,6 +494,7 @@ export class SubscriptionCreateByCustomerIdAction {
     totalSubs: number,
     pricePlane: number,
     productName: string,
+    numberPhoneNumber: number,
   ) {
     let amountCharge = totalFee;
     const paymentLastMonth = await this.getPaymentLastMonth(context, user.id);
@@ -527,6 +534,7 @@ export class SubscriptionCreateByCustomerIdAction {
         totalFeeUpdateCharged,
         pricePlane,
         productName,
+        numberPhoneNumber,
       );
       return;
     }

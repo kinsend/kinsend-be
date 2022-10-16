@@ -160,11 +160,11 @@ export class PaymentSendInvoiceAction {
       Description : Charge for sending an update with 1 segments to ${
         messageDomestic?.totalMessages || 0
       } US numbers and ${messageInternational?.totalMessages || 0} international numbers.<br>
-      Unit Cost : $${replacements.total_price || 0}<br>
+      Unit Cost : ${replacements.total_price || 0}<br>
       Quantity : 1<br>
-      Price : $${replacements.total_price || 0}<br>
+      Price : ${replacements.total_price || 0}<br>
       <br>
-      Total Amount: $${replacements.total_price || 0}<br>
+      Total Amount: ${replacements.total_price || 0}<br>
       <br>
       Thanks again for your purchase. If you have any questions, please contact us.<br>
       Thank You.`,
@@ -243,20 +243,20 @@ export class PaymentSendInvoiceAction {
       Items:<br>
       <br>
       Description : SuperPhone Starter<br>
-      Unit Cost : $${replacements.price_plane}<br>
+      Unit Cost : ${replacements.price_plane}<br>
       Quantity : 1<br>
-      Price : $${replacements.price_plane}<br>
+      Price : ${replacements.price_plane}<br>
       <br>
 
       <br>
-      Description :  Previous Billing Period Usage: SMS $${replacements.total_fee_sms}, MMS $${
+      Description :  Previous Billing Period Usage: SMS ${replacements.total_fee_sms}, MMS ${
         replacements.total_fee_mms
-      },,Phone number $${replacements.fee_phone_number}, Already Paid $${replacements.already_paid}
-      Unit Cost : $${replacements.totalPaid || 0}<br>
+      }Phone number ${replacements.fee_phone_number}, Already Paid ${replacements.already_paid}
+      Unit Cost : ${replacements.totalPaid || 0}<br>
       Quantity : 1<br>
-      Price : $${replacements.totalPaid || 0}<br>
+      Price : ${replacements.totalPaid || 0}<br>
       <br>
-      Total Amount: $${replacements.totalPaid || 0}<br>
+      Total Amount: ${replacements.totalPaid || 0}<br>
       <br>
       Thanks again for your purchase. If you have any questions, please contact us.<br>
       Thank You.`,
@@ -319,11 +319,11 @@ export class PaymentSendInvoiceAction {
       Items:<br>
       <br>
       Description : SuperPhone Starter<br>
-      Unit Cost : $${replacements.total_paid}<br>
+      Unit Cost : ${replacements.total_paid}<br>
       Quantity : 1<br>
-      Price : $${replacements.total_paid}<br>
+      Price : ${replacements.total_paid}<br>
       <br>
-      Total Amount: $${replacements.total_paid}<br>
+      Total Amount: ${replacements.total_paid}<br>
       <br>
       Thanks again for your purchase. If you have any questions, please contact us.<br>
       Thank You.`,
