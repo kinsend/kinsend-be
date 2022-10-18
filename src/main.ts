@@ -15,6 +15,7 @@ async function bootstrap() {
   const { port, environment, host } = new ConfigService();
 
   const logMessage = `api server started host: ${host}:${port} `;
+  // test deploy
   await (environment === 'production'
     ? app
         .listen(port, () => {
