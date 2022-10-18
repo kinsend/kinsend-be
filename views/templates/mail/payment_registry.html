@@ -49,7 +49,7 @@
         <ul class='list-invoice'>
           <li>Invoice # <span class='bold'>{{invoice_id}}</span></li>
           <li>Invoice Date <span class='bold'>{{invoice_date}}</span></li>
-          <li>Invoice Amount <span class='bold'>${{total_paid}} (USD)</span></li>
+          <li>Invoice Amount <span class='bold'>{{total_paid}} (USD)</span></li>
           <li>Customer ID <span class='bold'>{{customer}}</span></li>
           <li class='bold' style='color: rgb(42 180 42);'>PAID</li>
         </ul>
@@ -84,8 +84,8 @@
               <p style="color: #8f8f8f;">{{datePlane}}</p>
             </td>
             <td class='text-center'>1</td>
-            <td class='text-right'>${{price_plane}}</td>
-            <td class='bold text-right'>${{price_plane}} </td>
+            <td class='text-right'>{{price_plane}}</td>
+            <td class='bold text-right'>{{price_plane}} </td>
           </tr>
   
           <!-- total -->
@@ -93,13 +93,13 @@
             <td class='py'>&nbsp;</td>
             <td>&nbsp;</td>
             <td class='bold text-right'>Total</td>
-            <td class='bold text-right'>${{total_paid}}</td>
+            <td class='bold text-right'>{{total_paid}}</td>
           </tr>
           <tr>
             <td class='py'>&nbsp;</td>
             <td>&nbsp;</td>
             <td class='text-right bt'>Payments</td>
-            <td class='bold text-right bt'>(${{total_paid}})</td>
+            <td class='bold text-right bt'>({{total_paid}})</td>
           </tr>
           <tr>
             <td class='py'>&nbsp;</td>
@@ -114,7 +114,7 @@
     <div class='mb-5'>
       <p class='bold' style='margin: 0;'>PAYMENTS</p>
       <span class='line' style="margin: 6px 0;"></span>
-      <p style='margin: 3px 0;'><span class='bold'>${{total_paid}}</span>
+      <p style='margin: 3px 0;'><span class='bold'>{{total_paid}}</span>
         was paid on
         {{datetime_paid}}
         by Visa card ending

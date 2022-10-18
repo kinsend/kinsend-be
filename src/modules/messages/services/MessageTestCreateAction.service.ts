@@ -43,14 +43,18 @@ export class MessageTestCreateAction {
     );
     const subscriber = this.getSubcriberByOwner(subscribers, userModel[0]);
     const type = typeMessage ? typeMessage : fileAttached ? TYPE_MESSAGE.MMS : undefined;
+    const promiseItems: any = [];
     for (let index = 0; index < payload.numberMessage; index++) {
-      await new this.messageModel({
-        ...payload,
-        typeMessage: type,
-        formSubmission: subscriber,
-        user: userModel[0],
-      }).save();
+      promiseItems.push(
+        new this.messageModel({
+          ...payload,
+          typeMessage: type,
+          formSubmission: subscriber,
+          user: userModel[0],
+        }).save(),
+      );
     }
+    await Promise.all(promiseItems);
   }
 
   private getSubcriberByOwner(subscribers: FormSubmissionDocument[], owner: UserDocument) {

@@ -10,7 +10,6 @@ import { SubscriptionCreateByCustomerIdAction } from './services/SubscriptionCre
 import { SubscriptionGetListAction } from './services/SubscriptionGetListAction.service';
 import { SubscriptionGetPricesListAction } from './services/SubscriptionGetPricesListAction.service';
 import { SubscriptionGetProductsListAction } from './services/SubscriptionGetProductsListAction.service';
-import { SubscriptionTriggerPaymentTestAction } from './services/SubscriptionTriggerPaymentTestAction.service';
 import { SubscriptionController } from './subscription.controller';
 
 @Module({
@@ -20,7 +19,6 @@ import { SubscriptionController } from './subscription.controller';
     SubscriptionGetProductsListAction,
     SubscriptionGetPricesListAction,
     SubscriptionCreateByCustomerIdAction,
-    SubscriptionTriggerPaymentTestAction,
   ],
   imports: [
     SharedModule,

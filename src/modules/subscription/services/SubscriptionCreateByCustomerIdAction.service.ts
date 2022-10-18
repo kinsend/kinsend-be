@@ -11,6 +11,7 @@ import {
   PAYMENT_PROGRESS,
   PRICE_PER_MESSAGE_DOMESTIC,
   PRICE_PER_MESSAGE_INTERNATIONAL,
+  PRICE_PER_PHONE_NUMBER,
   RATE_CENT_USD,
   TYPE_MESSAGE,
   TYPE_PAYMENT,
@@ -57,6 +58,7 @@ export class SubscriptionCreateByCustomerIdAction {
   async execute(
     context: RequestContext,
     payload: CreateSubscriptionByCustomerIdDto,
+    isTestMode = false,
   ): Promise<PaymentScheduleDocument> {
     const { items } = payload;
     // NOTE Do not use subscribe
@@ -64,7 +66,7 @@ export class SubscriptionCreateByCustomerIdAction {
 
     // Caculate total price manual and go to charge
     const userUpdate = await this.userFindByStripeCustomerUserIdAction.execute(payload.customer);
-    if (userUpdate.priceSubscribe) {
+    if (userUpdate.priceSubscribe && !isTestMode) {
       throw new BadRequestException(`User already subscribe to plan`);
     }
     const { prices, productId } = await this.getPriceForCustomerSubscription(
@@ -86,6 +88,7 @@ export class SubscriptionCreateByCustomerIdAction {
       payload.customer,
       pricePlan,
       product.name,
+      isTestMode,
     );
     context.logger.info('***Create schedule successful!***');
     await userUpdate.updateOne({ isEnabledBuyPlan: true, priceSubscribe: items[0].price });
@@ -100,15 +103,19 @@ export class SubscriptionCreateByCustomerIdAction {
     datetime: Date,
     scheduleName: string,
     productName: string,
+    isTestMode: boolean,
   ): Promise<void> {
     // Create test mode for payment
     context.logger.info(`****** Build scron schedule ***`);
 
-    const sronSchedule = buildCronSchedule(
+    let sronSchedule: any = buildCronSchedule(
       datetime.getMinutes().toString(),
       datetime.getHours().toString(),
       datetime.getDate().toString(),
     );
+    if (isTestMode) {
+      sronSchedule = now(this.configService.secondsTriggerPaymentMonthly);
+    }
     context.logger.info(`****** sronSchedule: ${sronSchedule} ***`);
     this.backgroudJobService.job(
       sronSchedule,
@@ -139,6 +146,7 @@ export class SubscriptionCreateByCustomerIdAction {
     stripeCustomerUserId: string,
     price: number,
     productName: string,
+    isTestMode: boolean,
   ): Promise<any> {
     const paymentMethod = await this.stripeService.listStoredCreditCards(
       context,
@@ -151,36 +159,39 @@ export class SubscriptionCreateByCustomerIdAction {
       context.logger.error('******Card user not found!***');
       throw new BadRequestException('Card user not found!');
     }
-    context.logger.info('******Charge plan fee***');
-    const bill = await this.stripeService.chargePaymentUser(
-      context,
-      price,
-      card.id,
-      stripeCustomerUserId,
-      'Payment for registry plan',
-    );
-    context.logger.info('******Charge plan fee successfull***');
-
-    if (bill.status === 'succeeded') {
-      context.logger.info('*****Send mail charge plan fee***');
-      const user = await this.userFindByStripeCustomerUserIdAction.execute(stripeCustomerUserId);
-      // Send mail after charge registry plan
-      await this.paymentSendInvoiceAction.execute(
+    if (!isTestMode) {
+      context.logger.info('******Charge plan fee***');
+      const bill = await this.stripeService.chargePaymentUser(
         context,
-        user,
-        bill,
-        numberCard,
-        'REGISTRY',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
         price,
-        productName,
+        card.id,
+        stripeCustomerUserId,
+        'Payment for registry plan',
       );
+      context.logger.info('******Charge plan fee successfull***');
+
+      if (bill.status === 'succeeded') {
+        context.logger.info('*****Send mail charge plan fee***');
+        const user = await this.userFindByStripeCustomerUserIdAction.execute(stripeCustomerUserId);
+        // Send mail after charge registry plan
+        await this.paymentSendInvoiceAction.execute(
+          context,
+          user,
+          bill,
+          numberCard,
+          'REGISTRY',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          price,
+          productName,
+        );
+      }
+      await this.saveBillCharged(context, user.id, bill, stripeCustomerUserId);
     }
-    await this.saveBillCharged(context, user.id, bill, stripeCustomerUserId);
+
     context.logger.info('\n******Goto create schedule payment***\n');
     const schedule = await this.scheduleTriggerCharge(
       context,
@@ -188,6 +199,7 @@ export class SubscriptionCreateByCustomerIdAction {
       price,
       productName,
       stripeCustomerUserId,
+      isTestMode,
     );
     return schedule;
   }
@@ -198,6 +210,7 @@ export class SubscriptionCreateByCustomerIdAction {
     pricePlan: number,
     productName: string,
     stripeCustomerUserId: string,
+    isTestMode: boolean,
   ): Promise<any> {
     const datetime = new Date();
     const scheduleName = `${stripeCustomerUserId}-${user.id}`;
@@ -221,6 +234,7 @@ export class SubscriptionCreateByCustomerIdAction {
       datetime,
       scheduleName,
       productName,
+      isTestMode,
     );
     return schedule;
   }
@@ -231,15 +245,15 @@ export class SubscriptionCreateByCustomerIdAction {
     bill: Stripe.PaymentIntent,
     stripeCustomerUserId: string,
   ): Promise<void> {
-    const { id, amount, created, status } = bill;
+    const { id, amount, status } = bill;
     const result = await this.paymentMonthlyCreateAction.execute(context, {
       userId,
       chargeId: id,
       customerId: stripeCustomerUserId,
       statusPaid: status === 'succeeded' || false,
       totalPrice: amount,
-      typePayment: TYPE_PAYMENT.MESSAGE_UPDATE,
-      datePaid: new Date(created),
+      typePayment: TYPE_PAYMENT.PLAN_SUBSCRIPTION,
+      datePaid: new Date(),
     });
     context.logger.info({
       message: 'Save payment_monthly',
@@ -273,11 +287,13 @@ export class SubscriptionCreateByCustomerIdAction {
     );
 
     const { priceSubs, totalSubs } = await this.handleSubscriber(context, userId, pricePlan);
-
+    const numberPhoneNumber = user.phoneSystem?.length || 0;
+    const phoneNumberFee = numberPhoneNumber * PRICE_PER_PHONE_NUMBER * RATE_CENT_USD;
     // Rate is cent
-    const totalFeeUsed = totalPriceSms + totalPriceMms + priceSubs + chargedMessagesUpdate;
+    const totalFeeUsed =
+      totalPriceSms + totalPriceMms + priceSubs + chargedMessagesUpdate + phoneNumberFee;
     context.logger.info(`\ntotalPriceMms: ${totalPriceMms},totalPriceSms: ${totalPriceSms},
-     chargedMessagesUpdate: ${chargedMessagesUpdate}, priceSubs: ${priceSubs},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}  `);
+     chargedMessagesUpdate: ${chargedMessagesUpdate}, priceSubs: ${priceSubs},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}, totalFeePhoneNumber: ${phoneNumberFee} `);
 
     if (totalFeeUsed > pricePlan) {
       context.logger.info(`\nGoto over plan\n`);
@@ -295,6 +311,7 @@ export class SubscriptionCreateByCustomerIdAction {
         stripeCustomerUserId,
         startDate,
         endDate,
+        numberPhoneNumber,
       );
       return;
     }
@@ -313,6 +330,7 @@ export class SubscriptionCreateByCustomerIdAction {
         stripeCustomerUserId,
         startDate,
         endDate,
+        numberPhoneNumber,
       );
       return;
     }
@@ -389,6 +407,7 @@ export class SubscriptionCreateByCustomerIdAction {
     stripeCustomerUserId: string,
     dateTimeStart: Date,
     dateTimeEnd: Date,
+    numberPhoneNumber: number,
   ): Promise<void> {
     const totalFeeCharge = pricePlan - totalBillMessageUpdate;
     const totalMessages = await this.totalMessages(context, user.id, dateTimeStart, dateTimeEnd);
@@ -405,6 +424,7 @@ export class SubscriptionCreateByCustomerIdAction {
       totalSubs,
       pricePlan,
       productName,
+      numberPhoneNumber,
     );
   }
 
@@ -422,6 +442,7 @@ export class SubscriptionCreateByCustomerIdAction {
     stripeCustomerUserId: string,
     dateTimeStart: Date,
     dateTimeEnd: Date,
+    numberPhoneNumber: number,
   ): Promise<void> {
     const feeLimit = totalFeeUsed - pricePlan - totalBillMessageUpdate;
     const totalFeeCharge = pricePlan + feeLimit;
@@ -441,6 +462,7 @@ export class SubscriptionCreateByCustomerIdAction {
       totalSubs,
       pricePlan,
       namePlane,
+      numberPhoneNumber,
     );
   }
 
@@ -472,13 +494,14 @@ export class SubscriptionCreateByCustomerIdAction {
     totalSubs: number,
     pricePlane: number,
     productName: string,
+    numberPhoneNumber: number,
   ) {
     let amountCharge = totalFee;
     const paymentLastMonth = await this.getPaymentLastMonth(context, user.id);
     if (paymentLastMonth[0]) {
       amountCharge += paymentLastMonth[0].totalPrice;
     }
-    if (totalFee > MINIMUM_PRICE) {
+    if (amountCharge > MINIMUM_PRICE) {
       const { numberCard, bill } = await this.handleBillCharge(
         context,
         amountCharge,
@@ -494,7 +517,7 @@ export class SubscriptionCreateByCustomerIdAction {
         totalPrice: amount,
         totalMessages: totalMessages,
         totalSubs,
-        datePaid: new Date(created),
+        datePaid: new Date(),
         typePayment: TYPE_PAYMENT.PAYMENT_MONTHLY,
       });
       // Send mail here
@@ -511,6 +534,7 @@ export class SubscriptionCreateByCustomerIdAction {
         totalFeeUpdateCharged,
         pricePlane,
         productName,
+        numberPhoneNumber,
       );
       return;
     }
