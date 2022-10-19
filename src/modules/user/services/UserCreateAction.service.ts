@@ -40,7 +40,7 @@ export class UserCreateAction {
       throw new ConflictException('User has already conflicted');
     }
 
-    const { saltRounds, mailForm, baseUrl } = this.configService;
+    const { saltRounds, mailForm, frontEndDomain } = this.configService;
     const hashPass = await hashAndValidatePassword(password, saltRounds);
 
     const user = await new this.userModel({
@@ -62,7 +62,7 @@ export class UserCreateAction {
       expiresIn: accessTokenExpiry,
     });
 
-    const url = `${baseUrl}/api/verifications/confirm?token=${token}`;
+    const url = `${frontEndDomain}/confirmation?token=${token}`;
     const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation.hbs');
     const source = fs.readFileSync(filePath, 'utf-8').toString();
     const template = handlebars.compile(source);

@@ -284,4 +284,8 @@ export class ConfigService {
     const result = process.env.PRICE_MMS || this.envConfig['PRICE_MMS'] || 0.04;
     return Number(result);
   }
+
+  get frontEndDomain(): string {
+    return process.env.FE_DOMAIN || this.envConfig['FE_DOMAIN'] || 'https://www.dev.kinsend.io';
+  }
 }
