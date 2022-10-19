@@ -444,10 +444,10 @@ export class SubscriptionCreateByCustomerIdAction {
     dateTimeEnd: Date,
     numberPhoneNumber: number,
   ): Promise<void> {
-    const feeLimit = totalFeeUsed - pricePlan - totalBillMessageUpdate;
-    const totalFeeCharge = pricePlan + feeLimit;
+    const overLimit = totalFeeUsed - pricePlan - totalBillMessageUpdate;
+    const totalFeeCharge = pricePlan + overLimit;
     const totalMessages = await this.totalMessages(context, user.id, dateTimeStart, dateTimeEnd);
-    context.logger.info(`feeLimit: ${feeLimit}, totalFeeCharge: ${totalFeeCharge}`);
+    context.logger.info(`overLimit: ${overLimit}, totalFeeCharge: ${totalFeeCharge}`);
 
     await this.chargeFee(
       context,
@@ -463,6 +463,7 @@ export class SubscriptionCreateByCustomerIdAction {
       pricePlan,
       namePlane,
       numberPhoneNumber,
+      overLimit,
     );
   }
 
@@ -495,6 +496,7 @@ export class SubscriptionCreateByCustomerIdAction {
     pricePlane: number,
     productName: string,
     numberPhoneNumber: number,
+    overLimit?: number,
   ) {
     let amountCharge = totalFee;
     const paymentLastMonth = await this.getPaymentLastMonth(context, user.id);
@@ -535,6 +537,7 @@ export class SubscriptionCreateByCustomerIdAction {
         pricePlane,
         productName,
         numberPhoneNumber,
+        overLimit,
       );
       return;
     }
