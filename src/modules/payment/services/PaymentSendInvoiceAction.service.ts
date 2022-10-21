@@ -38,6 +38,7 @@ export class PaymentSendInvoiceAction {
     pricePlane?: number,
     namePlane?: string,
     numberPhoneNumber?: number,
+    overLimit?: number,
   ): Promise<void> {
     context.logger.info('Send mail after charged, type: ' + type);
 
@@ -73,6 +74,7 @@ export class PaymentSendInvoiceAction {
       mmsFeeUsed,
       alreadyPaid,
       numberPhoneNumber,
+      overLimit,
     );
   }
 
@@ -191,6 +193,7 @@ export class PaymentSendInvoiceAction {
     mmsFeeUsed?: number,
     alreadyPaid?: number,
     numberPhoneNumber?: number,
+    overLimit?: number,
   ) {
     const { id, amount } = bill;
     const { email } = user;
@@ -209,6 +212,7 @@ export class PaymentSendInvoiceAction {
       total_fee_sms: unitAmountToPrice(smsFeeUsed || 0),
       total_fee_mms: unitAmountToPrice(mmsFeeUsed || 0),
       already_paid: unitAmountToPrice(alreadyPaid || 0),
+      over_limit: unitAmountToPrice(overLimit || 0),
       total_used: unitAmountToPrice(totalPaid),
       current_date_plane: `${MonthNames[lastMonth.getMonth()]} ${lastMonth.getDate()} to ${
         MonthNames[date.getMonth()]
@@ -251,12 +255,12 @@ export class PaymentSendInvoiceAction {
       <br>
       Description :  Previous Billing Period Usage: SMS ${replacements.total_fee_sms}, MMS ${
         replacements.total_fee_mms
-      }Phone number ${replacements.fee_phone_number}, Already Paid ${replacements.already_paid}
-      Unit Cost : ${replacements.totalPaid || 0}<br>
+      }Phone number ${replacements.fee_phone_number}, Already Paid ${replacements.already_paid} <br>
+      Unit Cost : ${replacements.over_limit || 0}<br>
       Quantity : 1<br>
-      Price : ${replacements.totalPaid || 0}<br>
+      Price : ${replacements.over_limit || 0}<br>
       <br>
-      Total Amount: ${replacements.totalPaid || 0}<br>
+      Total Amount: ${replacements.over_limit || 0}<br>
       <br>
       Thanks again for your purchase. If you have any questions, please contact us.<br>
       Thank You.`,

@@ -147,7 +147,7 @@ export class ConfigService {
   }
 
   get sendGridApiKey(): string {
-    return process.env.SEND_GRID_API_KEY || this.envConfig['SEND_GRID_API_KEY'] || '';
+    return process.env.SEND_GRID_APIKEY || this.envConfig['SEND_GRID_APIKEY'] || '';
   }
 
   get baseUrl(): string {
@@ -283,5 +283,9 @@ export class ConfigService {
   get priceMMS(): number {
     const result = process.env.PRICE_MMS || this.envConfig['PRICE_MMS'] || 0.04;
     return Number(result);
+  }
+
+  get frontEndDomain(): string {
+    return process.env.FE_DOMAIN || this.envConfig['FE_DOMAIN'] || 'https://www.dev.kinsend.io';
   }
 }

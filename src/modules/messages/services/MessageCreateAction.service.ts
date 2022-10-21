@@ -25,7 +25,13 @@ export class MessageCreateAction {
     context: RequestContext,
     payload: MessageCreatePayloadDto,
   ): Promise<MessageDocument> {
-    const { isSubscriberMessage, phoneNumberReceipted, phoneNumberSent, fileAttached, typeMessage } = payload;
+    const {
+      isSubscriberMessage,
+      phoneNumberReceipted,
+      phoneNumberSent,
+      fileAttached,
+      typeMessage,
+    } = payload;
     const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
       context,
       convertStringToPhoneNumber(isSubscriberMessage ? phoneNumberSent : phoneNumberReceipted),

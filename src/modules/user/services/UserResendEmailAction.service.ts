@@ -38,7 +38,7 @@ export class UserResendEmailAction {
       throw new NotFoundException('User', 'User not found');
     }
 
-    const { jwtSecret, accessTokenExpiry, baseUrl, mailForm } = this.configService;
+    const { jwtSecret, accessTokenExpiry, baseUrl, mailForm, frontEndDomain } = this.configService;
     const userConfirmationToken: UserConfirmationTokenDto = {
       id: user.id,
       email: user.email,
@@ -50,7 +50,7 @@ export class UserResendEmailAction {
       expiresIn: accessTokenExpiry,
     });
 
-    const url = `${baseUrl}/api/verifications/confirm?token=${token}`;
+    const url = `${frontEndDomain}/confirmation?token=${token}`;
     const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation.hbs');
     const source = fs.readFileSync(filePath, 'utf-8').toString();
     const template = handlebars.compile(source);
