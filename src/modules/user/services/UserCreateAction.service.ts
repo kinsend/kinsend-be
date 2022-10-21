@@ -62,13 +62,15 @@ export class UserCreateAction {
       expiresIn: accessTokenExpiry,
     });
 
-    const url = `${frontEndDomain}/confirmation?token=${token}`;
-    const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation.hbs');
+    const rootUrl = `${frontEndDomain}/confirmation`;
+    const url = `${rootUrl}?token=${token}`;
+    const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation2.hbs');
     const source = fs.readFileSync(filePath, 'utf-8').toString();
     const template = handlebars.compile(source);
     const replacements = {
       name: `${user.firstName} ${user.lastName}`,
       url,
+      content: rootUrl,
     };
     const htmlToSend = template(replacements);
     const mail = {

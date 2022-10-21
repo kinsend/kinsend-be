@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <meta name='viewport' content='width=device-width' />
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <title>Kinsend Transactional Email</title>
+    <style>
+      .container { width: 650px; height: 510px; margin: auto; text-align: center; background-color:
+      white; box-shadow: inset; padding: 16px; } .content { letter-spacing: 1px; } .content h1 {
+      font-size: 32px; font-weight: 600; margin-top: 0px; padding-bottom: 20px; } .content p {
+      font-size: 20px; color: rgb(123, 121, 121); line-height: 1.5; } .content p a { font-size:
+      20px; color: rgb(123, 121, 121); } .button-container { margin-top: 25px; margin-bottom: 50px;
+      } .button { background-color: #ac962f; border: none; color: white; padding: 18px 120px;
+      text-align: center; text-decoration: none; display: inline-block; font-size: 32px; margin: 4px
+      2px; cursor: pointer; border-radius: 5px; } .footer p { font-size: 22px; color: rgb(179, 177,
+      177); font-weight: 400; line-height: 1.5; }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='logo-container'>
+        <img src='https://kinsend-public.s3.amazonaws.com/logo.png' alt='' srcset='' />
+      </div>
+      <div class='content'>
+        <h1 style='color: #3b545e'>Welcome to your new inbox</h1>
+        <p>
+          Verify your email by clicking the button the below or paste this
+          <br />
+          link into your browser:
+          <a href='{{url}}' target='_blank'>{{content}}</a>
+        </p>
+      </div>
+      <div class='button-container'>
+        <a
+          href='{{url}}'
+          target='_blank'
+          style='text-decoration: none; color: rgb(123, 121, 121); cursor: pointer;'
+        >
+          <button class='button' type='button' style='cursor: pointer;'>Verify</button></a>
+
+      </div>
+      <div class='footer'>
+        <p>
+          Copyright 2022, Kinsend
+          <sup style='font-size: 12px'>TM</sup>
+          is product of Disruptive Multimedia
+          <br />
+          ©2014-2019 Disruptive Multimedia
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
