@@ -7,6 +7,8 @@ import { UserUpdatePasswordResponse } from '../dtos/UserUpdatePasswordResponse.d
 import { RequestContext } from '../../../utils/RequestContext';
 import { AuthAccessTokenResponseDto } from '../../auth/dtos/AuthTokenResponseDto';
 import { UserVerifyResetPassword } from '../dtos/UserResetPassword.dto';
+import { VerificationConfirmEmailQueryDto } from '../../verification/dtos/VerificationConfirmEmailQuery.dto';
+import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 
 @Injectable()
 export class UserVerifyResetPasswordAction {
@@ -18,12 +20,14 @@ export class UserVerifyResetPasswordAction {
 
   async execute(
     context: RequestContext,
+    query: VerificationConfirmEmailQueryDto,
     payload: UserVerifyResetPassword,
   ): Promise<UserUpdatePasswordResponse> {
     const { newPassword } = payload;
-    const { correlationId, user } = context;
-    const userInfo = await this.userFindByIdAction.execute(context, user.id);
-
+    const { correlationId } = context;
+    const decodedJwtEmailToken = this.jwtService.decode(query.token);
+    const userDecoded = <UserConfirmationTokenDto>decodedJwtEmailToken;
+    const userInfo = await this.userFindByIdAction.execute(context, userDecoded.id);
     const { jwtSecret, accessTokenExpiry, saltRounds } = this.configService;
     const hashPass = await hashAndValidatePassword(newPassword, saltRounds);
     await userInfo.update({ password: hashPass, updatedAt: Date.now() });

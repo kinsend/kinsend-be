@@ -41,6 +41,7 @@ import { UserAddListPhoneCreateAction } from './services/UserAddListPhoneCreateA
 import { UserResetPasswordSendEmailAction } from './services/UserResetPasswordSendEmailAction.service';
 import { UserVerifyResetPasswordAction } from './services/UserVerifyResetPasswordAction.service';
 import { UserResetPassword, UserVerifyResetPassword } from './dtos/UserResetPassword.dto';
+import { VerificationConfirmEmailQueryDto } from '../verification/dtos/VerificationConfirmEmailQuery.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -85,11 +86,15 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthVerifyApiKey)
   @UsePipes(new ValidationPipe({ transform: true }))
   @Post('verify-reset-password')
-  async verifyResetPassword(@Req() request: AppRequest, @Body() payload: UserVerifyResetPassword) {
-    return this.userVerifyResetPasswordAction.execute(request, payload);
+  async verifyResetPassword(
+    @Req() request: AppRequest,
+    @Body() payload: UserVerifyResetPassword,
+    @Query() query: VerificationConfirmEmailQueryDto,
+  ) {
+    return this.userVerifyResetPasswordAction.execute(request, query, payload);
   }
 
   @HttpCode(HttpStatus.OK)
