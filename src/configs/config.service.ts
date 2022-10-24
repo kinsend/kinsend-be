@@ -93,6 +93,13 @@ export class ConfigService {
   get accessTokenExpiry(): string {
     return process.env.ACCESS_TOKEN_EXPIRY || this.envConfig['ACCESS_TOKEN_EXPIRY'] || '7d';
   }
+  get accessTokenVerifyExpiry(): string {
+    return (
+      process.env.ACCESS_TOKEN_VERIFY_EXPIRY ||
+      this.envConfig['ACCESS_TOKEN_VERIFY_EXPIRY'] ||
+      '300000'
+    );
+  }
   get saltRounds(): number {
     return this.int(process.env.SALT_ROUNDS || this.envConfig['SALT_ROUNDS'], 10);
   }

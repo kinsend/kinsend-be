@@ -38,6 +38,9 @@ import { AppRequest } from '../../utils/AppRequest';
 import { IllegalStateException } from '../../utils/exceptions/IllegalStateException';
 import { UserAddListPhonesRequest } from './dtos/UserAddListPhonesRequest.dto';
 import { UserAddListPhoneCreateAction } from './services/UserAddListPhoneCreateAction.service';
+import { UserResetPasswordSendEmailAction } from './services/UserResetPasswordSendEmailAction.service';
+import { UserVerifyResetPasswordAction } from './services/UserVerifyResetPasswordAction.service';
+import { UserResetPassword, UserVerifyResetPassword } from './dtos/UserResetPassword.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -53,6 +56,8 @@ export class UserController {
     private userUpdatePhotoAction: UserUpdatePhotoAction,
     private userDeletePhotoAction: UserDeletePhotoAction,
     private userAddListPhoneCreateAction: UserAddListPhoneCreateAction,
+    private userResetPasswordSendEmailAction: UserResetPasswordSendEmailAction,
+    private userVerifyResetPasswordAction: UserVerifyResetPasswordAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -69,6 +74,22 @@ export class UserController {
   @Get('resend-verify-email')
   async resend(@Req() request: AppRequest, @Query('email') email: string) {
     return this.userResendEmailAction.execute(request, email);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthVerifyApiKey)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @Post('reset-password')
+  async resetPassword(@Req() request: AppRequest, @Body() payload: UserResetPassword) {
+    return this.userResetPasswordSendEmailAction.execute(request, payload);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @Post('verify-reset-password')
+  async verifyResetPassword(@Req() request: AppRequest, @Body() payload: UserVerifyResetPassword) {
+    return this.userVerifyResetPasswordAction.execute(request, payload);
   }
 
   @HttpCode(HttpStatus.OK)

@@ -18,6 +18,8 @@ import { CNAMEModule } from '../cname/cname.module';
 import { UserFindByEmailWithoutThrowExceptionAction } from './services/UserFindByEmailWithoutThrowExceptionAction.service';
 import { UserAddListPhoneCreateAction } from './services/UserAddListPhoneCreateAction.service';
 import { UserFindByPhoneSystemAction } from './services/UserFindByPhoneSystemAction.service';
+import { UserResetPasswordSendEmailAction } from './services/UserResetPasswordSendEmailAction.service';
+import { UserVerifyResetPasswordAction } from './services/UserVerifyResetPasswordAction.service';
 
 @Module({
   controllers: [UserController],
@@ -41,6 +43,8 @@ import { UserFindByPhoneSystemAction } from './services/UserFindByPhoneSystemAct
     UserFindByEmailWithoutThrowExceptionAction,
     UserAddListPhoneCreateAction,
     UserFindByPhoneSystemAction,
+    UserResetPasswordSendEmailAction,
+    UserVerifyResetPasswordAction,
   ],
   exports: [
     UserCreateAction,
