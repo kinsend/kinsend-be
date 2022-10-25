@@ -246,7 +246,7 @@ export class PaymentSendInvoiceAction {
       <br>
       Items:<br>
       <br>
-      Description : SuperPhone Starter<br>
+      Description : Kinsend Starter<br>
       Unit Cost : ${replacements.price_plane}<br>
       Quantity : 1<br>
       Price : ${replacements.price_plane}<br>
@@ -322,7 +322,7 @@ export class PaymentSendInvoiceAction {
       <br>
       Items:<br>
       <br>
-      Description : SuperPhone Starter<br>
+      Description : Kinsend Starter<br>
       Unit Cost : ${replacements.total_paid}<br>
       Quantity : 1<br>
       Price : ${replacements.total_paid}<br>

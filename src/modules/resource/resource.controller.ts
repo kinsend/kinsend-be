@@ -31,12 +31,13 @@ export class ResourceController {
     @Req() request: AppRequest,
     @Query() query: AvailablePhoneNumberQueryDto,
   ) {
-    const { location, limit, phoneNumber, useMock } = query;
+    const { location, limit, phoneNumber, useMock, areaCode } = query;
     return this.smsService.availablePhoneNumberTollFree(
       request,
       location,
       limit,
       phoneNumber,
+      areaCode,
       useMock,
     );
   }

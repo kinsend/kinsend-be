@@ -18,4 +18,9 @@ export class AvailablePhoneNumberQueryDto {
 
   @IsOptional()
   useMock?: boolean;
+
+  @ApiProperty({ example: '347', required: false })
+  @IsOptional()
+  @IsString()
+  areaCode?: string;
 }
