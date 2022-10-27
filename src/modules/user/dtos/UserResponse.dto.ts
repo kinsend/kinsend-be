@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsLowercase,
@@ -19,6 +20,7 @@ export class PhoneNumber {
 
   @ApiProperty({ example: 123, required: true, type: Number })
   @IsNumber()
+  @Type(() => Number)
   code: number;
 
   @ApiProperty({ example: 'US', required: true, type: String })
