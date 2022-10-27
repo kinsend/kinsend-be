@@ -16,7 +16,8 @@ export class FormCreatePayload {
   @ApiProperty({ example: '123456789', required: true, type: String })
   @IsMongoId()
   @IsNotEmpty()
-  tagId: string;
+  @IsOptional()
+  tagId?: string;
 
   @ApiProperty({ example: ['123456'], required: false, type: [String] })
   @IsArray()
