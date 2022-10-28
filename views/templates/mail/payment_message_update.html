@@ -1,39 +1,121 @@
-<html lang='en'>
-
+<html lang="en">
   <head>
-    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Kinsend Invoice</title>
 
     <style>
-      body { width: 80%; margin-top: 2%; margin: auto; font-size: 14px; } .header-container { display: flex;
-      text-align: left; } /* branch */ .header-branch-container { width: 60%; }
-      .header-branch-container .logo { width: 200px; height: 69px; display: inline-block; position:
-      relative; } .address { margin: 0; line-height: 22px; } .header-branch-container .logo img {
-      width: 200px; height: 69px; position: absolute; left: -20px; } /* */ .list-invoice {
-      list-style-type: none; padding: 0; } .list-invoice li { padding: 4px 0; } /* line */ .line {
-      display: inline-block; width: 79px; height: 2px; background-color: #c2c2c287; } .bold {
-      font-weight: bolder; } .pl-2 { padding-left: 12px; } /* Customer */ .customer { display: flex;
-      } .info-user { width: 60%; } .customer p { margin: 4px 0; } .customer h5 { margin-bottom: 5px;
-      } thead th { /*style 'th' for x-browser position: sticky; consistancy*/ text-align: left;
-      position: -webkit-sticky; /* IOS and Safari */ position: sticky; top: 0; border-bottom: 1px
-      solid #80808070; /*chrome shows 2px, FF hides 1px, bottom border scrolls away in both*/
-      /*solution is to use linear-gradient and border:none*/ /*background: linear-gradient(to
-      top,red, red 1px, #ffff00 1px, #ffff00 100%); border: none; */ white-space: nowrap; /*optional
-      to prevent heading text from wrapping to new lines*/ } .table-wrap { width: 100%; height:
-      auto; margin-top: 44px; overflow: auto; border-top: 1px solid #80808070; } table { width:
-      100%; empty-cells: show; border-collapse: collapse; } .bt { border-bottom: 1px solid
-      #80808070; } .py { padding: 16px 0; } .text-center { text-align: center; } .text-right {
-      text-align: right; } .mb-5 { margin-bottom: 50px; } .info-customer{width: 40%;}
+      body {
+        width: 80%;
+        margin-top: 2%;
+        margin: auto;
+        font-size: 14px;
+      }
+      .header-container {
+        display: flex;
+        text-align: left;
+      } /* branch */
+      .header-branch-container {
+        width: 60%;
+      }
+      .header-branch-container .logo {
+        width: 200px;
+        height: 69px;
+        display: inline-block;
+        position: relative;
+      }
+      .address {
+        margin: 0;
+        line-height: 22px;
+      }
+      .header-branch-container .logo img {
+        width: 200px;
+        height: 69px;
+        position: absolute;
+        left: -20px;
+      } /* */
+      .list-invoice {
+        list-style-type: none;
+        padding: 0;
+      }
+      .list-invoice li {
+        padding: 4px 0;
+      } /* line */
+      .line {
+        display: inline-block;
+        width: 79px;
+        height: 2px;
+        background-color: #c2c2c287;
+      }
+      .bold {
+        font-weight: bolder;
+      }
+      .pl-2 {
+        padding-left: 12px;
+      } /* Customer */
+      .customer {
+        display: flex;
+      }
+      .info-user {
+        width: 60%;
+      }
+      .customer p {
+        margin: 4px 0;
+      }
+      .customer h5 {
+        margin-bottom: 5px;
+      }
+      thead th {
+        /*style 'th' for x-browser position: sticky; consistancy*/
+        text-align: left;
+        position: -webkit-sticky; /* IOS and Safari */
+        position: sticky;
+        top: 0;
+        border-bottom: 1px solid #80808070; /*chrome shows 2px, FF hides 1px, bottom border scrolls away in both*/
+        /*solution is to use linear-gradient and border:none*/ /*background: linear-gradient(to
+      top,red, red 1px, #ffff00 1px, #ffff00 100%); border: none; */
+        white-space: nowrap; /*optional
+      to prevent heading text from wrapping to new lines*/
+      }
+      .table-wrap {
+        width: 100%;
+        height: auto;
+        margin-top: 44px;
+        overflow: auto;
+        border-top: 1px solid #80808070;
+      }
+      table {
+        width: 100%;
+        empty-cells: show;
+        border-collapse: collapse;
+      }
+      .bt {
+        border-bottom: 1px solid #80808070;
+      }
+      .py {
+        padding: 16px 0;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .mb-5 {
+        margin-bottom: 50px;
+      }
+      .info-customer {
+        width: 40%;
+      }
     </style>
   </head>
 
-  <body class=''>
-    <div class='header header-container'>
-      <div class='header-branch-container'>
-        <span class='logo'>
-          <img src='{{logo}}' alt='logo' />
+  <body class="">
+    <div class="header header-container">
+      <div class="header-branch-container">
+        <span class="logo">
+          <img src="{{logo}}" alt="logo" />
         </span>
-        <p class='address'>
+        <p class="address">
           Kinsend, Inc
           <br />
           72-77 Yellowstone Blvd
@@ -42,104 +124,100 @@
           <br />
           United States
         </p>
-        <span class='line'></span>
+        <span class="line"></span>
       </div>
-      <div class='header-invoice-container'>
-        <h3 style='margin: 29px 0 16px 0;'>INVOICE</h3>
-        <ul class='list-invoice'>
-          <li>Invoice # <span class='bold'>{{invoice_id}}</span></li>
-          <li>Invoice Date <span class='bold'>{{invoice_date}}</span></li>
-          <li>Invoice Amount <span class='bold'>{{total_paid}} (USD)</span></li>
-          <li>Customer ID <span class='bold'>{{customer}}</span></li>
-          <li class='bold' style='color: rgb(42 180 42);'>PAID</li>
+      <div class="header-invoice-container">
+        <h3 style="margin: 29px 0 16px 0">INVOICE</h3>
+        <ul class="list-invoice">
+          <li>Invoice # <span class="bold">{{invoice_id}}</span></li>
+          <li>Invoice Date <span class="bold">{{invoice_date}}</span></li>
+          <li>Invoice Amount <span class="bold">{{total_paid}} (USD)</span></li>
+          <li>Customer ID <span class="bold">{{customer}}</span></li>
+          <li class="bold" style="color: rgb(42 180 42)">PAID</li>
         </ul>
-        <span class='line'></span>
+        <span class="line"></span>
       </div>
     </div>
-    <div class='customer'>
-      <div class='info-user'>
-        <h5 class='bold'>BILLED TO</h5>
+    <div class="customer">
+      <div class="info-user">
+        <h5 class="bold">BILLED TO</h5>
         <p>{{name}}</p>
         <p>{{email}}</p>
         <p>{{phoneUser}}</p>
       </div>
-      <div class='info-customer'>
-        <h5 class='bold'>SUBSCRIPTION</h5>
-        <p> Billing Period <span class='bold'> {{billing_datetime}}</span></p>
+      <div class="info-customer">
+        <h5 class="bold">SUBSCRIPTION</h5>
+        <p>Billing Period <span class="bold"> {{billing_datetime}}</span></p>
       </div>
     </div>
-    <div class='table-wrap'>
-      <table >
+    <div class="table-wrap">
+      <table>
         <thead>
-          <tr style='font-size: 10px;'>
-            <th style='width: 56%; padding: 12px 0; '>DESCRIPTION</th>
-            <th class='text-center' style='padding: 0 16px;'>UNITS</th>
-            <th style='text-align: right; padding-right: 6px;'>UNIT PRICE</th>
-            <th style='text-align: right;'>AMOUNT (USD)</th>
+          <tr style="font-size: 10px">
+            <th style="width: 56%; padding: 12px 0">DESCRIPTION</th>
+            <th class="text-center" style="padding: 0 16px">UNITS</th>
+            <th style="text-align: right; padding-right: 6px">UNIT PRICE</th>
+            <th style="text-align: right">AMOUNT (USD)</th>
           </tr>
         </thead>
-        <tbody style="font-size: 12px;">
-          <tr class='bt'>
-            <td class='bold py'>Charge for sending an update with {{numberSegment}} segments to
-              {{domestic_mes}}
-              US numbers and
-              {{international_mes}}
-              international numbers.
+        <tbody style="font-size: 12px">
+          <tr class="bt">
+            <td class="bold py">
+              Charge for sending an update with {{numberSegment}} segments to {{domestic_mes}} US
+              numbers and {{international_mes}} international numbers.
             </td>
-            <td class='text-center'>1</td>
-            <td class='text-right'>{{charge_price}}</td>
-            <td class='bold text-right'>{{charge_price}} </td>
+            <td class="text-center">1</td>
+            <td class="text-right">{{charge_price}}</td>
+            <td class="bold text-right">{{charge_price}}</td>
           </tr>
-  
+
           <!-- total -->
           <tr>
-            <td class='py'>&nbsp;</td>
+            <td class="py">&nbsp;</td>
             <td>&nbsp;</td>
-            <td class='bold text-right'>Total</td>
-            <td class='bold text-right'>{{total_price}}</td>
+            <td class="bold text-right">Total</td>
+            <td class="bold text-right">{{total_price}}</td>
           </tr>
           <tr>
-            <td class='py'>&nbsp;</td>
+            <td class="py">&nbsp;</td>
             <td>&nbsp;</td>
-            <td class='text-right bt'>Payments</td>
-            <td class='bold text-right bt'>({{total_price}})</td>
+            <td class="text-right bt">Payments</td>
+            <td class="bold text-right bt">({{total_price}})</td>
           </tr>
           <tr>
-            <td class='py'>&nbsp;</td>
+            <td class="py">&nbsp;</td>
             <td>&nbsp;</td>
-            <td class='bold text-right bt'>Amount Due (USD)</td>
-            <td class='bold text-right bt'>$0.00</td>
+            <td class="bold text-right bt">Amount Due (USD)</td>
+            <td class="bold text-right bt">$0.00</td>
           </tr>
-  
         </tbody>
       </table>
     </div>
-    <div class='mb-5'>
-      <p class='bold' style='margin: 0;'>PAYMENTS</p>
-      <span class='line' style="margin: 6px 0;"></span>
-      <p style='margin: 3px 0;'><span class='bold'>{{total_price}}</span>
-        was paid on
-        {{datetime_paid}}
-        by Visa card ending
-        {{number_card}}.</p>
+    <div class="mb-5">
+      <p class="bold" style="margin: 0">PAYMENTS</p>
+      <span class="line" style="margin: 6px 0"></span>
+      <p style="margin: 3px 0">
+        <span class="bold">{{total_price}}</span> was paid on {{datetime_paid}} by Visa card ending
+        {{number_card}}.
+      </p>
     </div>
-    <div class='mb-5'>
-      <p class='bold' style='margin:  0;'>NOTES</p>
-      <span class='line' style="margin: 6px 0;"></span>
-      <p style='margin:  0; white-space: 1.5px;'>FAQs: 1. SMS is billed at $0.01 per outbound
-        segment. Inbound is free. Please note: Any SMS longer than 160 characters is broken into
-        multiple segments so you may have a larger number than you recall sending. // 2. MMS is
-        billed at $0.04 per media message (inbound and outbound) this includes photos, video, audio,
-        etc. // 3. Voice is billed at $0.01 per minute (inbound and outbound). // 4. Phone numbers
-        are billed at $1/number. You have one number for every 500 conversations. // 5. Add ons are
-        billed by the mobile carriers to help ensure delivery. // 6. Conversations are billed based
-        on your plan at either $0.10 (Starter Plan), $0.08 (Growth), or $0.01 (High-Volume). // 7.
-        Already paid is your pre-paid amount for the previous month according to your plan. // *All
-        of the pricing mentioned is for USA - international rates can increase your bill
-        significantly. // Other questions? Please reach out via Intercom by logging into your
-        account on desktop and clicking the gold chat bubble in the bottom right corner. Thank you
-        for using SuperPhone®. We appreciate your business.</p>
+    <div class="mb-5">
+      <p class="bold" style="margin: 0">NOTES</p>
+      <span class="line" style="margin: 6px 0"></span>
+      <p style="margin: 0; white-space: 1.5px">
+        FAQs: 1. SMS is billed at $0.01 per outbound segment. Inbound is free. Please note: Any SMS
+        longer than 160 characters is broken into multiple segments so you may have a larger number
+        than you recall sending. // 2. MMS is billed at $0.04 per media message (inbound and
+        outbound) this includes photos, video, audio, etc. // 3. Voice is billed at $0.01 per minute
+        (inbound and outbound). // 4. Phone numbers are billed at $1/number. You have one number for
+        every 500 conversations. // 5. Add ons are billed by the mobile carriers to help ensure
+        delivery. // 6. Conversations are billed based on your plan at either $0.10 (Starter Plan),
+        $0.08 (Growth), or $0.01 (High-Volume). // 7. Already paid is your pre-paid amount for the
+        previous month according to your plan. // *All of the pricing mentioned is for USA -
+        international rates can increase your bill significantly. // Other questions? Please reach
+        out via Intercom by logging into your account on desktop and clicking the gold chat bubble
+        in the bottom right corner. Thank you for using Kinsend®. We appreciate your business.
+      </p>
     </div>
   </body>
-
 </html>

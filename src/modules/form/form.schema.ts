@@ -27,7 +27,7 @@ export class Form {
   @Prop()
   image: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Tags' })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Tags', required: false })
   tags: Tags;
 
   @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'CustomFields' })

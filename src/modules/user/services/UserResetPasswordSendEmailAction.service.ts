@@ -1,5 +1,5 @@
-/* eslint-disable unicorn/no-array-for-each */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable unicorn/import-style */
+/* eslint-disable unicorn/prefer-node-protocol */
 /* eslint-disable new-cap */
 /* eslint-disable unicorn/prefer-module */
 import { Injectable } from '@nestjs/common';
@@ -7,22 +7,20 @@ import { InjectModel, InjectConnection } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as mongoose from 'mongoose';
 import * as handlebars from 'handlebars';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { JwtService } from '@nestjs/jwt';
-import { UserCreatePayloadDto } from '../dtos/UserCreateRequest.dto';
 import { User, UserDocument } from '../user.schema';
-import { ConflictException } from '../../../utils/exceptions/ConflictException';
 import { ConfigService } from '../../../configs/config.service';
-import { hashAndValidatePassword } from '../../../utils/hashUser';
 import { MailSendGridService } from '../../mail/mail-send-grid.service';
 import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
-import { USER_PROVIDER } from '../interfaces/user.interface';
-import { RequestContext } from '../../../utils/RequestContext';
 import { STATUS } from '../../../domain/const';
+import { RequestContext } from '../../../utils/RequestContext';
+import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
+import { UserResetPassword } from '../dtos/UserResetPassword.dto';
 
 @Injectable()
-export class UserCreateAction {
+export class UserResetPasswordSendEmailAction {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectConnection() private readonly connection: mongoose.Connection,
@@ -31,26 +29,18 @@ export class UserCreateAction {
     private mailSendGridService: MailSendGridService,
   ) {}
 
-  async execute(context: RequestContext, payload: UserCreatePayloadDto): Promise<UserDocument> {
-    const { email, password } = payload;
+  async execute(context: RequestContext, payload: UserResetPassword): Promise<string> {
     const { correlationId } = context;
-    const checkExistedUser = await this.userModel.findOne({ $or: [{ email }] });
+    const user = await this.userModel.findOne({
+      email: payload.email,
+    });
 
-    if (checkExistedUser) {
-      throw new ConflictException('User has already conflicted');
+    if (!user) {
+      throw new NotFoundException('User', 'User not found');
     }
 
-    const { saltRounds, mailForm, frontEndDomain } = this.configService;
-    const hashPass = await hashAndValidatePassword(password, saltRounds);
-
-    const user = await new this.userModel({
-      ...payload,
-      password: hashPass,
-      status: STATUS.INACTIVE,
-      provider: USER_PROVIDER.PASSWORD,
-    }).save();
-
-    const { jwtSecret, accessTokenExpiry } = this.configService;
+    const { jwtSecret, accessTokenVerifyExpiry, baseUrl, mailForm, frontEndDomain } =
+      this.configService;
     const userConfirmationToken: UserConfirmationTokenDto = {
       id: user.id,
       email: user.email,
@@ -59,28 +49,29 @@ export class UserCreateAction {
 
     const token = this.jwtService.sign(userConfirmationToken, {
       secret: jwtSecret,
-      expiresIn: accessTokenExpiry,
+      expiresIn: accessTokenVerifyExpiry,
     });
 
-    const rootUrl = `${frontEndDomain}/confirmation`;
+    const rootUrl = `${frontEndDomain}/forgot-password/reset`;
     const url = `${rootUrl}?token=${token}`;
-    const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation2.hbs');
+    const filePath = path.join(__dirname, '../../../views/templates/mail/reset-password.html');
     const source = fs.readFileSync(filePath, 'utf-8').toString();
     const template = handlebars.compile(source);
     const replacements = {
       name: `${user.firstName} ${user.lastName}`,
       url,
-      content: rootUrl,
+      content_link: rootUrl,
     };
+
     const htmlToSend = template(replacements);
     const mail = {
       to: user.email,
-      subject: 'Verify register account!',
+      subject: 'Send email reset password',
       from: mailForm,
       html: htmlToSend,
     };
 
     this.mailSendGridService.sendUserConfirmation(mail);
-    return user;
+    return 'Send email reset password successfull!';
   }
 }

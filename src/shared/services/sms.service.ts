@@ -118,6 +118,7 @@ export class SmsService {
     location = 'US',
     limit = 20,
     phoneNumber?: string,
+    areaCode?: string,
     useMock?: boolean,
   ): Promise<TollFreeInstance[]> {
     const { logger, correlationId } = context;
@@ -136,13 +137,22 @@ export class SmsService {
       if (phoneNumber) {
         query.contains = `+${phoneNumber}`;
       }
-      const result = await this.twilioClient.availablePhoneNumbers(location).tollFree.list(query);
+      if (areaCode) {
+        query.areaCode = areaCode;
+      }
 
+      const resultTollFree = await this.twilioClient
+        .availablePhoneNumbers(location)
+        .tollFree.list(query);
+      const resultLocal = await this.twilioClient.availablePhoneNumbers(location).local.list(query);
+      const result = [...resultTollFree.slice(0, 10), ...resultLocal.slice(0, 10)];
       logger.info({
         correlationId,
-        message: 'Request rent numbers successful',
-        data: result,
+        message: 'Request get list phone numbers available successful',
       });
+      if (result.length < 20) {
+        return [...resultTollFree, ...resultLocal];
+      }
 
       return result;
     } catch (error: unknown) {

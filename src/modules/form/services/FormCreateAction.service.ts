@@ -27,6 +27,7 @@ export class FormCreateAction {
     payload: FormCreatePayload,
   ): Promise<FormDocument> {
     const { user } = context;
+    const { tagId } = payload;
     const formExist = await this.formModel.findOne({
       url: payload.url,
     });
@@ -34,7 +35,10 @@ export class FormCreateAction {
       throw new ConflictException('Form url already exist');
     }
 
-    const tagsExist = await this.tagsGetByIdAction.execute(context, payload.tagId);
+    let tagsExist: any = null;
+    if (tagId) {
+      tagsExist = await this.tagsGetByIdAction.execute(context, tagId);
+    }
     const customFieldsExist = await this.customFieldsGetByIdsAction.execute(
       context,
       payload.customFieldsIds || [],
@@ -53,7 +57,6 @@ export class FormCreateAction {
       tags: tagsExist,
       customFields: customFieldsExist,
       userId: user.id,
-      cname,
     }).save();
     return response.populate([
       { path: 'tags' },

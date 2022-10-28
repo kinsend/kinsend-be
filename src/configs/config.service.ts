@@ -93,6 +93,13 @@ export class ConfigService {
   get accessTokenExpiry(): string {
     return process.env.ACCESS_TOKEN_EXPIRY || this.envConfig['ACCESS_TOKEN_EXPIRY'] || '7d';
   }
+  get accessTokenVerifyExpiry(): string {
+    return (
+      process.env.ACCESS_TOKEN_VERIFY_EXPIRY ||
+      this.envConfig['ACCESS_TOKEN_VERIFY_EXPIRY'] ||
+      '300000'
+    );
+  }
   get saltRounds(): number {
     return this.int(process.env.SALT_ROUNDS || this.envConfig['SALT_ROUNDS'], 10);
   }
@@ -206,11 +213,11 @@ export class ConfigService {
   }
 
   get originDomain(): string {
-    return process.env.DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dxjxo84zunoqc.cloudfront.net';
+    return process.env.ORIGIN_DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dxjxo84zunoqc.cloudfront.net';
   }
 
   get domain(): string {
-    return process.env.DOMAIN || this.envConfig['DOMAIN'] || 'dev.kinsend.io';
+    return process.env.FRONT_DOMAIN || this.envConfig['FRONT_DOMAIN'] || 'dev.kinsend.io';
   }
   get backendDomain(): string {
     return (
