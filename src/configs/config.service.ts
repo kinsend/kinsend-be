@@ -213,11 +213,11 @@ export class ConfigService {
   }
 
   get originDomain(): string {
-    return process.env.DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dxjxo84zunoqc.cloudfront.net';
+    return process.env.ORIGIN_DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dxjxo84zunoqc.cloudfront.net';
   }
 
   get domain(): string {
-    return process.env.DOMAIN || this.envConfig['DOMAIN'] || 'dev.kinsend.io';
+    return process.env.FRONT_DOMAIN || this.envConfig['FRONT_DOMAIN'] || 'dev.kinsend.io';
   }
   get backendDomain(): string {
     return (
