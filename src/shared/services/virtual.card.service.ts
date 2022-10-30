@@ -38,6 +38,7 @@ export class VirtualCardService {
       vCard.homeAddress.postalCode = vcardPayload.zipCode || '';
       vCard.note = vcardPayload.note || '';
       vCard.cellPhone = vcardPayload.cellphone || '';
+      vCard.photo.embedFromString(vcardPayload.imageBase64 || '', 'image/png');
     }
     vCard.saveToFile(`${fileKey}.vcf`);
     const fileBase64 = fs.readFileSync(`${fileKey}.vcf`, { encoding: 'base64' });

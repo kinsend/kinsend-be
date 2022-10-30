@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { VirtualCardService } from '../../../shared/services/virtual.card.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
+import { getImageBase64ByUrl } from '../../../utils/getImageBase64ByUrl';
 import { RequestContext } from '../../../utils/RequestContext';
 import { VirtualCardUpdatePayloadDto } from '../dtos/VirtualCardUpdatePayload.dto';
 import { VCard, VCardDocument } from '../virtual.card.schema';
@@ -20,7 +21,7 @@ export class VirtualCardUpdateByUserContextAction {
   async execute(context: RequestContext, payload: VirtualCardUpdatePayloadDto): Promise<VCard> {
     const { user } = context;
     const vcard = await this.vCardModel.findOne({ $or: [{ userId: user.id }] });
-
+    console.log('vcard :>> ', vcard);
     if (!vcard) {
       // Create new vCard
       return this.vCardCreateAction.execute(context, payload);
@@ -30,7 +31,12 @@ export class VirtualCardUpdateByUserContextAction {
       delete payload.cellphone;
     }
 
-    await vcard.updateOne({ ...payload });
+    let imageBase64 = '';
+    if (user.image) {
+      imageBase64 = await getImageBase64ByUrl(user.image);
+    }
+
+    await vcard.updateOne({ ...payload, imageBase64 });
     const vCardAfterUpdated = await this.vCardModel.findOne({ $or: [{ userId: user.id }] });
     if (!vCardAfterUpdated) {
       throw new NotFoundException('VCard', 'VCard not found');

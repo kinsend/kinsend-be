@@ -35,13 +35,15 @@ export class UserAddListPhoneCreateAction {
     await this.buyPhoneNumbersAvailable(context, phoneNumbers);
 
     const phoneNumberUpdate = [...(userExist.phoneSystem as PhoneNumber[]), ...phoneNumbers];
+
+    userExist.phoneSystem = phoneNumberUpdate as [PhoneNumber];
     const { phoneSystem } = userExist;
-    if (!phoneSystem || (phoneSystem as PhoneNumber[]).length === 0) {
+
+    await userExist.save();
+    if (phoneSystem || (phoneSystem as PhoneNumber[]).length !== 0) {
       const cellphone = `${phoneNumberUpdate[0].code}${phoneNumberUpdate[0].phone}`;
       await this.virtualCardUpdateByUserContextAction.execute(context, { cellphone });
     }
-    userExist.phoneSystem = phoneNumberUpdate as [PhoneNumber];
-    await userExist.save();
     return userExist;
   }
 

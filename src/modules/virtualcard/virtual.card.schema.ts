@@ -70,6 +70,9 @@ export class VCard {
   url?: string;
 
   @Prop({ required: false })
+  imageBase64?: string;
+
+  @Prop({ required: false })
   cellphone?: string;
 
   @Prop({ default: Date.now, type: Date })
