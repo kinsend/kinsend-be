@@ -21,7 +21,6 @@ export class VirtualCardUpdateByUserContextAction {
   async execute(context: RequestContext, payload: VirtualCardUpdatePayloadDto): Promise<VCard> {
     const { user } = context;
     const vcard = await this.vCardModel.findOne({ $or: [{ userId: user.id }] });
-    console.log('vcard :>> ', vcard);
     if (!vcard) {
       // Create new vCard
       return this.vCardCreateAction.execute(context, payload);
