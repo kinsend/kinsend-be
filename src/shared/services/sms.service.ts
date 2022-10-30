@@ -140,20 +140,24 @@ export class SmsService {
       if (areaCode) {
         query.areaCode = areaCode;
       }
-
       const resultTollFree = await this.twilioClient
         .availablePhoneNumbers(location)
         .tollFree.list(query);
       const resultLocal = await this.twilioClient.availablePhoneNumbers(location).local.list(query);
-      const result = [...resultTollFree.slice(0, 10), ...resultLocal.slice(0, 10)];
       logger.info({
         correlationId,
         message: 'Request get list phone numbers available successful',
       });
-      if (result.length < 20) {
-        return [...resultTollFree, ...resultLocal];
+      if (resultTollFree.length === 0) {
+        return resultLocal;
+      }
+      if (resultLocal.length === 0) {
+        return resultTollFree;
       }
 
+      const numberPer = Math.round(limit / 2);
+      const restNumber = limit - numberPer;
+      const result = [...resultTollFree.slice(0, numberPer), ...resultLocal.slice(0, restNumber)];
       return result;
     } catch (error: unknown) {
       logger.error({
