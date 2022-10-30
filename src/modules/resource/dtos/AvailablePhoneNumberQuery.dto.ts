@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 
 export class AvailablePhoneNumberQueryDto {
@@ -12,8 +13,9 @@ export class AvailablePhoneNumberQueryDto {
   @IsString()
   phoneNumber?: string;
 
-  @ApiProperty({ example: '10' })
+  @ApiProperty({ example: 10 })
   @IsOptional()
+  @Type(() => Number)
   limit: number;
 
   @IsOptional()
