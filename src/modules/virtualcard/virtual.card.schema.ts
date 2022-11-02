@@ -19,6 +19,9 @@ export class VCard {
   userId: string;
 
   @Prop({ require: false })
+  image?: string;
+
+  @Prop({ require: false })
   email?: string;
 
   @Prop({ required: false })

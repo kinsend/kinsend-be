@@ -8,6 +8,12 @@ export class VirtualCardCreatePayloadDto {
   @IsEmail()
   email?: string;
 
+  @ApiProperty({ example: '{{image_url}}', type: String, required: false })
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
+  image?: string;
+
   @ApiProperty({ example: 'Lo', required: false, type: String })
   @IsString()
   @IsNotEmpty()

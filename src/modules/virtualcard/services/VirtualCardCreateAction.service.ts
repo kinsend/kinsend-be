@@ -36,8 +36,9 @@ export class VirtualCardCreateAction {
       }
     }
     let imageBase64 = '';
-    if (user.image) {
-      imageBase64 = await getImageBase64ByUrl(user.image);
+    if (payload.image) {
+      context.logger.debug(`image_url: ${payload.image}`);
+      imageBase64 = await getImageBase64ByUrl(payload.image);
     }
     // eslint-disable-next-line new-cap
     const { phoneSystem, id } = user;

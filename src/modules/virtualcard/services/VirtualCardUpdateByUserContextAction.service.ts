@@ -30,9 +30,10 @@ export class VirtualCardUpdateByUserContextAction {
       delete payload.cellphone;
     }
 
-    let imageBase64 = '';
-    if (user.image) {
-      imageBase64 = await getImageBase64ByUrl(user.image);
+    let imageBase64 = vcard.imageBase64 || '';
+    if (payload.image) {
+      context.logger.debug(`image_url: ${payload.image}`);
+      imageBase64 = await getImageBase64ByUrl(payload.image);
     }
 
     await vcard.updateOne({ ...payload, imageBase64 });

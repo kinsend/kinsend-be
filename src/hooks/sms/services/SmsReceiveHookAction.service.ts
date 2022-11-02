@@ -72,6 +72,7 @@ export class SmsReceiveHookAction {
 
   private async handleSmsReceiveUpdate(context: RequestContext, payload: any) {
     try {
+      await this.saveSms(context, payload.From, payload.To, payload.Body);
       const createdBy = await this.userFindByPhoneSystemAction.execute(
         convertStringToPhoneNumber(payload.To),
       );
@@ -96,8 +97,6 @@ export class SmsReceiveHookAction {
         subscriber,
         payload.Body,
       );
-      const type = Number(payload.NumMedia) !== 0 ? TYPE_MESSAGE.MMS : undefined;
-      await this.saveSms(context, payload.From, payload.To, payload.Body);
     } catch (error) {
       context.logger.error({
         message: 'Handle sms receive update fail!',

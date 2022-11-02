@@ -28,6 +28,9 @@ export class FormSubmissionUpdateAction {
     if (tagIds && tagIds.length > 0) {
       formUpdate.tags = await this.tagsGetByIdsAction.execute(context, tagIds);
     }
+    if (tagIds && tagIds.length === 0) {
+      formUpdate.tags = [];
+    }
     await formUpdate.save();
 
     return formUpdate.populate([
