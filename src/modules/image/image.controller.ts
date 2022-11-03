@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -11,6 +12,7 @@ import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageUploadAction } from './services/ImageUploadAction.service';
 import { AppRequest } from '../../utils/AppRequest';
+import { ImageUploadPayload } from './dto/ImageUploadPayload.dto';
 
 @ApiTags('Images')
 @Controller('api/images')
@@ -36,7 +38,8 @@ export class ImageController {
     @Req() request: AppRequest,
     @UploadedFile()
     file: Express.Multer.File,
+    @Body() payload: ImageUploadPayload,
   ) {
-    return this.imageUploadAction.execute(request, file);
+    return this.imageUploadAction.execute(request, file, undefined, payload.isResize);
   }
 }
