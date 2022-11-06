@@ -70,6 +70,7 @@ import { FormSubmissionGetCountByUserIdAction } from './services/FormSubmissionG
     FormSubmissionFindByFiltersContactAction,
     FormSubmissionsFindByTadIdsAction,
     FormSubmissionGetCountByUserIdAction,
+    FormSubmissionUpdateAction,
   ],
 })
 export class FormSubmissionModule {}

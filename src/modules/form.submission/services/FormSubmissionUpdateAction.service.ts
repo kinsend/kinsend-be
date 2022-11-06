@@ -23,7 +23,10 @@ export class FormSubmissionUpdateAction {
   ): Promise<FormSubmissionDocument> {
     const { tagIds } = payload;
     const formSubmissionExist = await this.formSubmissionFindByIdAction.execute(context, formSubId);
-    const formUpdate = dynamicUpdateModel<FormSubmissionDocument>(payload, formSubmissionExist);
+    const formUpdate = dynamicUpdateModel<FormSubmissionDocument>(
+      { ...payload, isSubscribed: true },
+      formSubmissionExist,
+    );
 
     if (tagIds && tagIds.length > 0) {
       formUpdate.tags = await this.tagsGetByIdsAction.execute(context, tagIds);

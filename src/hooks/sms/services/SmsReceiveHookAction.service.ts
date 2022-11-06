@@ -8,6 +8,7 @@ import {
   FormSubmissionDocument,
 } from '../../../modules/form.submission/form.submission.schema';
 import { FormSubmissionFindByPhoneNumberAction } from '../../../modules/form.submission/services/FormSubmissionFindByPhoneNumberAction.service';
+import { FormSubmissionUpdateAction } from '../../../modules/form.submission/services/FormSubmissionUpdateAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../modules/form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { MessageCreateAction } from '../../../modules/messages/services/MessageCreateAction.service';
 import { SmsLogCreateAction } from '../../../modules/sms.log/services/SmsLogCreateAction.service';
@@ -32,6 +33,7 @@ export class SmsReceiveHookAction {
     private updateReportingUpdateByResponseAction: UpdateReportingUpdateByResponseAction,
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
     private messageCreateAction: MessageCreateAction,
+    private formSubmissionUpdateAction: FormSubmissionUpdateAction,
   ) {}
 
   async execute(context: RequestContext, payload: any): Promise<void> {
@@ -58,6 +60,19 @@ export class SmsReceiveHookAction {
     );
     if (owner.length === 0) {
       return;
+    }
+
+    // Check content if equa DONE should unsubscribe
+    if (payload.Body === 'DONE') {
+      const formSubmission = await this.formSubmissionFindByPhoneNumberAction.execute(
+        context,
+        convertStringToPhoneNumber(payload.From),
+        owner[0].id,
+      );
+      await this.formSubmissionUpdateAction.execute(context, formSubmission[0].id, {
+        isSubscribed: false,
+      });
+      context.logger.debug(`Body equa DONE should unsubscribe ${payload.From}`);
     }
 
     await this.automationCreateTriggerAutomationAction.execute(

@@ -25,7 +25,6 @@ export class MessageTestCreateAction {
   ) {}
 
   async execute(context: RequestContext, payload: MessageTestCreatePayloadDto): Promise<void> {
-    console.log('vo messs');
     const {
       isSubscriberMessage,
       phoneNumberReceipted,

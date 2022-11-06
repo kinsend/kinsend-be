@@ -1,6 +1,7 @@
 /* eslint-disable unicorn/no-array-for-each */
 import { Injectable } from '@nestjs/common';
 import { RequestContext } from '../../../utils/RequestContext';
+import { FormSubmissionFindByPhoneNumberAction } from '../../form.submission/services/FormSubmissionFindByPhoneNumberAction.service';
 import { FormDocument } from '../../form/form.schema';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { UserDocument } from '../../user/user.schema';
@@ -18,6 +19,7 @@ export class AutomationCreateTriggerAutomationAction {
     private automationTriggerContactCreatedAction: AutomationTriggerContactCreatedAction,
     private automationTriggerContactTaggedAction: AutomationTriggerContactTaggedAction,
     private automationTriggerFirstMessageAction: AutomationTriggerFirstMessageAction,
+    private formSubmissionFindByPhoneNumberAction: FormSubmissionFindByPhoneNumberAction,
   ) {}
 
   async execute(
@@ -38,8 +40,19 @@ export class AutomationCreateTriggerAutomationAction {
       return;
     }
 
-    const phoneNumberOwner = owner.phoneSystem[0];
+    // Get subscriber by phone number
+    const sub = await this.formSubmissionFindByPhoneNumberAction.execute(
+      context,
+      subscriberPhoneNumber,
+    );
+    if (!sub[0].isSubscribed) {
+      context.logger.info(
+        `Subscriber +${subscriberPhoneNumber.code}${subscriberPhoneNumber.phone} has unsubscribed`,
+      );
+      return;
+    }
 
+    const phoneNumberOwner = owner.phoneSystem[0];
     const from = `+${phoneNumberOwner.code}${phoneNumberOwner.phone}`;
     await this.handleTriggerAutomation(
       context,
