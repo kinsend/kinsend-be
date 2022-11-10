@@ -16,6 +16,7 @@ export class FormSubmissionsGetByLocationsAction {
     const response = await this.formSubmissionModel.find({
       owner: context.user.id,
       location: { $regex: `${location}$`, $options: 'i' },
+      isSubscribed: true,
     });
     return response;
   }

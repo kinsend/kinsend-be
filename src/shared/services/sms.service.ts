@@ -140,26 +140,31 @@ export class SmsService {
       if (areaCode) {
         query.areaCode = areaCode;
       }
-
       const resultTollFree = await this.twilioClient
         .availablePhoneNumbers(location)
         .tollFree.list(query);
       const resultLocal = await this.twilioClient.availablePhoneNumbers(location).local.list(query);
-      const result = [...resultTollFree.slice(0, 10), ...resultLocal.slice(0, 10)];
       logger.info({
         correlationId,
         message: 'Request get list phone numbers available successful',
       });
-      if (result.length < 20) {
-        return [...resultTollFree, ...resultLocal];
+      if (resultTollFree.length === 0) {
+        return resultLocal;
+      }
+      if (resultLocal.length === 0) {
+        return resultTollFree;
       }
 
+      const numberPer = Math.round(limit / 2);
+      const restNumber = limit - numberPer;
+      const result = [...resultTollFree.slice(0, numberPer), ...resultLocal.slice(0, restNumber)];
       return result;
-    } catch (error: unknown) {
+    } catch (error: any) {
+      const errorMessage = error.message || error;
       logger.error({
         correlationId,
         msg: 'Request rent numbers error',
-        error,
+        error: errorMessage,
       });
       return [];
     }
@@ -229,11 +234,13 @@ export class SmsService {
       if (callback) {
         await callback();
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
+      const errorMessage = error.message || error;
+
       logger.error({
         correlationId,
         message: 'Send VCard to subscriber fail!',
-        error,
+        error: errorMessage,
       });
       if (callback) {
         await callback('failed', JSON.stringify(error));
@@ -277,11 +284,13 @@ export class SmsService {
       if (callbackSaveSms) {
         await callbackSaveSms();
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
+      const errorMessage = error.message || error;
+
       logger.error({
         correlationId,
         message: 'Send message fail!',
-        error,
+        error: errorMessage,
         to,
       });
       if (callbackSaveSms) {
@@ -321,11 +330,13 @@ export class SmsService {
       if (callbackSaveSms) {
         await callbackSaveSms();
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
+      const errorMessage = error.message || error;
+
       logger.error({
         correlationId,
         message: 'Send message fail!',
-        error,
+        error: errorMessage,
         to,
       });
       if (callbackSaveSms) {

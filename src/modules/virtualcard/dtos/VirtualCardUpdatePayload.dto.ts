@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsLowercase, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEmail, IsLowercase, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class VirtualCardUpdatePayloadDto {
   @ApiProperty({ example: 'lorem@gmail.com', type: String, required: false })
@@ -8,6 +8,12 @@ export class VirtualCardUpdatePayloadDto {
   @IsEmail()
   @IsOptional()
   email?: string;
+
+  @ApiProperty({ example: '{{image_url}}', type: String, required: false })
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
+  image?: string;
 
   @ApiProperty({ example: 'Lo', required: false, type: String })
   @IsString()

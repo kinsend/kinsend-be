@@ -15,11 +15,15 @@ export class FormSubmissionsFindByEmailAction {
     email?: string | null,
     owner?: string,
     isNotNull?: boolean,
+    isSubscribed?: boolean,
   ): Promise<FormSubmissionDocument[]> {
     const conditions: any = {
       owner,
       email: isNotNull ? { $ne: null } : email,
     };
+    if (isSubscribed) {
+      conditions.isSubscribed = true;
+    }
 
     const formSubmission = await this.formSubmissionModel.find(conditions);
     const response = await Promise.all(

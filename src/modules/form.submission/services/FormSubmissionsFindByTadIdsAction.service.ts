@@ -19,6 +19,7 @@ export class FormSubmissionsFindByTadIdsAction {
       tags: {
         $in: tagIdsParam,
       },
+      isSubscribed: true,
     });
   }
 }

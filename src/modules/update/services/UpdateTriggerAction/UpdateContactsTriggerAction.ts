@@ -89,6 +89,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         logger.info('Filter ALL_CONTACTS is running');
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
+          isSubscribed: true,
         });
         break;
       }
@@ -100,6 +101,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           metaData: { $regex: birthdayPattern, $options: 'i' },
+          isSubscribed: true,
         });
         break;
       }
@@ -111,6 +113,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           metaData: { $regex: todayPattern, $options: 'i' },
+          isSubscribed: true,
         });
         break;
       }
@@ -121,6 +124,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         const endOfWeek = moment().endOf('week').toDate();
         const formSubs = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
+          isSubscribed: true,
         });
         subscribers = this.filterFormSubmissionByBirthday(formSubs, startOfWeek, endOfWeek);
         break;
@@ -132,6 +136,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         const endOfMonth = moment().endOf('month').toDate();
         const formSubs = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
+          isSubscribed: true,
         });
         subscribers = this.filterFormSubmissionByBirthday(
           formSubs,
@@ -148,6 +153,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           metaData: { $regex: FeamlePattern, $options: 'i' },
+          isSubscribed: true,
         });
         break;
       }
@@ -158,6 +164,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           metaData: { $regex: FeamlePattern, $options: 'i' },
+          isSubscribed: true,
         });
         break;
       }
@@ -168,6 +175,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           metaData: { $regex: FeamlePattern, $options: 'i' },
+          isSubscribed: true,
         });
         break;
       }
@@ -178,6 +186,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           metaData: { $regex: FeamlePattern, $options: 'i' },
+          isSubscribed: true,
         });
         break;
       }
@@ -188,6 +197,8 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
           context,
           undefined,
           update.createdBy._id.toString(),
+          undefined,
+          true,
         );
         break;
       }
@@ -201,6 +212,8 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
               context,
               value,
               update.createdBy._id.toString(),
+              undefined,
+              true,
             );
             break;
           }
@@ -210,6 +223,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
               context,
               undefined,
               update.createdBy._id.toString(),
+              undefined,
               true,
             );
             break;
@@ -220,6 +234,8 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
               context,
               null,
               update.createdBy._id.toString(),
+              undefined,
+              true,
             );
             break;
           }
@@ -228,6 +244,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               email: { $regex: `^${value}.*$`, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -236,6 +253,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               email: { $regex: `.*${value}.*$`, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -246,6 +264,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
               context,
               undefined,
               update.createdBy._id.toString(),
+              true,
               true,
             );
             break;
@@ -263,6 +282,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: jobPattern, $options: 'i' },
+              isSubscribed: true,
             });
 
             break;
@@ -272,6 +292,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: `"job":`, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -289,6 +310,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: `"job":"${value}.*"`, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -297,6 +319,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: `"job":".*${value}.*"`, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -305,6 +328,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: `"job":`, $options: 'i' },
+              isSubscribed: true,
             });
           }
         }
@@ -331,6 +355,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: companyPattern, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -340,6 +365,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: companyPattern, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -349,6 +375,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               $or: [{ metaData: null }, { metaData: { $regex: companyPattern, $options: 'i' } }],
+              isSubscribed: true,
             });
             break;
           }
@@ -358,6 +385,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: companyPattern, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -367,6 +395,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: companyPattern, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -384,6 +413,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           $or: [{ metaData: null }, { metaData: { $regex: companyPattern, $options: 'i' } }],
+          isSubscribed: true,
         });
         break;
       }
@@ -397,6 +427,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: industryPattern, $options: 'i' },
+              isSubscribed: true,
             });
 
             break;
@@ -406,6 +437,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: `"industry":`, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -423,6 +455,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: `"industry":"${value}.*"`, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -431,6 +464,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: `"industry":".*${value}.*"`, $options: 'i' },
+              isSubscribed: true,
             });
             break;
           }
@@ -440,6 +474,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               metaData: { $regex: `"industry":`, $options: 'i' },
+              isSubscribed: true,
             });
           }
         }
@@ -466,6 +501,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfWeek,
             $lte: endOfWeek,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -480,6 +516,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfLastWeek,
             $lte: endOfLastWeek,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -494,6 +531,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfMonth,
             $lte: endOfMonth,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -508,6 +546,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfLastMonth,
             $lte: endOfLastMonth,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -522,6 +561,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfYear,
             $lte: endOfYear,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -532,6 +572,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           isContactArchived: true,
+          isSubscribed: true,
         });
         break;
       }
@@ -542,6 +583,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           isContactArchived: false,
+          isSubscribed: true,
         });
         break;
       }
@@ -552,6 +594,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           isContactHidden: true,
+          isSubscribed: true,
         });
         break;
       }
@@ -562,6 +605,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           isContactHidden: false,
+          isSubscribed: true,
         });
         break;
       }
@@ -591,6 +635,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           isFacebookContact: true,
+          isSubscribed: true,
         });
         break;
       }
@@ -601,6 +646,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           isFacebookContact: false,
+          isSubscribed: true,
         });
         break;
       }
@@ -618,6 +664,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
                 $gte: date.startOf('day').toDate(),
                 $lte: date.endOf('day').toDate(),
               },
+              isSubscribed: true,
             });
             break;
           }
@@ -629,6 +676,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
               lastContacted: {
                 $gt: date.endOf('day').toDate(),
               },
+              isSubscribed: true,
             });
             break;
           }
@@ -640,6 +688,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
               lastContacted: {
                 $lt: date.startOf('day').toDate(),
               },
+              isSubscribed: true,
             });
             break;
           }
@@ -660,6 +709,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfWeek,
             $lte: endOfWeek,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -674,6 +724,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfLastWeek,
             $lte: endOfLastWeek,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -688,6 +739,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfMonth,
             $lte: endOfMonth,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -702,6 +754,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfLastMonth,
             $lte: endOfLastMonth,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -716,6 +769,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             $gte: startOfYear,
             $lte: endOfYear,
           },
+          isSubscribed: true,
         });
         break;
       }
@@ -726,6 +780,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         const subs = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           metaData: { $regex: birthdayPattern, $options: 'i' },
+          isSubscribed: true,
         });
         subscribers = this.filterFormSubmissionByAge(
           subs,
@@ -747,6 +802,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
                 $gte: date.startOf('day').toDate(),
                 $lte: date.endOf('day').toDate(),
               },
+              isSubscribed: true,
             });
             break;
           }
@@ -758,6 +814,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
               createdAt: {
                 $lt: date.toDate(),
               },
+              isSubscribed: true,
             });
             break;
           }
@@ -769,6 +826,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
               createdAt: {
                 $gt: date.toDate(),
               },
+              isSubscribed: true,
             });
             break;
           }
@@ -785,6 +843,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           lastContacted: { $ne: null },
+          isSubscribed: true,
         });
         break;
       }
@@ -797,6 +856,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               'phoneNumber.phone': value,
+              isSubscribed: true,
             });
             break;
           }
@@ -805,6 +865,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               phoneNumber: { $ne: null },
+              isSubscribed: true,
             });
             break;
           }
@@ -813,6 +874,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               phoneNumber: null,
+              isSubscribed: true,
             });
             break;
           }
@@ -821,6 +883,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               'phoneNumber.phone': { $regex: `^${value}.*` },
+              isSubscribed: true,
             });
             break;
           }
@@ -829,6 +892,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               'phoneNumber.phone': { $regex: `.*${value}.*` },
+              isSubscribed: true,
             });
             break;
           }
@@ -838,6 +902,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
             subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
               owner: update.createdBy._id.toString(),
               phoneNumber: { $ne: null },
+              isSubscribed: true,
             });
           }
         }
@@ -866,6 +931,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           location: { $regex: filter.value, $options: 'i' },
+          isSubscribed: true,
         });
         break;
       }
@@ -875,6 +941,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
         subscribers = await this.formSubmissionFindByConditionAction.execute(context, {
           owner: update.createdBy._id.toString(),
           location: { $regex: `^(?!${filter.value})`, $options: 'i' },
+          isSubscribed: true,
         });
         break;
       }
@@ -991,6 +1058,7 @@ export class UpdateContactsTriggerAction extends UpdateBaseTriggerAction {
     return this.formSubmissionFindByConditionAction.execute(context, {
       owner,
       $or: [{ metaData: null }, { metaData: { $regex: pattern, $options: 'i' } }],
+      isSubscribed: true,
     });
   }
 
