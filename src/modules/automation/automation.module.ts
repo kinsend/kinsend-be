@@ -13,8 +13,10 @@ import { AutomationCreateAction } from './services/AutomationCreateAction.servic
 import { AutomationCreateTriggerAutomationAction } from './services/AutomationCreateTriggerAutomationAction.service';
 import { AutomationDeleteByIdAction } from './services/AutomationDeleteByIdAction.service';
 import { AutomationGetByIdAction } from './services/AutomationGetByIdAction.service';
+import { AutomationGetByTagIdsAction } from './services/AutomationGetByTagIdsAction.service';
 import { AutomationsGetAction } from './services/AutomationsGetAction.service';
 import { AutomationsGetByUserIdsAction } from './services/AutomationsGetByUserIdsAction.service';
+import { AutomationBaseTriggeAction } from './services/AutomationTriggerAction/AutomationBaseTriggerAction.service';
 import { AutomationTriggerContactCreatedAction } from './services/AutomationTriggerAction/AutomationTriggerContactCreatedAction.service';
 import { AutomationTriggerContactTaggedAction } from './services/AutomationTriggerAction/AutomationTriggerContactTaggedAction.service';
 import { AutomationTriggerFirstMessageAction } from './services/AutomationTriggerAction/AutomationTriggerFirstMessageAction.service';
@@ -49,11 +51,15 @@ import { Task, TaskSchema } from './task.schema';
     AutomationTriggerContactTaggedAction,
     AutomationsGetByUserIdsAction,
     AutomationUpdateStatusAction,
+    AutomationGetByTagIdsAction,
+    AutomationBaseTriggeAction,
   ],
   exports: [
     AutomationCreateTriggerAutomationAction,
     AutomationsGetByUserIdsAction,
     AutomationTriggerContactCreatedAction,
+    AutomationGetByTagIdsAction,
+    AutomationBaseTriggeAction,
   ],
 })
 export class AutomationModule {}
