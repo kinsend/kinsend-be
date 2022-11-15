@@ -7,6 +7,7 @@ import { PaymentScheduleModule } from '../payment.schedule/payment.schedule.modu
 import { PaymentModule } from '../payment/payment.module';
 import { UserModule } from '../user/user.module';
 import { SubscriptionCreateByCustomerIdAction } from './services/SubscriptionCreateByCustomerIdAction.service';
+import { SubscriptionCreateTriggerPaymentAction } from './services/SubscriptionCreateTriggerPaymentAction.service';
 import { SubscriptionGetListAction } from './services/SubscriptionGetListAction.service';
 import { SubscriptionGetPricesListAction } from './services/SubscriptionGetPricesListAction.service';
 import { SubscriptionGetProductsListAction } from './services/SubscriptionGetProductsListAction.service';
@@ -19,6 +20,7 @@ import { SubscriptionController } from './subscription.controller';
     SubscriptionGetProductsListAction,
     SubscriptionGetPricesListAction,
     SubscriptionCreateByCustomerIdAction,
+    SubscriptionCreateTriggerPaymentAction,
   ],
   imports: [
     SharedModule,
@@ -29,5 +31,6 @@ import { SubscriptionController } from './subscription.controller';
     FormSubmissionModule,
     PaymentModule,
   ],
+  exports: [SubscriptionCreateTriggerPaymentAction],
 })
 export class SubscriptionModule {}

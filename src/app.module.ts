@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SharedModule } from './shared/shared.module';
@@ -49,6 +50,7 @@ import { SmsModel } from './modules/sms/sms.module';
     RedirectModule,
     MessageModule,
     SmsModel,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { PAYMENT_PROGRESS } from '../../../domain/const';
 
 export class PaymentScheduleCreateDto {
@@ -21,6 +21,24 @@ export class PaymentScheduleCreateDto {
   @IsString()
   @IsNotEmpty()
   scheduleName: string;
+
+  @ApiProperty({
+    example: '123',
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  productName: string;
+
+  @ApiProperty({
+    example: '123',
+    required: true,
+    type: Number,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  pricePlan: number;
 
   @ApiProperty({
     example: '123',
