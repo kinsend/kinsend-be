@@ -9,6 +9,7 @@ import { RequestContext } from '../../../utils/RequestContext';
 import { UPDATE_PROGRESS } from '../interfaces/const';
 import { LinkRedirect, LinkRedirectDocument } from '../link.redirect.schema';
 import { UpdateReporting, UpdateReportingDocument } from '../update.reporting.schema';
+import { UpdateSchedule, UpdateScheduleDocument } from '../update.schedule.schema';
 import { Update, UpdateDocument } from '../update.schema';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class UpdateDeleteByIdAction {
     @InjectModel(Update.name) private updateModel: Model<UpdateDocument>,
     @InjectModel(UpdateReporting.name) private updateReportingModel: Model<UpdateReportingDocument>,
     @InjectModel(LinkRedirect.name) private linkRedirectModel: Model<LinkRedirectDocument>,
+    @InjectModel(UpdateSchedule.name) private updateScheduleModel: Model<UpdateScheduleDocument>,
   ) {}
 
   async execute(context: RequestContext, id: string): Promise<void> {
@@ -40,6 +42,9 @@ export class UpdateDeleteByIdAction {
         update: update.id,
       }),
     ]);
+    await this.updateScheduleModel.deleteOne({
+      update: update.id,
+    });
     await update.delete();
   }
 }
