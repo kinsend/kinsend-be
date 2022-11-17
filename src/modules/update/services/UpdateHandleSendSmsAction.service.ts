@@ -27,6 +27,7 @@ import { fillMergeFieldsToMessage } from '../../../utils/fillMergeFieldsToMessag
 import { REGION_DOMESTIC, TYPE_MESSAGE } from '../../../domain/const';
 import { getLinksInMessage } from '../../../utils/getLinksInMessage';
 import { regionPhoneNumber } from '../../../utils/utilsPhoneNumber';
+import { UpdateChargeMessageTriggerAction } from './UpdateTriggerAction/UpdateChargeMessageTriggerAction';
 
 @Injectable()
 export class UpdateHandleSendSmsAction {
@@ -35,6 +36,8 @@ export class UpdateHandleSendSmsAction {
   private timesPerformedOtherDay = 0;
 
   @Inject(MessageCreateAction) private messageCreateAction: MessageCreateAction;
+  @Inject(UpdateChargeMessageTriggerAction)
+  private updateChargeMessageTriggerAction: UpdateChargeMessageTriggerAction;
 
   @Inject(FormSubmissionFindByIdAction)
   private formSubmissionFindByIdAction: FormSubmissionFindByIdAction;
@@ -79,9 +82,6 @@ export class UpdateHandleSendSmsAction {
           return;
         }
         const to = `+${phoneNumber.code}${phoneNumber.phone}`;
-        console.log('phoneNumber :>>', phoneNumber);
-        console.log('firstName :>>', firstName);
-        console.log('lastName :>>', lastName);
         const messageReview = await this.handleGenerateLinkRedirect(
           update,
           sub,
@@ -121,7 +121,7 @@ export class UpdateHandleSendSmsAction {
       );
     }
     try {
-      // await this.updateChargeMessageTriggerAction.execute(context, update.id, timeTriggerSchedule);
+      await this.updateChargeMessageTriggerAction.execute(context, update.id, timeTriggerSchedule);
     } catch (error) {
       logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
     }
