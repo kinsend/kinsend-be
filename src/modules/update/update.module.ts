@@ -39,6 +39,9 @@ import { UpdateUpdateProgressAction } from './services/UpdateUpdateProgressActio
 import { UpdateController } from './update.controller';
 import { UpdateReporting, UpdateReportingSchema } from './update.reporting.schema';
 import { Update, UpdateSchema } from './update.schema';
+import { UpdateReTriggerScheduleAction } from './services/updateReTriggerScheduleAction.service';
+import { UpdateSchedule, UpdateScheduleSchema } from './update.schedule.schema';
+import { UpdateHandleSendSmsAction } from './services/UpdateHandleSendSmsAction.service';
 
 @Module({
   controllers: [UpdateController],
@@ -48,6 +51,7 @@ import { Update, UpdateSchema } from './update.schema';
       { name: Update.name, schema: UpdateSchema },
       { name: UpdateReporting.name, schema: UpdateReportingSchema },
       { name: LinkRedirect.name, schema: LinkRedirectSchema },
+      { name: UpdateSchedule.name, schema: UpdateScheduleSchema },
     ]),
     TagsModule,
     SegmentModule,
@@ -85,6 +89,8 @@ import { Update, UpdateSchema } from './update.schema';
     UpdatesGetCountByCreatedByAction,
     UpdateChargeMessageTriggerAction,
     LinkRedirectFindLinkClickedByCreatedByAction,
+    UpdateHandleSendSmsAction,
+    UpdateReTriggerScheduleAction,
   ],
   exports: [
     UpdateReportingUpdateAction,

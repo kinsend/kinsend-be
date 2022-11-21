@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable new-cap */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,6 +8,7 @@ import { UserDocument } from '../../user/user.schema';
 import { UpdateModelUpdatePayload } from '../dtos/UpdateModelUpdatePayload.dto';
 import { UPDATE_PROGRESS } from '../interfaces/const';
 import { LinkRedirect, LinkRedirectDocument } from '../link.redirect.schema';
+import { UpdateSchedule, UpdateScheduleDocument } from '../update.schedule.schema';
 import { UpdateDocument } from '../update.schema';
 import { LinkRediectCreateByMessageAction } from './link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateFindByIdWithoutReportingAction } from './UpdateFindByIdWithoutReportingAction.service';
@@ -19,6 +21,7 @@ export class UpdateModelUpdateAction {
     private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
     private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
     private updateHandleTrigerAction: UpdateHandleTrigerAction,
+    @InjectModel(UpdateSchedule.name) private updateScheduleModel: Model<UpdateScheduleDocument>,
   ) {}
 
   async execute(
@@ -69,6 +72,12 @@ export class UpdateModelUpdateAction {
       update.filter,
       lastUpdate,
       update.createdBy as UserDocument,
+    );
+    await this.updateScheduleModel.updateOne(
+      { update: response._id },
+      {
+        status: UPDATE_PROGRESS.DONE,
+      },
     );
     return response;
   }

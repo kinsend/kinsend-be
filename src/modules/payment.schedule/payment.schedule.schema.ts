@@ -27,6 +27,12 @@ export class PaymentSchedule {
   @Prop({ type: String, default: PAYMENT_PROGRESS.SCHEDULED })
   progress: PAYMENT_PROGRESS;
 
+  @Prop({ type: String, required: true })
+  productName: string;
+
+  @Prop({ type: Number, required: true })
+  pricePlan: number;
+
   @Prop({ required: true, type: Date })
   datetime: Date;
 
