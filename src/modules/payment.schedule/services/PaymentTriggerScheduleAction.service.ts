@@ -6,16 +6,19 @@ import { rootLogger } from 'src/utils/Logger';
 import { UserFindByIdAction } from 'src/modules/user/services/UserFindByIdAction.service';
 import { PaymentScheduleFindAction } from './PaymentScheduleFindAction.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { ConfigService } from 'src/configs/config.service';
 
 @Injectable()
 export class PaymentTriggerScheduleAction implements OnModuleInit {
   private logger = new Logger();
 
   constructor(
+    private configService: ConfigService,
     private paymentScheduleFindAction: PaymentScheduleFindAction,
     private userFindByIdAction: UserFindByIdAction,
     private subscriptionCreateTriggerPaymentAction: SubscriptionCreateTriggerPaymentAction,
   ) {}
+
   onModuleInit() {
     this.triggerSchedule();
   }
@@ -40,14 +43,14 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
             context,
             user,
             customerId,
-            paymentSchedule.pricePlan || 1990,
+            paymentSchedule.pricePlan || this.configService.priceStarterPlane,
             datetime,
             scheduleName,
             productName || 'Starter',
             false,
           );
           this.logger.debug(`Create schedule for ${context.user.id} successfull!`, {
-            pricePlan: paymentSchedule.pricePlan || 1990,
+            pricePlan: paymentSchedule.pricePlan || this.configService.priceStarterPlane,
             datetime,
             productName: productName || 'Starter',
             userId: user.id,

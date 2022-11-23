@@ -15,7 +15,13 @@ export class SubscriptionGetPricesListAction {
   ) {}
 
   async execute(context: RequestContext): Promise<Stripe.Response<Stripe.ApiList<Stripe.Price>>> {
-    const subscriptions = await this.stripeService.getPricesList(context);
-    return subscriptions;
+    const prices = await this.stripeService.getPricesList(context);
+    const pricesResult = prices.data.filter((price) =>
+      this.configService.planAvailable.includes((price.product as any).name),
+    );
+    return {
+      ...prices,
+      data: pricesResult,
+    };
   }
 }
