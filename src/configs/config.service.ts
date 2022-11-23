@@ -213,7 +213,9 @@ export class ConfigService {
   }
 
   get originDomain(): string {
-    return process.env.ORIGIN_DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dxjxo84zunoqc.cloudfront.net';
+    return (
+      process.env.ORIGIN_DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dxjxo84zunoqc.cloudfront.net'
+    );
   }
 
   get domain(): string {
@@ -247,8 +249,14 @@ export class ConfigService {
     return Boolean(result);
   }
 
+  get priceStarterOldPlane(): number {
+    const result =
+      process.env.PRICE_STARTER_OLD_PLANE || this.envConfig['PRICE_STARTER_OLD_PLANE'] || 1999;
+    return Number(result);
+  }
+
   get priceStarterPlane(): number {
-    const result = process.env.PRICE_STARTER_PLANE || this.envConfig['PRICE_STARTER_PLANE'] || 1999;
+    const result = process.env.PRICE_STARTER_PLANE || this.envConfig['PRICE_STARTER_PLANE'] || 4999;
     return Number(result);
   }
 
@@ -294,5 +302,13 @@ export class ConfigService {
 
   get frontEndDomain(): string {
     return process.env.FE_DOMAIN || this.envConfig['FE_DOMAIN'] || 'https://www.dev.kinsend.io';
+  }
+
+  get planAvailable(): string[] {
+    const result =
+      process.env.PLAN_AVAILABLE ||
+      this.envConfig['PLAN_AVAILABLE'] ||
+      'Starter,High Volume,Growth';
+    return result.split(',');
   }
 }
