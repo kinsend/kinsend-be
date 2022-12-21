@@ -38,7 +38,7 @@ export class HistoryImportContactController {
   })
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Get('/')
+  @Get('/history')
   getLocaltions(@Req() request: AppRequest) {
     return this.historyImportContactGetByUserIdAction.execute(request);
   }
