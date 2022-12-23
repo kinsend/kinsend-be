@@ -22,8 +22,8 @@ export class FormSubmission {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', index: true })
   owner: User;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', index: true })
-  form: Form;
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', index: true, required: false })
+  form?: Form;
 
   @Prop({ type: [MongooseSchema.Types.ObjectId], ref: 'Tags', required: false })
   tags?: Tags[];
