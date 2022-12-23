@@ -25,7 +25,7 @@ import { UpdateModule } from './modules/update/update.module';
 import { RedirectModule } from './modules/redirect/redirect.module';
 import { MessageModule } from './modules/messages/message.module';
 import { SmsModel } from './modules/sms/sms.module';
-import { HistoryImportContactModule } from './modules/history.import.contact/history.import.contact.module';
+import { HistoryImportContactModule } from './modules/contacts/contact.module';
 
 @Module({
   imports: [

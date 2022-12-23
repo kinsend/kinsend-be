@@ -4,23 +4,23 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { RequestContext } from '../../../utils/RequestContext';
-import { HistoryImportContactCreatePayload } from '../dtos/HistoryImportContactCreatePayload.dto';
+import { ContactImportHistoryCreatePayload } from '../dtos/ContactImportHistoryCreatePayload.dto';
 import {
-  HistoryImportContact,
-  HistoryImportContactDocument,
-} from '../history.import.contact.schema';
+  ContactImportHistory,
+  ContactImportHistoryDocument,
+} from '../contact.import.history.schema';
 
 @Injectable()
-export class HistoryImportContacCreateAction {
+export class ContactImportHistoryCreateAction {
   constructor(
-    @InjectModel(HistoryImportContact.name)
-    private HistoryImportContactDocument: Model<HistoryImportContactDocument>,
+    @InjectModel(ContactImportHistory.name)
+    private HistoryImportContactDocument: Model<ContactImportHistoryDocument>,
   ) {}
 
   async execute(
     context: RequestContext,
-    payload: HistoryImportContactCreatePayload,
-  ): Promise<HistoryImportContactDocument> {
+    payload: ContactImportHistoryCreatePayload,
+  ): Promise<ContactImportHistoryDocument> {
     return new this.HistoryImportContactDocument({
       ...payload,
       createdBy: context.user.id,

@@ -4,7 +4,7 @@ import { Transform } from 'class-transformer';
 import { Document, ObjectId, Schema as MongooseSchema } from 'mongoose';
 import { User } from '../user/user.schema';
 
-export type HistoryImportContactDocument = HistoryImportContact & Document;
+export type ContactImportHistoryDocument = ContactImportHistory & Document;
 
 @Schema({
   toJSON: {
@@ -12,15 +12,18 @@ export type HistoryImportContactDocument = HistoryImportContact & Document;
     virtuals: true,
   },
 })
-export class HistoryImportContact {
+export class ContactImportHistory {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', index: true })
   createdBy: User;
 
-  @Prop({ required: false })
+  @Prop({ required: true })
   numbersContact?: number;
+
+  @Prop({ required: true })
+  numbersContactImported: number;
 
   @Prop()
   numbersColumnMapped: number;
@@ -32,6 +35,6 @@ export class HistoryImportContact {
   updatedAt: Date;
 }
 
-const HistoryImportContactSchema = SchemaFactory.createForClass(HistoryImportContact);
+const ContactImportHistorySchema = SchemaFactory.createForClass(ContactImportHistory);
 
-export { HistoryImportContactSchema };
+export { ContactImportHistorySchema };
