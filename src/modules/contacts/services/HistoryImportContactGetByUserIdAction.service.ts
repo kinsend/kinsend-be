@@ -19,6 +19,8 @@ export class HistoryImportContactGetByUserIdAction {
   async execute(context: RequestContext): Promise<ContactImportHistoryDocument[]> {
     return this.HistoryImportContactDocument.find({
       createdBy: context.user.id,
+    }).sort({
+      createdAt: -1,
     });
   }
 }
