@@ -49,10 +49,11 @@ export class SmsReceiveHookAction {
       payload,
     });
     await Promise.all([
-      // this.handleTriggerAutomation(context, payload),
-      // this.smsLogCreateAction.execute(payload),
-      // this.handleSmsReceiveUpdate(context, payload),
-      this.handleFirstContact(context, payload.From, payload.To),
+      this.handleTriggerAutomation(context, payload),
+      this.smsLogCreateAction.execute(payload),
+      this.handleSmsReceiveUpdate(context, payload),
+      // TODO: implement continue
+      // this.handleFirstContact(context, payload.From, payload.To),
     ]);
   }
 
@@ -172,15 +173,5 @@ export class SmsReceiveHookAction {
       return;
     }
     return this.firstContactCreateScheduleAction.execute(context, owner[0], fromPhoneNumber);
-    // const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
-    //   context,
-    //   convertStringToPhoneNumber(fromPhoneNumber),
-    // );
-    // console.log('subscribers :>> ', subscribers);
-    // if (!subscribers || subscribers.length === 0 || subscribers[0].isSubscribed) {
-    //   this.logger.debug(`Skip first contact from ${fromPhoneNumber}`);
-    //   return;
-    // }
-    // console.log('subscribers :>> ', subscribers);
   }
 }
