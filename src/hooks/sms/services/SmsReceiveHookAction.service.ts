@@ -1,8 +1,10 @@
 /* eslint-disable unicorn/no-useless-undefined */
 /* eslint-disable no-underscore-dangle */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { TYPE_MESSAGE } from '../../../domain/const';
 import { AutomationCreateTriggerAutomationAction } from '../../../modules/automation/services/AutomationCreateTriggerAutomationAction.service';
+import { FirstContactCreateScheduleAction } from '../../../modules/first-contact/services/first-contact-create-schedule-action.service';
+import { FirstContactGetByUserIdAction } from '../../../modules/first-contact/services/first-contact-get-by-user-id-action.service';
 import {
   FormSubmission,
   FormSubmissionDocument,
@@ -23,6 +25,7 @@ import { RequestContext } from '../../../utils/RequestContext';
 
 @Injectable()
 export class SmsReceiveHookAction {
+  private logger = new Logger(SmsReceiveHookAction.name);
   constructor(
     private smsLogCreateAction: SmsLogCreateAction,
     private smsLogsGetByFromAction: SmsLogsGetByFromAction,
@@ -34,6 +37,8 @@ export class SmsReceiveHookAction {
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
     private messageCreateAction: MessageCreateAction,
     private formSubmissionUpdateAction: FormSubmissionUpdateAction,
+    private firstContactGetByUserIdAction: FirstContactGetByUserIdAction,
+    private firstContactCreateScheduleAction: FirstContactCreateScheduleAction,
   ) {}
 
   async execute(context: RequestContext, payload: any): Promise<void> {
@@ -44,9 +49,10 @@ export class SmsReceiveHookAction {
       payload,
     });
     await Promise.all([
-      this.handleTriggerAutomation(context, payload),
-      this.smsLogCreateAction.execute(payload),
-      this.handleSmsReceiveUpdate(context, payload),
+      // this.handleTriggerAutomation(context, payload),
+      // this.smsLogCreateAction.execute(payload),
+      // this.handleSmsReceiveUpdate(context, payload),
+      this.handleFirstContact(context, payload.From, payload.To),
     ]);
   }
 
@@ -152,5 +158,29 @@ export class SmsReceiveHookAction {
         phoneNumberReceipted: to,
       }),
     ]);
+  }
+
+  private async handleFirstContact(
+    context: RequestContext,
+    fromPhoneNumber: string,
+    toPhoneNumber: string,
+  ) {
+    const owner = await this.userFindByPhoneSystemAction.execute(
+      convertStringToPhoneNumber(toPhoneNumber),
+    );
+    if (!owner || owner.length === 0) {
+      return;
+    }
+    return this.firstContactCreateScheduleAction.execute(context, owner[0], fromPhoneNumber);
+    // const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
+    //   context,
+    //   convertStringToPhoneNumber(fromPhoneNumber),
+    // );
+    // console.log('subscribers :>> ', subscribers);
+    // if (!subscribers || subscribers.length === 0 || subscribers[0].isSubscribed) {
+    //   this.logger.debug(`Skip first contact from ${fromPhoneNumber}`);
+    //   return;
+    // }
+    // console.log('subscribers :>> ', subscribers);
   }
 }
