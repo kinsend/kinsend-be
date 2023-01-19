@@ -27,11 +27,14 @@ export class FirstContactCreateScheduleAction {
   ) {}
 
   async execute(context: RequestContext, user: UserDocument, to: string): Promise<void> {
+    console.log(' day');
     const firstContact = await this.firstContactDocument
       .findOne({
         createdBy: user.id,
       })
       .populate(['firstTask', 'reminderTask']);
+    console.log('firstContact :>> ', firstContact);
+
     if (!firstContact || !firstContact.isEnable) {
       return;
     }
@@ -44,7 +47,7 @@ export class FirstContactCreateScheduleAction {
     await this.sendTask(context, from, to, firstTask);
 
     this.backgroudJobService.job(
-      now(1800000), // 1800000
+      now(1800000), // 30 minutes
       undefined,
       this.handleReminderTask(context, user, from, to),
     );
@@ -62,7 +65,8 @@ export class FirstContactCreateScheduleAction {
           createdBy: user.id,
         })
         .populate(['firstTask', 'reminderTask']);
-      if (!firstContact || !firstContact.isEnable) {
+      if (!firstContact || !firstContact.isEnable || !firstContact.reminderTask) {
+        this.logger.log(`Skip reminder task for ${to}`);
         return;
       }
       const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(

@@ -26,7 +26,7 @@ export class AutoKeywordResponseUpdateAction {
     payload: AutoKeywordResponseUpdatePayload,
   ): Promise<any> {
     const { user } = context;
-    const { response, tagId, hashTagOrEmoji, index } = payload;
+    const { response, tagId, pattern, index } = payload;
     const auto = await this.autoKeyWordResponseDocument.findById(id);
     if (!auto) {
       throw new NotFoundException('Not found!');
@@ -42,8 +42,8 @@ export class AutoKeywordResponseUpdateAction {
     if (tagId) {
       auto.tag = new mongoose.Types.ObjectId(tagId) as any;
     }
-    if (hashTagOrEmoji) {
-      auto.hashTagOrEmoji = hashTagOrEmoji;
+    if (pattern) {
+      auto.pattern = pattern;
     }
     if (index) {
       const { keywordResponse, type } = auto;

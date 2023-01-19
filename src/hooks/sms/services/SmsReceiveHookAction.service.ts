@@ -12,6 +12,7 @@ import {
 import { FormSubmissionFindByPhoneNumberAction } from '../../../modules/form.submission/services/FormSubmissionFindByPhoneNumberAction.service';
 import { FormSubmissionUpdateAction } from '../../../modules/form.submission/services/FormSubmissionUpdateAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../modules/form.submission/services/FormSubmissionUpdateLastContactedAction.service';
+import { KeywordResponseMessageCommingAction } from '../../../modules/keyword-response/services/keyword-response-message-comming-action.service';
 import { MessageCreateAction } from '../../../modules/messages/services/MessageCreateAction.service';
 import { SmsLogCreateAction } from '../../../modules/sms.log/services/SmsLogCreateAction.service';
 import { SmsLogsGetByFromAction } from '../../../modules/sms.log/services/SmsLogsGetByFromAction.service';
@@ -39,6 +40,7 @@ export class SmsReceiveHookAction {
     private formSubmissionUpdateAction: FormSubmissionUpdateAction,
     private firstContactGetByUserIdAction: FirstContactGetByUserIdAction,
     private firstContactCreateScheduleAction: FirstContactCreateScheduleAction,
+    private keywordResponseMessageCommingAction: KeywordResponseMessageCommingAction,
   ) {}
 
   async execute(context: RequestContext, payload: any): Promise<void> {
@@ -49,11 +51,11 @@ export class SmsReceiveHookAction {
       payload,
     });
     await Promise.all([
-      this.handleTriggerAutomation(context, payload),
-      this.smsLogCreateAction.execute(payload),
-      this.handleSmsReceiveUpdate(context, payload),
+      // this.handleTriggerAutomation(context, payload),
+      // this.smsLogCreateAction.execute(payload),
+      // this.handleSmsReceiveUpdate(context, payload),
       // TODO: implement continue
-      // this.handleFirstContact(context, payload.From, payload.To),
+      this.handleFirstContact(context, payload.From, payload.To, payload.Body),
     ]);
   }
 
@@ -165,6 +167,7 @@ export class SmsReceiveHookAction {
     context: RequestContext,
     fromPhoneNumber: string,
     toPhoneNumber: string,
+    body: string,
   ) {
     const owner = await this.userFindByPhoneSystemAction.execute(
       convertStringToPhoneNumber(toPhoneNumber),
@@ -172,6 +175,9 @@ export class SmsReceiveHookAction {
     if (!owner || owner.length === 0) {
       return;
     }
-    return this.firstContactCreateScheduleAction.execute(context, owner[0], fromPhoneNumber);
+    return Promise.all([
+      // this.firstContactCreateScheduleAction.execute(context, owner[0], fromPhoneNumber),
+      this.keywordResponseMessageCommingAction.execute(context, owner[0], fromPhoneNumber, body),
+    ]);
   }
 }

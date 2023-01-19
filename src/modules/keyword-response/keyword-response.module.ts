@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
 import { Task, TaskSchema } from '../automation/task.schema';
 import { FormSubmissionModule } from '../form.submission/form.submission.module';
+import { MessageModule } from '../messages/message.module';
 import { UserModule } from '../user/user.module';
 import { AutoKeyWordResponse, AutoKeyWordResponseSchema } from './auto-keyword-response.schema';
 import { FirstContactController } from './keyword-response.controller';
@@ -12,6 +13,7 @@ import { AutoKeywordResponseDeleteAction } from './services/auto-keyword-respons
 import { AutoKeywordResponseGetLatestIndexAction } from './services/auto-keyword-response-get-latest-index-action.service';
 import { AutoKeywordResponseUpdateAction } from './services/auto-keyword-response-update-action.service';
 import { KeywordResponseGetAction } from './services/keyword-response-get-action.service';
+import { KeywordResponseMessageCommingAction } from './services/keyword-response-message-comming-action.service';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { KeywordResponseGetAction } from './services/keyword-response-get-action
     ]),
     forwardRef(() => UserModule),
     forwardRef(() => FormSubmissionModule),
+    forwardRef(() => MessageModule),
   ],
   providers: [
     KeywordResponseGetAction,
@@ -30,8 +33,9 @@ import { KeywordResponseGetAction } from './services/keyword-response-get-action
     AutoKeywordResponseGetLatestIndexAction,
     AutoKeywordResponseUpdateAction,
     AutoKeywordResponseDeleteAction,
+    KeywordResponseMessageCommingAction,
   ],
-  exports: [],
+  exports: [KeywordResponseMessageCommingAction],
   controllers: [FirstContactController],
 })
 export class KeywordResponseModule {}
