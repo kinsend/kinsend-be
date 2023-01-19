@@ -51,10 +51,9 @@ export class SmsReceiveHookAction {
       payload,
     });
     await Promise.all([
-      // this.handleTriggerAutomation(context, payload),
-      // this.smsLogCreateAction.execute(payload),
-      // this.handleSmsReceiveUpdate(context, payload),
-      // TODO: implement continue
+      this.handleTriggerAutomation(context, payload),
+      this.smsLogCreateAction.execute(payload),
+      this.handleSmsReceiveUpdate(context, payload),
       this.handleFirstContact(context, payload.From, payload.To, payload.Body),
     ]);
   }

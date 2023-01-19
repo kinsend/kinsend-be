@@ -270,7 +270,6 @@ export class SmsService {
       if (fileUrl) {
         payload.mediaUrl = fileUrl;
       }
-      console.log('payload :>> ', payload);
       if (callbackUrl) {
         payload.statusCallback = `${this.configService.backendDomain}/${callbackUrl}`;
       }

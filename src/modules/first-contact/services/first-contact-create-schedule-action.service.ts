@@ -27,13 +27,11 @@ export class FirstContactCreateScheduleAction {
   ) {}
 
   async execute(context: RequestContext, user: UserDocument, to: string): Promise<void> {
-    console.log(' day');
     const firstContact = await this.firstContactDocument
       .findOne({
         createdBy: user.id,
       })
       .populate(['firstTask', 'reminderTask']);
-    console.log('firstContact :>> ', firstContact);
 
     if (!firstContact || !firstContact.isEnable) {
       return;
