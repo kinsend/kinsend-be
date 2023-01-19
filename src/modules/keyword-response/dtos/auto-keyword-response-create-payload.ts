@@ -14,7 +14,7 @@ export class AutoKeywordResponseCreatePayload {
   @ApiProperty({ example: 'Hi', required: true, type: String })
   @IsString()
   @IsNotEmpty()
-  hashTagOrEmoji: string;
+  pattern: string;
 
   @ApiProperty({ example: '6287cda8bd4f7f5776df1c4c', required: false, type: String })
   @IsString()

@@ -21,7 +21,7 @@ export class AutoKeywordResponseCreateAction {
 
   async execute(context: RequestContext, payload: AutoKeywordResponseCreatePayload): Promise<any> {
     const { user } = context;
-    const { response, tagId, hashTagOrEmoji, type } = payload;
+    const { response, tagId, pattern, type } = payload;
     const keywordResponse = await this.keywordResponseGetAction.execute(context, false);
     const autoKeywordResponseLatest = await this.autoKeywordResponseGetLatestIndexAction.execute(
       context,
@@ -35,7 +35,7 @@ export class AutoKeywordResponseCreateAction {
     const autoKeywordResponse = await new this.autoKeyWordResponseDocument({
       tag: new mongoose.Types.ObjectId(tagId),
       response: task._id,
-      hashTagOrEmoji,
+      pattern,
       type,
       createdBy: user.id,
       keywordResponse: keywordResponse._id,

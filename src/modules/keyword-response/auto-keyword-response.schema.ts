@@ -34,7 +34,7 @@ export class AutoKeyWordResponse {
   response: TaskDocument;
 
   @Prop({ type: String, required: true })
-  hashTagOrEmoji: string;
+  pattern: string;
 
   @Prop({ type: Number, required: true })
   index: number;
