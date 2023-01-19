@@ -176,7 +176,7 @@ export class SmsReceiveHookAction {
       return;
     }
     return Promise.all([
-      // this.firstContactCreateScheduleAction.execute(context, owner[0], fromPhoneNumber),
+      this.firstContactCreateScheduleAction.execute(context, owner[0], fromPhoneNumber),
       this.keywordResponseMessageCommingAction.execute(context, owner[0], fromPhoneNumber, body),
     ]);
   }
