@@ -20,7 +20,7 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    // this.triggerSchedule();
+    this.triggerSchedule();
   }
 
   async triggerSchedule() {
