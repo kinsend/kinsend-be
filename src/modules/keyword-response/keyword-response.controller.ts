@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Req,
@@ -22,11 +23,13 @@ import MongooseClassSerializerInterceptor from '../../utils/interceptors/Mongoos
 import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
 import { AutoKeywordResponseCreatePayload } from './dtos/auto-keyword-response-create-payload';
 import { AutoKeywordResponseUpdatePayload } from './dtos/auto-keyword-response-update-payload';
+import { KeywordResponseUpdatePayload } from './dtos/keyword-response-update-payload';
 import { KeywordResponseModule } from './keyword-response.module';
 import { AutoKeywordResponseCreateAction } from './services/auto-keyword-response-create-action.service';
 import { AutoKeywordResponseDeleteAction } from './services/auto-keyword-response-delete-action.service';
 import { AutoKeywordResponseUpdateAction } from './services/auto-keyword-response-update-action.service';
 import { KeywordResponseGetAction } from './services/keyword-response-get-action.service';
+import { KeywordResponseUpdateAction } from './services/keyword-response-update-action.service';
 
 @ApiTags('FirstContact')
 @ApiBearerAuth()
@@ -39,6 +42,7 @@ export class FirstContactController {
     private autoKeywordResponseCreateAction: AutoKeywordResponseCreateAction,
     private autoKeywordResponseUpdateAction: AutoKeywordResponseUpdateAction,
     private autoKeywordResponseDeleteAction: AutoKeywordResponseDeleteAction,
+    private keywordResponseUpdateAction: KeywordResponseUpdateAction,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -60,6 +64,12 @@ export class FirstContactController {
     @Body() payload: AutoKeywordResponseUpdatePayload,
   ) {
     return this.autoKeywordResponseUpdateAction.execute(request, id, payload);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Patch('')
+  updateEnable(@Req() request: AppRequest, @Body() payload: KeywordResponseUpdatePayload) {
+    return this.keywordResponseUpdateAction.execute(request, payload);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

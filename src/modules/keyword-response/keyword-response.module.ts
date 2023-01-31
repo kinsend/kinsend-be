@@ -14,6 +14,7 @@ import { AutoKeywordResponseGetLatestIndexAction } from './services/auto-keyword
 import { AutoKeywordResponseUpdateAction } from './services/auto-keyword-response-update-action.service';
 import { KeywordResponseGetAction } from './services/keyword-response-get-action.service';
 import { KeywordResponseMessageCommingAction } from './services/keyword-response-message-comming-action.service';
+import { KeywordResponseUpdateAction } from './services/keyword-response-update-action.service';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { KeywordResponseMessageCommingAction } from './services/keyword-response
     AutoKeywordResponseUpdateAction,
     AutoKeywordResponseDeleteAction,
     KeywordResponseMessageCommingAction,
+    KeywordResponseUpdateAction,
   ],
   exports: [KeywordResponseMessageCommingAction],
   controllers: [FirstContactController],
