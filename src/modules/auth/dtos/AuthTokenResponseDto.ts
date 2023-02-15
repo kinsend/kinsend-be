@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PlanSubscriptionDocument } from 'src/modules/plan-subscription/plan-subscription.schema';
 import { UserResponseDto } from '../../user/dtos/UserResponse.dto';
 
 export class AuthAccessTokenResponseDto extends UserResponseDto {
@@ -19,4 +20,10 @@ export class AuthAccessTokenResponseDto extends UserResponseDto {
 
   @ApiProperty({ example: 'https://domain.image.com/image', type: String, required: false })
   image?: string;
+
+  @ApiProperty({ type: String, required: false })
+  priceSubscribe?: string;
+
+  @ApiProperty({ type: String, required: false })
+  planSub: PlanSubscriptionDocument | null;
 }

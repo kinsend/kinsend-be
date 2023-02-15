@@ -28,6 +28,7 @@ import { SmsModel } from './modules/sms/sms.module';
 import { HistoryImportContactModule } from './modules/contacts/contact.module';
 import { FirstContactModule } from './modules/first-contact/first-contact.module';
 import { KeywordResponseModule } from './modules/keyword-response/keyword-response.module';
+import { PlanSubscriptionModule } from './modules/plan-subscription/plan-subscription.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { KeywordResponseModule } from './modules/keyword-response/keyword-respon
     HistoryImportContactModule,
     FirstContactModule,
     KeywordResponseModule,
+    PlanSubscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

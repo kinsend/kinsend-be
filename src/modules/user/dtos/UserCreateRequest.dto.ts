@@ -1,15 +1,33 @@
+/* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEmail,
   IsLowercase,
   IsNotEmpty,
+  IsNotEmptyObject,
+  IsObject,
   IsOptional,
   IsString,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { PLAN_PAYMENT_METHOD } from 'src/modules/plan-subscription/plan-subscription.constant';
 import { PhoneNumber } from './UserResponse.dto';
+
+export class PlanSubscription {
+  @ApiProperty({ example: 'Lo', required: true, type: String })
+  @IsString()
+  @IsNotEmpty()
+  priceId: string;
+
+  @ApiProperty({ example: 'Lo', required: true, type: String, enum: PLAN_PAYMENT_METHOD })
+  @IsString()
+  @IsNotEmpty()
+  planPaymentMethod: PLAN_PAYMENT_METHOD;
+}
 
 export class UserCreatePayloadDto {
   @ApiProperty({ example: 'lorem@gmail.com', type: String })
@@ -42,4 +60,14 @@ export class UserCreatePayloadDto {
   @IsArray()
   @IsOptional()
   phoneNumber?: [PhoneNumber];
+
+  @ApiProperty({
+    type: PlanSubscription,
+    required: true,
+  })
+  @IsObject()
+  @ValidateNested()
+  @IsNotEmptyObject()
+  @Type(() => PlanSubscription)
+  planSubscription: PlanSubscription;
 }

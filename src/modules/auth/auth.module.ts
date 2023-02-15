@@ -14,12 +14,14 @@ import { AuthVerifyTokenAction } from './services/AuthVerifyTokenAction.service'
 import { JwtAuthStrategy } from '../../providers/strategies/JwtAuthStrategy.provider';
 import { AuthSigninByGoogleAction } from './services/AuthSigninByGoogleAction.service';
 import { AuthSigninProviderAction } from './services/AuthSigninProviderAction.service';
+import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.module';
 
 @Module({
   imports: [
     SharedModule,
     UserModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    PlanSubscriptionModule,
   ],
   providers: [
     LocalAuthStrategy,

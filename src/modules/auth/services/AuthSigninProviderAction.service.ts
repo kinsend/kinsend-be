@@ -20,6 +20,7 @@ import { AuthSigninByGoogleAction } from './AuthSigninByGoogleAction.service';
 import { AuthAccessTokenResponseDto } from '../dtos/AuthTokenResponseDto';
 import { AuthRefreshTokenResponseDto } from '../dtos/AuthRefreshTokenResponseDto';
 import { StripeService } from '../../../shared/services/stripe.service';
+import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 
 @Injectable()
 export class AuthSigninProviderAction {
@@ -29,6 +30,7 @@ export class AuthSigninProviderAction {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private authSigninByGoogleAction: AuthSigninByGoogleAction,
     private stripeService: StripeService,
+    private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
   ) {}
 
   async execute(
@@ -68,6 +70,7 @@ export class AuthSigninProviderAction {
         stripeCustomerUserId: customerInfo.id,
       });
     }
+    const planSub = await this.planSubscriptionGetByUserIdAction.execute(checkExistedUser.id);
 
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const {
@@ -91,6 +94,7 @@ export class AuthSigninProviderAction {
       stripeCustomerUserId,
       image,
       phoneSystem,
+      planSub,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

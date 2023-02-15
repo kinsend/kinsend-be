@@ -20,6 +20,8 @@ import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
 import { USER_PROVIDER } from '../interfaces/user.interface';
 import { RequestContext } from '../../../utils/RequestContext';
 import { STATUS } from '../../../domain/const';
+import { PlanSubscriptionCreateAction } from '../../plan-subscription/services/plan-subscription-create-action.service';
+import { PLAN_SUBSCRIPTION_STATUS } from '../../plan-subscription/plan-subscription.constant';
 
 @Injectable()
 export class UserCreateAction {
@@ -29,10 +31,11 @@ export class UserCreateAction {
     private configService: ConfigService,
     private jwtService: JwtService,
     private mailSendGridService: MailSendGridService,
+    private planSubscriptionCreateAction: PlanSubscriptionCreateAction,
   ) {}
 
   async execute(context: RequestContext, payload: UserCreatePayloadDto): Promise<UserDocument> {
-    const { email, password } = payload;
+    const { email, password, planSubscription } = payload;
     const { correlationId } = context;
     const checkExistedUser = await this.userModel.findOne({ $or: [{ email }] });
 
@@ -49,7 +52,11 @@ export class UserCreateAction {
       status: STATUS.INACTIVE,
       provider: USER_PROVIDER.PASSWORD,
     }).save();
-
+    await this.planSubscriptionCreateAction.execute({
+      ...planSubscription,
+      status: PLAN_SUBSCRIPTION_STATUS.DEACTIVE,
+      userId: user.id,
+    });
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const userConfirmationToken: UserConfirmationTokenDto = {
       id: user.id,

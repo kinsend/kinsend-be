@@ -8,6 +8,7 @@ import { UserUpdatePasswordResponse } from '../dtos/UserUpdatePasswordResponse.d
 import { RequestContext } from '../../../utils/RequestContext';
 import { UnauthorizedException } from '../../../utils/exceptions/UnauthorizedException';
 import { AuthAccessTokenResponseDto } from '../../auth/dtos/AuthTokenResponseDto';
+import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 
 @Injectable()
 export class UserUpdatePasswordAction {
@@ -15,6 +16,7 @@ export class UserUpdatePasswordAction {
     private configService: ConfigService,
     private userFindByIdAction: UserFindByIdAction,
     private jwtService: JwtService,
+    private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
   ) {}
 
   async execute(
@@ -34,6 +36,7 @@ export class UserUpdatePasswordAction {
     const { jwtSecret, accessTokenExpiry, saltRounds } = this.configService;
     const hashPass = await hashAndValidatePassword(newPassword, saltRounds);
     await userInfo.update({ password: hashPass, updatedAt: Date.now() });
+    const planSub = await this.planSubscriptionGetByUserIdAction.execute(userInfo.id);
 
     const {
       id,
@@ -55,6 +58,7 @@ export class UserUpdatePasswordAction {
       stripeCustomerUserId,
       isEnabledBuyPlan,
       isEnabledPayment,
+      planSub,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

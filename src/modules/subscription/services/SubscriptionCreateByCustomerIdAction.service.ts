@@ -52,7 +52,7 @@ export class SubscriptionCreateByCustomerIdAction {
 
     // Caculate total price manual and go to charge
     const userUpdate = await this.userFindByStripeCustomerUserIdAction.execute(payload.customer);
-    if (userUpdate.priceSubscribe && !isTestMode) {
+    if (userUpdate.isEnabledBuyPlan && !isTestMode) {
       throw new BadRequestException('User already subscribe to plan');
     }
     const { prices, productId } = await this.getPriceForCustomerSubscription(

@@ -9,6 +9,7 @@ import { AuthAccessTokenResponseDto } from '../../auth/dtos/AuthTokenResponseDto
 import { UserVerifyResetPassword } from '../dtos/UserResetPassword.dto';
 import { VerificationConfirmEmailQueryDto } from '../../verification/dtos/VerificationConfirmEmailQuery.dto';
 import { UserConfirmationTokenDto } from '../dtos/UserConfirmationToken.dto';
+import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 
 @Injectable()
 export class UserVerifyResetPasswordAction {
@@ -16,6 +17,7 @@ export class UserVerifyResetPasswordAction {
     private configService: ConfigService,
     private userFindByIdAction: UserFindByIdAction,
     private jwtService: JwtService,
+    private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
   ) {}
 
   async execute(
@@ -30,6 +32,8 @@ export class UserVerifyResetPasswordAction {
     const userInfo = await this.userFindByIdAction.execute(context, userDecoded.id);
     const { jwtSecret, accessTokenExpiry, saltRounds } = this.configService;
     const hashPass = await hashAndValidatePassword(newPassword, saltRounds);
+    const planSub = await this.planSubscriptionGetByUserIdAction.execute(userInfo.id);
+
     await userInfo.update({ password: hashPass, updatedAt: Date.now() });
 
     const {
@@ -52,6 +56,7 @@ export class UserVerifyResetPasswordAction {
       stripeCustomerUserId,
       isEnabledBuyPlan,
       isEnabledPayment,
+      planSub,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {
