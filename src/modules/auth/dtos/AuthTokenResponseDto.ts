@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PlanSubscriptionDocument } from 'src/modules/plan-subscription/plan-subscription.schema';
+import { PlanSubscriptionDocument } from '../../plan-subscription/plan-subscription.schema';
 import { UserResponseDto } from '../../user/dtos/UserResponse.dto';
 
 export class AuthAccessTokenResponseDto extends UserResponseDto {

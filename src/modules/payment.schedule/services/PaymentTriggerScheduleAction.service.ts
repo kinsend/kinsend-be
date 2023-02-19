@@ -1,12 +1,22 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as schedule from 'node-schedule';
-import { SubscriptionCreateTriggerPaymentAction } from 'src/modules/subscription/services/SubscriptionCreateTriggerPaymentAction.service';
-import { RequestContext } from 'src/utils/RequestContext';
-import { rootLogger } from 'src/utils/Logger';
-import { UserFindByIdAction } from 'src/modules/user/services/UserFindByIdAction.service';
+
 import { PaymentScheduleFindAction } from './PaymentScheduleFindAction.service';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from 'src/configs/config.service';
+import { IPrice } from '../../subscription/interfaces/IGetPriceByItems';
+import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
+import {
+  PLAN_PAYMENT_METHOD,
+  PLAN_SUBSCRIPTION_STATUS,
+} from '../../plan-subscription/plan-subscription.constant';
+import * as moment from 'moment';
+
+import { PlanSubscriptionCreateAction } from '../../plan-subscription/services/plan-subscription-create-action.service';
+import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
+import { SubscriptionCreateTriggerPaymentAction } from '../../subscription/services/SubscriptionCreateTriggerPaymentAction.service';
+import { RequestContext } from '../../../utils/RequestContext';
+import { rootLogger } from '../../../utils/Logger';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class PaymentTriggerScheduleAction implements OnModuleInit {
@@ -17,6 +27,8 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
     private paymentScheduleFindAction: PaymentScheduleFindAction,
     private userFindByIdAction: UserFindByIdAction,
     private subscriptionCreateTriggerPaymentAction: SubscriptionCreateTriggerPaymentAction,
+    private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
+    private planSubscriptionCreateAction: PlanSubscriptionCreateAction,
   ) {}
 
   onModuleInit() {
@@ -32,29 +44,55 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
       user: {},
     };
     for (const paymentSchedule of paymentSchedules) {
-      const { productName, scheduleName, datetime, customerId, userId } = paymentSchedule;
+      const { scheduleName, userId } = paymentSchedule;
       const userIdSchedule = userId as unknown as string;
       const myJob = await schedule.scheduledJobs[scheduleName];
       if (!myJob) {
         try {
           context.user.id = userIdSchedule;
           const user = await this.userFindByIdAction.execute(context, userIdSchedule);
+          let planSubscription = await this.planSubscriptionGetByUserIdAction.execute(
+            userIdSchedule,
+          );
+          if (!planSubscription) {
+            planSubscription = await this.planSubscriptionCreateAction.execute(context, {
+              planPaymentMethod: PLAN_PAYMENT_METHOD.MONTHLY,
+              priceId: user.priceSubscribe || '',
+              status: PLAN_SUBSCRIPTION_STATUS.ACTIVE,
+              userId: userIdSchedule,
+              registrationDate: new Date(),
+            });
+          }
+          const {
+            price: priceCharged,
+            priceId,
+            productName,
+            registrationDate,
+            planPaymentMethod,
+          } = planSubscription;
+          const price: IPrice = {
+            price: priceCharged || this.configService.priceStarterPlane,
+            priceId: priceId || '',
+            productName: productName || 'Starter',
+          };
+          const createAt =
+            planSubscription.planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY
+              ? registrationDate
+              : moment(registrationDate).set('year', new Date().getFullYear()).toDate();
           await this.subscriptionCreateTriggerPaymentAction.execute(
             context,
             user,
-            customerId,
-            paymentSchedule.pricePlan || this.configService.priceStarterPlane,
-            datetime,
+            price,
+            priceCharged,
+            createAt,
             scheduleName,
-            productName || 'Starter',
+            planPaymentMethod,
             false,
           );
-          this.logger.debug(`Create schedule for ${context.user.id} successfull!`, {
-            pricePlan: paymentSchedule.pricePlan || this.configService.priceStarterPlane,
-            datetime,
-            productName: productName || 'Starter',
-            userId: user.id,
-          });
+          this.logger.debug(
+            `Create schedule for ${context.user.id} successfull!`,
+            planSubscription,
+          );
         } catch (error) {
           this.logger.error(error);
           this.logger.debug(`Skipp schedule of user ${context.user.id}`);

@@ -68,6 +68,7 @@ export class UserCreatePayloadDto {
   @IsObject()
   @ValidateNested()
   @IsNotEmptyObject()
+  @IsOptional()
   @Type(() => PlanSubscription)
-  planSubscription: PlanSubscription;
+  planSubscription?: PlanSubscription;
 }

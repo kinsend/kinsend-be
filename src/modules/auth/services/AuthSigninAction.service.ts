@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PlanSubscriptionGetByUserIdAction } from 'src/modules/plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 import { ConfigService } from '../../../configs/config.service';
+import { S3Service } from '../../../shared/services/s3.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
-import { UserDocument } from '../../user/user.schema';
+import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
+import { User, UserDocument } from '../../user/user.schema';
 import { AuthRefreshTokenResponseDto } from '../dtos/AuthRefreshTokenResponseDto';
 import { AuthSignInResponseDto } from '../dtos/AuthSigninResponseDto';
 import { AuthAccessTokenResponseDto } from '../dtos/AuthTokenResponseDto';
@@ -14,6 +15,7 @@ export class AuthSignInAction {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
+    private s3Service: S3Service,
     private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
   ) {}
 

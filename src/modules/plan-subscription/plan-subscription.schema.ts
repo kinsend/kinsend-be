@@ -22,6 +22,12 @@ export class PlanSubscription {
   @Prop({ type: String, required: true })
   priceId: string;
 
+  @Prop({ type: String, required: true })
+  productName: string;
+
+  @Prop({ type: Number, required: true })
+  price: number;
+
   @Prop({
     type: String,
     required: true,
@@ -36,7 +42,7 @@ export class PlanSubscription {
     enum: PLAN_PAYMENT_METHOD,
     default: PLAN_PAYMENT_METHOD.MONTHLY,
   })
-  planPaymentMethod: string;
+  planPaymentMethod: PLAN_PAYMENT_METHOD;
 
   @Prop({ required: false, type: Date })
   registrationDate: Date;

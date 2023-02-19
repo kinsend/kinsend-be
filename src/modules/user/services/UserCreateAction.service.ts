@@ -52,11 +52,14 @@ export class UserCreateAction {
       status: STATUS.INACTIVE,
       provider: USER_PROVIDER.PASSWORD,
     }).save();
-    await this.planSubscriptionCreateAction.execute({
-      ...planSubscription,
-      status: PLAN_SUBSCRIPTION_STATUS.DEACTIVE,
-      userId: user.id,
-    });
+    if (planSubscription) {
+      await this.planSubscriptionCreateAction.execute(context, {
+        ...planSubscription,
+        status: PLAN_SUBSCRIPTION_STATUS.DEACTIVE,
+        userId: user.id,
+      });
+    }
+
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const userConfirmationToken: UserConfirmationTokenDto = {
       id: user.id,
