@@ -23,7 +23,9 @@ export class PlanSubscriptionCreateAction {
     context: RequestContext,
     payload: PlanSubscriptionCreateDto,
   ): Promise<PlanSubscriptionDocument> {
-    const priceProduct = await this.getPriceByItems(context, [{ price: payload.priceId }]);
+    const priceProduct = await this.getPriceByItems(context, [
+      { price: payload.priceId, planPaymentMethod: payload.planPaymentMethod },
+    ]);
     const { price, priceId, productName } = priceProduct;
     const schedule = await new this.subscriptionPlanDocument({
       ...payload,

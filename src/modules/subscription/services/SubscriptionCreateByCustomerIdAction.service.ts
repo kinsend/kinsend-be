@@ -66,10 +66,8 @@ export class SubscriptionCreateByCustomerIdAction {
       throw new BadRequestException('User already subscribe to plan');
     }
     const price = await this.getPriceByItems(context, items);
-    const planPaymentMethod =
-      planSubscription && planSubscription.priceId === price.priceId
-        ? planSubscription.planPaymentMethod
-        : PLAN_PAYMENT_METHOD.MONTHLY;
+
+    const planPaymentMethod = items[0].planPaymentMethod;
     // Note pricesResult have rate is cent
     const schedule = await this.chargePlanCustomerSubscription(
       context,
@@ -95,11 +93,11 @@ export class SubscriptionCreateByCustomerIdAction {
     if (planSubscription) {
       planSubscription.status = PLAN_SUBSCRIPTION_STATUS.ACTIVE;
       planSubscription.registrationDate = new Date();
+      planSubscription.planPaymentMethod = planPaymentMethod;
+
       if (planSubscription.priceId !== priceId) {
         planSubscription.priceId = priceId;
-        planSubscription.planPaymentMethod = PLAN_PAYMENT_METHOD.MONTHLY;
       }
-
       await planSubscription.save();
     }
 
