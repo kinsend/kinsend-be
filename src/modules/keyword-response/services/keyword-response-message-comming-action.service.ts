@@ -67,20 +67,31 @@ export class KeywordResponseMessageCommingAction {
     contentArr.forEach((item) => {
       autoKeywordResponses.forEach((keyword) => {
         if (
-          keyword.pattern === item &&
-          keyword.type === AUTO_KEYWORD_RESPONSE_TYPE.HASHTAG_OR_EMOJI
+          item.startsWith('#') &&
+          keyword.type === AUTO_KEYWORD_RESPONSE_TYPE.HASHTAG_OR_EMOJI &&
+          item.substring(1) === keyword.pattern
         ) {
           hashtagOrEnmojiMatches.push(keyword);
         }
-        if (
-          Array.isArray(item.match(keyword.pattern)) &&
-          keyword.type === AUTO_KEYWORD_RESPONSE_TYPE.REGEX
-        ) {
-          regexMatches.push(keyword);
+
+        if (!item.startsWith('#')) {
+          // Emoji
+          if (
+            keyword.type === AUTO_KEYWORD_RESPONSE_TYPE.HASHTAG_OR_EMOJI &&
+            item === keyword.pattern
+          ) {
+            hashtagOrEnmojiMatches.push(keyword);
+          }
+
+          if (
+            keyword.type === AUTO_KEYWORD_RESPONSE_TYPE.REGEX &&
+            Array.isArray(item.match(keyword.pattern))
+          ) {
+            regexMatches.push(keyword);
+          }
         }
       });
     });
-
     if (hashtagOrEnmojiMatches.length !== 0) {
       hashtagOrEnmojiMatches.sort((a, b) => a.index - b.index);
       return hashtagOrEnmojiMatches[0];
