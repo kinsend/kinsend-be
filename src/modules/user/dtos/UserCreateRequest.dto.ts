@@ -63,7 +63,7 @@ export class UserCreatePayloadDto {
 
   @ApiProperty({
     type: PlanSubscription,
-    required: true,
+    required: false,
   })
   @IsObject()
   @ValidateNested()
