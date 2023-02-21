@@ -140,10 +140,14 @@ export class SubscriptionCreateByCustomerIdAction {
       stripeCustomerUserId,
     );
     const { price: pricePlan, productName } = price;
-    const priceCharge =
-      planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY
-        ? pricePlan
-        : Number(((pricePlan - pricePlan * 0.2) * 12).toFixed(1));
+    let priceCharge = pricePlan;
+    if (planPaymentMethod === PLAN_PAYMENT_METHOD.ANNUAL) {
+      if (productName === 'High Volume') {
+        priceCharge = Number(((pricePlan / 100) * 0.8).toFixed()) * 100 * 12;
+      } else {
+        priceCharge = Number((pricePlan * 0.8).toFixed()) * 12;
+      }
+    }
 
     if (!isTestMode) {
       context.logger.info('******Charge plan fee***');
