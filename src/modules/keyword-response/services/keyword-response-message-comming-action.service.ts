@@ -16,6 +16,7 @@ import { FormSubmissionUpdateLastContactedAction } from '../../form.submission/s
 
 @Injectable()
 export class KeywordResponseMessageCommingAction {
+  private logger = new Logger(KeywordResponseMessageCommingAction.name);
   constructor(
     @InjectModel(KeywordResponse.name)
     private keywordResponseDocument: Model<KeywordResponseDocument>,
@@ -30,6 +31,7 @@ export class KeywordResponseMessageCommingAction {
     to: string,
     content: string,
   ): Promise<void> {
+    this.logger.debug({ userId: user.id, to, content });
     const keywordResponseDocument = await this.keywordResponseDocument
       .findOne({
         createdBy: user.id,
@@ -41,6 +43,9 @@ export class KeywordResponseMessageCommingAction {
         },
       });
     if (!keywordResponseDocument || !keywordResponseDocument.isEnable) {
+      this.logger.debug(
+        'Skip keyword response message because keywordResponseDocument not active or undifined',
+      );
       return;
     }
     if (!user.phoneSystem) {
@@ -48,7 +53,9 @@ export class KeywordResponseMessageCommingAction {
     }
     const phoneNumberOwner = user.phoneSystem[0];
     const from = `+${phoneNumberOwner.code}${phoneNumberOwner.phone}`;
+
     if (!keywordResponseDocument || !keywordResponseDocument.autoKeywordResponses) {
+      this.logger.debug('Skip keyword response message because no compatible data');
       return;
     }
     const autoKeywordResponse = this.handleTaskResponse(
@@ -56,8 +63,11 @@ export class KeywordResponseMessageCommingAction {
       keywordResponseDocument.autoKeywordResponses,
     );
     if (!autoKeywordResponse) {
+      this.logger.debug('Skip keyword response message because no compatible data after handle');
       return;
     }
+    const { type, _id, response, pattern, index } = autoKeywordResponse;
+    this.logger.debug(JSON.stringify({ _id, type, pattern, index, response }));
     return this.sendTask(context, from, to, autoKeywordResponse.response);
   }
   private handleTaskResponse(content: string, autoKeywordResponses: AutoKeyWordResponseDocument[]) {

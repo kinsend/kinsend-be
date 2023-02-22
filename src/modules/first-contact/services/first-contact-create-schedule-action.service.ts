@@ -81,6 +81,11 @@ export class FirstContactCreateScheduleAction {
   }
 
   private async sendTask(context: RequestContext, from: string, to: string, task: TaskDocument) {
+    this.logger.debug(`task: ${JSON.stringify(task)}`);
+    if (!task) {
+      return;
+    }
+
     await this.smsService.sendMessage(
       context,
       from,
