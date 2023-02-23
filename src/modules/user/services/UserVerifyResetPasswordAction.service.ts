@@ -32,7 +32,7 @@ export class UserVerifyResetPasswordAction {
     const userInfo = await this.userFindByIdAction.execute(context, userDecoded.id);
     const { jwtSecret, accessTokenExpiry, saltRounds } = this.configService;
     const hashPass = await hashAndValidatePassword(newPassword, saltRounds);
-    const planSub = await this.planSubscriptionGetByUserIdAction.execute(userInfo.id);
+    const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(userInfo.id);
 
     await userInfo.update({ password: hashPass, updatedAt: Date.now() });
 
@@ -56,7 +56,7 @@ export class UserVerifyResetPasswordAction {
       stripeCustomerUserId,
       isEnabledBuyPlan,
       isEnabledPayment,
-      planSub,
+      planSubscription,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

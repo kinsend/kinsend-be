@@ -70,7 +70,9 @@ export class AuthSigninProviderAction {
         stripeCustomerUserId: customerInfo.id,
       });
     }
-    const planSub = await this.planSubscriptionGetByUserIdAction.execute(checkExistedUser.id);
+    const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(
+      checkExistedUser.id,
+    );
 
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const {
@@ -94,7 +96,7 @@ export class AuthSigninProviderAction {
       stripeCustomerUserId,
       image,
       phoneSystem,
-      planSub,
+      planSubscription,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

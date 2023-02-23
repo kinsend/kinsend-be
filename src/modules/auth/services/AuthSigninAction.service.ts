@@ -37,7 +37,7 @@ export class AuthSignInAction {
     if (!user) {
       throw new NotFoundException('User', 'Username and password are not correct');
     }
-    const planSub = await this.planSubscriptionGetByUserIdAction.execute(id);
+    const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(id);
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const payloadAccessToken: AuthAccessTokenResponseDto = {
       id,
@@ -52,7 +52,7 @@ export class AuthSignInAction {
       image,
       phoneSystem,
       priceSubscribe,
-      planSub,
+      planSubscription,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

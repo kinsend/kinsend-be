@@ -36,7 +36,7 @@ export class UserUpdatePasswordAction {
     const { jwtSecret, accessTokenExpiry, saltRounds } = this.configService;
     const hashPass = await hashAndValidatePassword(newPassword, saltRounds);
     await userInfo.update({ password: hashPass, updatedAt: Date.now() });
-    const planSub = await this.planSubscriptionGetByUserIdAction.execute(userInfo.id);
+    const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(userInfo.id);
 
     const {
       id,
@@ -58,7 +58,7 @@ export class UserUpdatePasswordAction {
       stripeCustomerUserId,
       isEnabledBuyPlan,
       isEnabledPayment,
-      planSub,
+      planSubscription,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

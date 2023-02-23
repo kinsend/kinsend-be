@@ -25,5 +25,5 @@ export class AuthAccessTokenResponseDto extends UserResponseDto {
   priceSubscribe?: string;
 
   @ApiProperty({ type: String, required: false })
-  planSub: PlanSubscriptionDocument | null;
+  planSubscription: PlanSubscriptionDocument | null;
 }
