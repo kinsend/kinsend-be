@@ -6,15 +6,19 @@ import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
 import { ConfigService } from './configs/config.service';
 import { bootstrapApp } from './utils/bootstrapApp';
+import { urlencoded, json } from 'express';
 import { rootLogger } from './utils/Logger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   bootstrapApp(app);
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
   const { port, environment, host } = new ConfigService();
 
   const logMessage = `api server started host: ${host}:${port} `;
+  // test deployment
   await (environment === 'production'
     ? app
         .listen(port, () => {
