@@ -113,5 +113,3 @@ module "ec2_instance" {
     Environment = "staging"
   }
 }
-
-
