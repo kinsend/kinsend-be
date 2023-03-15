@@ -63,6 +63,7 @@ export class ContactImportAction {
       const contactUpdateTags: FormSubmissionDocument[] = [];
       const tags = tagId ? [tagId] : [];
       for (const item of payload.contacts) {
+        const tempTags: any[] = [];
         const contactExist = await this.formSubmissionFindByPhoneNumberAction.execute(
           context,
           item.phoneNumber,
@@ -74,12 +75,13 @@ export class ContactImportAction {
             if(tag.trim() === '') continue;
             const tagDoc = await this.tagsSearchByName.execute(context, { name: tag.trim() });
             if(tagDoc) {
-              tags.push(tagDoc._id.toString());
+              tempTags.push(tagDoc._id.toString());
             } else {
               const tagCreated = await this.tagsCreateAction.execute(context, { name: tag.trim() });
-              tags.push(tagCreated._id.toString());
+              tempTags.push(tagCreated._id.toString());
             }
           }
+          item.metaData = JSON.stringify({ ...metadata, tags: undefined });
         }
         if (contactExist.length !== 0) {
           if (isOverride !== true) {
@@ -90,9 +92,9 @@ export class ContactImportAction {
           // override contact exist
           this.looger.debug(`Update contact ${JSON.stringify(item.phoneNumber)}`);
           const contactUpdate = dynamicUpdateModel<FormSubmissionDocument>(item, contactExist[0]);
-          if (tagId) {
+          if (tagId || tempTags.length > 0) {
             // if (contactUpdate.tags && !contactUpdate.tags.some((tag) => tag.toString() === tagId)) {
-              contactUpdate.tags = tags as any;
+              contactUpdate.tags = [...tags, ...tempTags] as any;
               contactUpdateTags.push(contactUpdate);
             // }
           }
@@ -102,7 +104,7 @@ export class ContactImportAction {
           promiseInsert.push(
             new this.FormSubmissionModel({
               ...item,
-              tags,
+              tags: [...tags, ...tempTags],
               owner: context.user.id,
             }).save(),
           );
