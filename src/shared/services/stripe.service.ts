@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '../../configs/config.service';
 import { CreateSubscriptionByCustomerIdDto } from '../../modules/subscription/dtos/CreateSubscriptionByCustomerId.dto';
@@ -181,7 +181,6 @@ export class StripeService {
       });
       return listCardInfo;
     } catch (error: any) {
-      console.log('error :>> ', error);
       const message = 'Exception list stored cards error by Stripe';
       logger.error({
         correlationId,
@@ -194,6 +193,20 @@ export class StripeService {
         error: error.message || error,
       });
     }
+  }
+
+  async getCardByCustomerId(
+    context: RequestContext,
+    customerId: string,
+  ): Promise<{ id: string; last4NumberCard: string }> {
+    const cards = await this.listStoredCreditCards(context, customerId);
+    const card = cards.data[0];
+    if (!card) {
+      context.logger.error('******Card user not found!***');
+      throw new BadRequestException('Card user not found!');
+    }
+    const last4NumberCard = card.card?.last4 || '';
+    return { id: card.id, last4NumberCard };
   }
 
   async confirmCreditCard(

@@ -2,6 +2,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { PAYMENT_PROGRESS } from '../../domain/const';
+import { PLAN_PAYMENT_METHOD } from '../plan-subscription/plan-subscription.constant';
 import { User } from '../user/user.schema';
 
 export type PaymentScheduleDocument = PaymentSchedule & Document;
@@ -26,6 +27,14 @@ export class PaymentSchedule {
 
   @Prop({ type: String, default: PAYMENT_PROGRESS.SCHEDULED })
   progress: PAYMENT_PROGRESS;
+
+  @Prop({
+    type: String,
+    required: false,
+    enum: PLAN_PAYMENT_METHOD,
+    default: PLAN_PAYMENT_METHOD.MONTHLY,
+  })
+  type: PLAN_PAYMENT_METHOD;
 
   @Prop({ type: String, required: true })
   productName: string;

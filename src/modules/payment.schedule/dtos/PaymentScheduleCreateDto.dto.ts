@@ -2,6 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { PAYMENT_PROGRESS } from '../../../domain/const';
+import { PLAN_PAYMENT_METHOD } from '../../plan-subscription/plan-subscription.constant';
 
 export class PaymentScheduleCreateDto {
   @ApiProperty({
@@ -59,6 +60,17 @@ export class PaymentScheduleCreateDto {
   @IsString()
   @IsNotEmpty()
   progress: PAYMENT_PROGRESS;
+
+  @ApiProperty({
+    required: false,
+    enum: PLAN_PAYMENT_METHOD,
+    type: String,
+  })
+  @IsIn(Object.values(PLAN_PAYMENT_METHOD))
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  type?: PLAN_PAYMENT_METHOD;
 
   @ApiProperty({
     example: 'July 20, 2022 10:36 pm',

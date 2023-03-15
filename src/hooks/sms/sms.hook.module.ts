@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AutomationModule } from '../../modules/automation/automation.module';
+import { FirstContactModule } from '../../modules/first-contact/first-contact.module';
 import { FormSubmissionModule } from '../../modules/form.submission/form.submission.module';
+import { KeywordResponseModule } from '../../modules/keyword-response/keyword-response.module';
 import { MessageModule } from '../../modules/messages/message.module';
 import { SmsLogModel } from '../../modules/sms.log/sms.log.module';
 import { UpdateModule } from '../../modules/update/update.module';
@@ -20,6 +22,8 @@ import { SmsHookController } from './sms.hook.controller';
     UpdateModule,
     FormSubmissionModule,
     MessageModule,
+    FirstContactModule,
+    KeywordResponseModule,
   ],
   providers: [SmsReceiveHookAction, SmsStatusCallbackHookAction],
   exports: [],

@@ -1,8 +1,10 @@
 /* eslint-disable unicorn/no-useless-undefined */
 /* eslint-disable no-underscore-dangle */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { TYPE_MESSAGE } from '../../../domain/const';
 import { AutomationCreateTriggerAutomationAction } from '../../../modules/automation/services/AutomationCreateTriggerAutomationAction.service';
+import { FirstContactCreateScheduleAction } from '../../../modules/first-contact/services/first-contact-create-schedule-action.service';
+import { FirstContactGetByUserIdAction } from '../../../modules/first-contact/services/first-contact-get-by-user-id-action.service';
 import {
   FormSubmission,
   FormSubmissionDocument,
@@ -10,6 +12,7 @@ import {
 import { FormSubmissionFindByPhoneNumberAction } from '../../../modules/form.submission/services/FormSubmissionFindByPhoneNumberAction.service';
 import { FormSubmissionUpdateAction } from '../../../modules/form.submission/services/FormSubmissionUpdateAction.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../../modules/form.submission/services/FormSubmissionUpdateLastContactedAction.service';
+import { KeywordResponseMessageCommingAction } from '../../../modules/keyword-response/services/keyword-response-message-comming-action.service';
 import { MessageCreateAction } from '../../../modules/messages/services/MessageCreateAction.service';
 import { SmsLogCreateAction } from '../../../modules/sms.log/services/SmsLogCreateAction.service';
 import { SmsLogsGetByFromAction } from '../../../modules/sms.log/services/SmsLogsGetByFromAction.service';
@@ -23,6 +26,7 @@ import { RequestContext } from '../../../utils/RequestContext';
 
 @Injectable()
 export class SmsReceiveHookAction {
+  private logger = new Logger(SmsReceiveHookAction.name);
   constructor(
     private smsLogCreateAction: SmsLogCreateAction,
     private smsLogsGetByFromAction: SmsLogsGetByFromAction,
@@ -34,6 +38,9 @@ export class SmsReceiveHookAction {
     private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction,
     private messageCreateAction: MessageCreateAction,
     private formSubmissionUpdateAction: FormSubmissionUpdateAction,
+    private firstContactGetByUserIdAction: FirstContactGetByUserIdAction,
+    private firstContactCreateScheduleAction: FirstContactCreateScheduleAction,
+    private keywordResponseMessageCommingAction: KeywordResponseMessageCommingAction,
   ) {}
 
   async execute(context: RequestContext, payload: any): Promise<void> {
@@ -47,6 +54,7 @@ export class SmsReceiveHookAction {
       this.handleTriggerAutomation(context, payload),
       this.smsLogCreateAction.execute(payload),
       this.handleSmsReceiveUpdate(context, payload),
+      this.handleFirstContact(context, payload.From, payload.To, payload.Body),
     ]);
   }
 
@@ -151,6 +159,24 @@ export class SmsReceiveHookAction {
         phoneNumberSent: from,
         phoneNumberReceipted: to,
       }),
+    ]);
+  }
+
+  private async handleFirstContact(
+    context: RequestContext,
+    fromPhoneNumber: string,
+    toPhoneNumber: string,
+    body: string,
+  ) {
+    const owner = await this.userFindByPhoneSystemAction.execute(
+      convertStringToPhoneNumber(toPhoneNumber),
+    );
+    if (!owner || owner.length === 0) {
+      return;
+    }
+    return Promise.all([
+      this.firstContactCreateScheduleAction.execute(context, owner[0], fromPhoneNumber),
+      this.keywordResponseMessageCommingAction.execute(context, owner[0], fromPhoneNumber, body),
     ]);
   }
 }

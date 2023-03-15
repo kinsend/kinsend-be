@@ -5,6 +5,7 @@ import { MessageModule } from '../messages/message.module';
 import { PaymentMonthlyModule } from '../payment.monthly/payment.monthly.module';
 import { PaymentScheduleModule } from '../payment.schedule/payment.schedule.module';
 import { PaymentModule } from '../payment/payment.module';
+import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.module';
 import { UserModule } from '../user/user.module';
 import { SubscriptionCreateByCustomerIdAction } from './services/SubscriptionCreateByCustomerIdAction.service';
 import { SubscriptionCreateTriggerPaymentAction } from './services/SubscriptionCreateTriggerPaymentAction.service';
@@ -30,6 +31,7 @@ import { SubscriptionController } from './subscription.controller';
     MessageModule,
     FormSubmissionModule,
     PaymentModule,
+    PlanSubscriptionModule,
   ],
   exports: [SubscriptionCreateTriggerPaymentAction],
 })

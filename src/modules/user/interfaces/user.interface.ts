@@ -1,4 +1,5 @@
 import { CNAME } from '../../cname/cname.schema';
+import { PlanSubscription } from '../../plan-subscription/plan-subscription.schema';
 import { User } from '../user.schema';
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -24,4 +25,5 @@ export type UserSocial = {
 
 export interface UserProfileResponse extends User {
   cname?: CNAME | null;
+  planSubscription?: PlanSubscription | null;
 }

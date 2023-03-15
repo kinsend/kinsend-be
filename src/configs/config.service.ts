@@ -254,14 +254,19 @@ export class ConfigService {
       process.env.PRICE_STARTER_OLD_PLANE || this.envConfig['PRICE_STARTER_OLD_PLANE'] || 1999;
     return Number(result);
   }
+  get priceStarterOldPlaneV2(): number {
+    const result =
+      process.env.PRICE_STARTER_OLD_PLANE || this.envConfig['PRICE_STARTER_OLD_PLANE'] || 4999;
+    return Number(result);
+  }
 
   get priceStarterPlane(): number {
-    const result = process.env.PRICE_STARTER_PLANE || this.envConfig['PRICE_STARTER_PLANE'] || 4999;
+    const result = process.env.PRICE_STARTER_PLANE || this.envConfig['PRICE_STARTER_PLANE'] || 9999;
     return Number(result);
   }
 
   get priceGrowthPlane(): number {
-    const result = process.env.PRICE_GROWTH_PLANE || this.envConfig['PRICE_GROWTH_PLANE'] || 9999;
+    const result = process.env.PRICE_GROWTH_PLANE || this.envConfig['PRICE_GROWTH_PLANE'] || 24999;
     return Number(result);
   }
 

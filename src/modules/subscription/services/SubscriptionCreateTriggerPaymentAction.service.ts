@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import * as moment from 'moment';
 import Stripe from 'stripe';
 
-import { UserDocument } from 'src/modules/user/user.schema';
-import { PaymentSendInvoiceAction } from 'src/modules/payment/services/PaymentSendInvoiceAction.service';
 import { ConfigService } from '../../../configs/config.service';
 import {
   MINIMUM_PRICE,
@@ -18,23 +16,21 @@ import {
 import { BackgroudJobService } from '../../../shared/services/backgroud.job.service';
 import { SmsService } from '../../../shared/services/sms.service';
 import { StripeService } from '../../../shared/services/stripe.service';
-import { buildCronSchedule } from '../../../utils/buildCronSchedule';
 import { now } from '../../../utils/nowDate';
 import { RequestContext } from '../../../utils/RequestContext';
 import { regionPhoneNumber } from '../../../utils/utilsPhoneNumber';
 import { FormSubmissionFindByConditionAction } from '../../form.submission/services/FormSubmissionFindByConditionAction.service';
-import { MailSendGridService } from '../../mail/mail-send-grid.service';
-import { MessageDocument } from '../../messages/message.schema';
 import { MessagesFindByConditionAction } from '../../messages/services/MessagesFindByConditionAction.service';
 import { PaymentMonthlyCreateAction } from '../../payment.monthly/services/PaymentMonthlyCreateAction.service';
 import { PaymentMonthlyFindConditionAction } from '../../payment.monthly/services/PaymentMonthlyFindConditionAction.service';
-import { PaymentScheduleDocument } from '../../payment.schedule/payment.schedule.schema';
-import { PaymentScheduleCreateAction } from '../../payment.schedule/services/PaymentScheduleCreateAction.service';
 import { UserFindByStripeCustomerUserIdAction } from '../../user/services/UserFindByStripeCustomerUserIdAction.service';
-import {
-  CreateSubscriptionByCustomerIdDto,
-  Item,
-} from '../dtos/CreateSubscriptionByCustomerId.dto';
+import { IPrice } from '../interfaces/IGetPriceByItems';
+import { IChargeFee, ISmsFee } from '../interfaces/message.interface';
+import { PaymentMonthlyFindPreviousUnpaidAction } from '../../payment.monthly/services/PaymentMonthlyFindPreviousUnpaidAction.service';
+import { buildCronSchedule } from '../../../utils/buildCronSchedule';
+import { PaymentSendInvoiceAction } from '../../payment/services/PaymentSendInvoiceAction.service';
+import { UserDocument } from '../../user/user.schema';
+import { PLAN_PAYMENT_METHOD } from '../../plan-subscription/plan-subscription.constant';
 
 @Injectable()
 export class SubscriptionCreateTriggerPaymentAction {
@@ -42,43 +38,44 @@ export class SubscriptionCreateTriggerPaymentAction {
     private smsService: SmsService,
     private configService: ConfigService,
     private readonly stripeService: StripeService,
-    private backgroudJobService: BackgroudJobService,
+    private backgroundJobService: BackgroudJobService,
     private paymentMonthlyCreateAction: PaymentMonthlyCreateAction,
     private messagesFindByConditionAction: MessagesFindByConditionAction,
     private paymentMonthlyFindConditionAction: PaymentMonthlyFindConditionAction,
     private formSubmissionFindByConditionAction: FormSubmissionFindByConditionAction,
     private readonly userFindByStripeCustomerUserIdAction: UserFindByStripeCustomerUserIdAction,
     private paymentSendInvoiceAction: PaymentSendInvoiceAction,
+    private paymentMonthlyFindPreviousUnpaidAction: PaymentMonthlyFindPreviousUnpaidAction,
   ) {}
 
   async execute(
     context: RequestContext,
     user: UserDocument,
-    stripeCustomerUserId: string,
-    pricePlan: number,
-    datetime: Date,
+    price: IPrice,
+    priceCharged: number,
+    createAt: Date,
     scheduleName: string,
-    productName: string,
+    planPaymentMethod: PLAN_PAYMENT_METHOD,
     isTestMode: boolean,
   ): Promise<void> {
     // Create test mode for payment
-    context.logger.info('****** Build scron schedule ***');
-
-    let sronSchedule: any = buildCronSchedule(
-      datetime.getMinutes().toString(),
-      datetime.getHours().toString(),
-      datetime.getDate().toString(),
+    context.logger.info('****** Build task schedule ***');
+    let taskSchedule: any = buildCronSchedule(
+      createAt.getMinutes().toString(),
+      createAt.getHours().toString(),
+      createAt.getDate().toString(),
+      planPaymentMethod === PLAN_PAYMENT_METHOD.ANNUAL
+        ? (createAt.getMonth() + 1).toString()
+        : undefined,
     );
-
     if (isTestMode) {
-      sronSchedule = now(this.configService.secondsTriggerPaymentMonthly);
+      taskSchedule = now(this.configService.secondsTriggerPaymentMonthly);
     }
-    context.logger.info(`****** sronSchedule: ${sronSchedule} ***`);
-    this.backgroudJobService.job(
-      sronSchedule,
+    context.logger.info(`****** task schedule: ${taskSchedule} ***`);
+    this.backgroundJobService.job(
+      taskSchedule,
       undefined,
-      () =>
-        this.handleChargeByCustomer(context, user, pricePlan, stripeCustomerUserId, productName),
+      () => this.handleChargeByCustomer(context, user, price, priceCharged, planPaymentMethod),
       scheduleName,
     );
   }
@@ -86,89 +83,71 @@ export class SubscriptionCreateTriggerPaymentAction {
   private async handleChargeByCustomer(
     context: RequestContext,
     user: UserDocument,
-    pricePlan: number,
-    stripeCustomerUserId: string,
-    productName: string,
+    price: IPrice,
+    priceCharged: number,
+    planPaymentMethod: PLAN_PAYMENT_METHOD,
   ): Promise<void> {
     console.log('******Trigger payment monthly***********');
-    const userId = user.id;
+    const { id: userId, phoneSystem } = user;
+    const { price: pricePlan } = price;
     const endDate = new Date();
-    const startDate = moment(endDate).subtract(1, 'month').toDate();
-    const { totalPriceMms, totalPriceSms } = await this.handleMessageFee(
-      context,
-      userId,
-      stripeCustomerUserId,
-      startDate,
-      endDate,
-    );
-    const chargedMessagesUpdate = await this.totalBillMessageUpdate(
-      context,
-      userId,
-      startDate,
-      endDate,
-    );
+    const startDate =
+      planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY
+        ? moment(endDate).subtract(1, 'month').toDate()
+        : moment(endDate).subtract(1, 'year').toDate();
 
-    const { priceSubs, totalSubs } = await this.handleSubscriber(context, userId, pricePlan);
-    const numberPhoneNumber = user.phoneSystem?.length || 0;
+    const feeSms = await this.handleMessageFee(context, user, startDate, endDate);
+    const { totalFeeMms, totalFeeSms } = feeSms;
+    const totalFeeChargedMessagesUpdate = await this.totalBillMessageUpdate(
+      context,
+      userId,
+      startDate,
+      endDate,
+    );
+    const { totalFeeSub, totalSubs } = await this.handleSubscriber(context, userId, pricePlan);
+    const numberPhoneNumber = phoneSystem?.length || 0;
     const phoneNumberFee = numberPhoneNumber * PRICE_PER_PHONE_NUMBER * RATE_CENT_USD;
     // Rate is cent
     const totalFeeUsed =
-      totalPriceSms + totalPriceMms + priceSubs + chargedMessagesUpdate + phoneNumberFee;
-    context.logger.info(`\ntotalPriceMms: ${totalPriceMms},totalPriceSms: ${totalPriceSms},
-     chargedMessagesUpdate: ${chargedMessagesUpdate}, priceSubs: ${priceSubs},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}, totalFeePhoneNumber: ${phoneNumberFee} `);
+      totalFeeSms + totalFeeMms + totalFeeSub + totalFeeChargedMessagesUpdate + phoneNumberFee;
 
-    if (totalFeeUsed > pricePlan) {
+    context.logger.info(`\ntotalFeeMms: ${totalFeeMms},totalFeeSms: ${totalFeeSms},
+     chargedMessagesUpdate: ${totalFeeChargedMessagesUpdate}, priceSubs: ${totalFeeSub},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}, totalFeePhoneNumber: ${phoneNumberFee} `);
+
+    const chargeFeePayload: IChargeFee = {
+      totalFeeChargedMessagesUpdate,
+      numberPhoneNumber,
+      totalFeeUsed,
+      feeSms,
+      priceCharged,
+      price,
+      startDate,
+      endDate,
+      totalSubs,
+      totalFeeSub,
+    };
+    if (totalFeeUsed > priceCharged) {
       context.logger.info('\nGoto over plan\n');
-      await this.chargeFeeLimited(
-        context,
-        user,
-        totalFeeUsed,
-        chargedMessagesUpdate,
-        totalSubs,
-        pricePlan,
-        productName,
-        totalPriceSms,
-        totalPriceMms,
-        priceSubs,
-        stripeCustomerUserId,
-        startDate,
-        endDate,
-        numberPhoneNumber,
-      );
+      await this.chargeFeeLimited(context, user, chargeFeePayload, planPaymentMethod);
       return;
     }
     if (totalFeeUsed <= pricePlan) {
       context.logger.info('Goto less plan');
-      await this.chargeFeeUsed(
-        context,
-        user,
-        chargedMessagesUpdate,
-        totalSubs,
-        pricePlan,
-        productName,
-        totalPriceSms,
-        totalPriceMms,
-        priceSubs,
-        stripeCustomerUserId,
-        startDate,
-        endDate,
-        numberPhoneNumber,
-      );
+      await this.chargeFeeUsed(context, user, chargeFeePayload, planPaymentMethod);
     }
   }
 
   private async handleMessageFee(
     context: RequestContext,
-    userId: string,
-    stripeCustomerUserId: string,
+    user: UserDocument,
     startDate: Date,
     endDate: Date,
-  ): Promise<{ totalPriceSms: number; totalPriceMms: number }> {
-    const user = await this.userFindByStripeCustomerUserIdAction.execute(stripeCustomerUserId);
-    if (!user.phoneSystem) {
-      return { totalPriceMms: 0, totalPriceSms: 0 };
+  ): Promise<ISmsFee> {
+    const { phoneSystem, id: userId } = user;
+    if (!phoneSystem || (phoneSystem as Array<any>).length === 0) {
+      return { totalFeeMms: 0, totalFeeSms: 0, totalSms: 0 };
     }
-    const phoneNumberOwner = user.phoneSystem[0];
+    const phoneNumberOwner = phoneSystem[0];
     const phone = `+${phoneNumberOwner.code}${phoneNumberOwner.phone}`;
 
     const messages = await this.messagesFindByConditionAction.execute({
@@ -178,21 +157,22 @@ export class SubscriptionCreateTriggerPaymentAction {
       statusPaid: false,
       createdAt: { $gt: startDate, $lte: endDate },
     });
-    let totalPriceSms = 0;
-    let totalPriceMms = 0;
+    let totalFeeSms = 0;
+    let totalFeeMms = 0;
     for await (const message of messages) {
       if (message.typeMessage === TYPE_MESSAGE.MMS) {
-        totalPriceMms += this.configService.priceMMS * RATE_CENT_USD;
+        totalFeeMms += this.configService.priceMMS * RATE_CENT_USD;
         continue;
       }
       if (message.phoneNumberReceipted.startsWith('+1')) {
-        totalPriceSms += PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD;
+        totalFeeSms += PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD;
       } else {
         const price = await this.handlePricePerMessage(context, message.phoneNumberReceipted);
-        totalPriceSms += Number(price) * 2;
+        totalFeeSms += Number(price) * 2;
       }
     }
-    return { totalPriceSms, totalPriceMms };
+
+    return { totalFeeSms, totalFeeMms, totalSms: messages.length };
   }
 
   private async handleBillCharge(
@@ -220,111 +200,51 @@ export class SubscriptionCreateTriggerPaymentAction {
   private async chargeFeeUsed(
     context: RequestContext,
     user: UserDocument,
-    totalBillMessageUpdate: number,
-    totalSubs: number,
-    pricePlan: number,
-    productName: string,
-    totalFeeSms: number,
-    totalFeeMms: number,
-    totalFeeSubs: number,
-    stripeCustomerUserId: string,
-    dateTimeStart: Date,
-    dateTimeEnd: Date,
-    numberPhoneNumber: number,
+    payload: IChargeFee,
+    planPaymentMethod: PLAN_PAYMENT_METHOD,
   ): Promise<void> {
-    const totalFeeCharge = pricePlan - totalBillMessageUpdate;
-    const totalMessages = await this.totalMessages(context, user.id, dateTimeStart, dateTimeEnd);
-    await this.chargeFee(
-      context,
-      user,
-      totalFeeCharge,
-      totalFeeSms,
-      totalFeeMms,
-      totalFeeSubs,
-      totalBillMessageUpdate,
-      stripeCustomerUserId,
-      totalMessages.length,
-      totalSubs,
-      pricePlan,
-      productName,
-      numberPhoneNumber,
-    );
+    const { priceCharged, totalFeeChargedMessagesUpdate } = payload;
+    const totalFeeCharge = priceCharged - totalFeeChargedMessagesUpdate;
+    await this.chargeFee(context, user, payload, totalFeeCharge, planPaymentMethod);
   }
 
   private async chargeFeeLimited(
     context: RequestContext,
     user: UserDocument,
-    totalFeeUsed: number,
-    totalBillMessageUpdate: number,
-    totalSubs: number,
-    pricePlan: number,
-    namePlane: string,
-    totalFeeSms: number,
-    totalFeeMms: number,
-    totalFeeSubs: number,
-    stripeCustomerUserId: string,
-    dateTimeStart: Date,
-    dateTimeEnd: Date,
-    numberPhoneNumber: number,
+    payload: IChargeFee,
+    planPaymentMethod: PLAN_PAYMENT_METHOD,
   ): Promise<void> {
-    const overLimit = totalFeeUsed - pricePlan - totalBillMessageUpdate;
-    const totalFeeCharge = pricePlan + overLimit;
-    const totalMessages = await this.totalMessages(context, user.id, dateTimeStart, dateTimeEnd);
+    const { totalFeeUsed, totalFeeChargedMessagesUpdate, priceCharged } = payload;
+    const overLimit = totalFeeUsed - priceCharged - totalFeeChargedMessagesUpdate;
+    const totalFeeCharge = priceCharged + overLimit;
     context.logger.info(`overLimit: ${overLimit}, totalFeeCharge: ${totalFeeCharge}`);
 
-    await this.chargeFee(
-      context,
-      user,
-      totalFeeCharge,
-      totalFeeSms,
-      totalFeeMms,
-      totalFeeSubs,
-      totalBillMessageUpdate,
-      stripeCustomerUserId,
-      totalMessages.length,
-      totalSubs,
-      pricePlan,
-      namePlane,
-      numberPhoneNumber,
-      overLimit,
-    );
-  }
-
-  private async getPaymentLastMonth(context: RequestContext, userId: string) {
-    const endDate = new Date();
-    const startDate = moment(endDate).subtract(1, 'month').toDate();
-    // reset hours
-    startDate.setHours(0, 0, 0);
-    const paymentLastMonth = await this.paymentMonthlyFindConditionAction.execute(context, {
-      userId,
-      statusPaid: false,
-      typePayment: TYPE_PAYMENT.PAYMENT_MONTHLY,
-      status: PAYMENT_MONTHLY_STATUS.PENDING,
-      createdAt: { $gte: startDate, $lt: endDate },
-    });
-    return paymentLastMonth;
+    await this.chargeFee(context, user, payload, totalFeeCharge, planPaymentMethod, overLimit);
   }
 
   private async chargeFee(
     context: RequestContext,
     user: UserDocument,
-    totalFee: number,
-    totalFeeSms: number,
-    totalFeeMms: number,
-    totalFeeSubs: number,
-    totalFeeUpdateCharged: number,
-    stripeCustomerUserId: string,
-    totalMessages: number,
-    totalSubs: number,
-    pricePlane: number,
-    productName: string,
-    numberPhoneNumber: number,
+    payload: IChargeFee,
+    totalFeeCharge: number,
+    planPaymentMethod: PLAN_PAYMENT_METHOD,
     overLimit?: number,
   ) {
-    let amountCharge = totalFee;
-    const paymentLastMonth = await this.getPaymentLastMonth(context, user.id);
-    if (paymentLastMonth[0]) {
-      amountCharge += paymentLastMonth[0].totalPrice;
+    const { stripeCustomerUserId, id: userId } = user;
+    const { price, numberPhoneNumber, feeSms, totalSubs, totalFeeChargedMessagesUpdate } = payload;
+    const { totalFeeMms, totalFeeSms, totalSms } = feeSms;
+    const { price: pricePlan, productName } = price;
+    let amountCharge = totalFeeCharge;
+
+    // Get the previous unpaid payment
+    const paymentReviousUnpaid = await this.paymentMonthlyFindPreviousUnpaidAction.execute(
+      context,
+      userId,
+    );
+    if (paymentReviousUnpaid) {
+      paymentReviousUnpaid.statusPaid = true;
+      await paymentReviousUnpaid.save();
+      amountCharge += paymentReviousUnpaid.totalPrice;
     }
     if (amountCharge > MINIMUM_PRICE) {
       const { numberCard, bill } = await this.handleBillCharge(
@@ -333,17 +253,17 @@ export class SubscriptionCreateTriggerPaymentAction {
         stripeCustomerUserId,
       );
       const { id, status, amount, created } = bill;
-      context.logger.info('Go to charge fee payment monthly');
+      context.logger.info(`Go to charge fee payment ${planPaymentMethod}`);
       await this.paymentMonthlyCreateAction.execute(context, {
-        userId: user.id,
+        userId,
         chargeId: id,
         customerId: stripeCustomerUserId,
         statusPaid: status === 'succeeded' || false,
         totalPrice: amount,
-        totalMessages,
+        totalMessages: totalSms,
         totalSubs,
         datePaid: new Date(),
-        typePayment: TYPE_PAYMENT.PAYMENT_MONTHLY,
+        typePayment: planPaymentMethod as any,
       });
       // Send mail here
       await this.paymentSendInvoiceAction.execute(
@@ -351,13 +271,13 @@ export class SubscriptionCreateTriggerPaymentAction {
         user,
         bill,
         numberCard,
-        'MONTHLY',
+        planPaymentMethod as any,
         undefined,
         undefined,
         totalFeeSms,
         totalFeeMms,
-        totalFeeUpdateCharged,
-        pricePlane,
+        totalFeeChargedMessagesUpdate,
+        pricePlan,
         productName,
         numberPhoneNumber,
         overLimit,
@@ -367,30 +287,15 @@ export class SubscriptionCreateTriggerPaymentAction {
     // If amount less than 500 cent, save payment to payment next month
     context.logger.info('Total fee less than 500 cent, save payment to payment next month');
     await this.paymentMonthlyCreateAction.execute(context, {
-      userId: user.id,
+      userId,
       customerId: stripeCustomerUserId,
       statusPaid: false,
       status: PAYMENT_MONTHLY_STATUS.PENDING,
       totalPrice: amountCharge,
-      totalMessages,
+      totalMessages: totalSms,
       totalSubs,
-      typePayment: TYPE_PAYMENT.PAYMENT_MONTHLY,
+      typePayment: planPaymentMethod as any,
     });
-  }
-
-  private async totalMessages(
-    context: RequestContext,
-    user: string,
-    dateTimeStart: Date,
-    dateTimeEnd: Date,
-  ): Promise<MessageDocument[]> {
-    const messages = await this.messagesFindByConditionAction.execute({
-      user,
-      status: 'success',
-      statusPaid: false,
-      createdAt: { $gte: new Date(dateTimeStart), $lt: new Date(dateTimeEnd) },
-    });
-    return messages;
   }
 
   private async totalBillMessageUpdate(
@@ -413,7 +318,7 @@ export class SubscriptionCreateTriggerPaymentAction {
     context: RequestContext,
     userId: string,
     pricePlan: number,
-  ): Promise<{ priceSubs: number; totalSubs: number }> {
+  ): Promise<{ totalFeeSub: number; totalSubs: number }> {
     const subs = await this.formSubmissionFindByConditionAction.execute(context, {
       owner: userId,
     });
@@ -438,9 +343,9 @@ export class SubscriptionCreateTriggerPaymentAction {
       }
     }
     if (subs.length > 0) {
-      return { priceSubs: subs.length * feeSub * RATE_CENT_USD, totalSubs: subs.length };
+      return { totalFeeSub: subs.length * feeSub * RATE_CENT_USD, totalSubs: subs.length };
     }
-    return { priceSubs: 0, totalSubs: 0 };
+    return { totalFeeSub: 0, totalSubs: 0 };
   }
 
   private async handlePricePerMessage(context: RequestContext, phone: string): Promise<number> {
