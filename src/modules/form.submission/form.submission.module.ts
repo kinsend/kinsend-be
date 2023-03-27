@@ -26,6 +26,7 @@ import { FormSubmissionFindByFiltersContactAction } from './services/FormSubmiss
 import { UpdateModule } from '../update/update.module';
 import { FormSubmissionsFindByTadIdsAction } from './services/FormSubmissionsFindByTadIdsAction.service';
 import { FormSubmissionGetCountByUserIdAction } from './services/FormSubmissionGetCountByUserIdAction.service';
+import { FormSubmissionDeleteAllDocumentsAction } from './services/FormSubmissionDeleteAllDocumentsAction.service';
 
 @Module({
   controllers: [FormSubmissionController],
@@ -57,6 +58,7 @@ import { FormSubmissionGetCountByUserIdAction } from './services/FormSubmissionG
     FormSubmissionFindByFiltersContactAction,
     FormSubmissionsFindByTadIdsAction,
     FormSubmissionGetCountByUserIdAction,
+    FormSubmissionDeleteAllDocumentsAction,
   ],
   exports: [
     FormSubmissionsFindByEmailAction,
