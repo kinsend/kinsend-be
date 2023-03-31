@@ -127,6 +127,7 @@ export class FormSubmissionController {
   @UseGuards(JwtAuthGuard)
   @Delete('/')
   deleteAllForms(@Req() request: AppRequest) {
-    return this.formSubmissionsDeleteAllDocumentsAction.execute(request);
+    // return this.formSubmissionsDeleteAllDocumentsAction.execute(request);
+    return 'Not implemented';
   }
 }
