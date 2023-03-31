@@ -9,6 +9,16 @@ export class MessageFindQueryQueryDto {
   @IsString()
   @IsOptional()
   search?: string;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsString()
+  @IsOptional()
+  page?: string;
+
+  @ApiProperty({ example: 10, required: false })
+  @IsString()
+  @IsOptional()
+  pageSize?: string;
 }
 
 export class MessageFindDto {
