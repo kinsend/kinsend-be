@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -29,6 +30,7 @@ import { FormSubmission } from './form.submission.schema';
 import { FormSubmissionUpdatePayload } from './dtos/FormSubmissionUpdatePayload.dto';
 import { FormSubmissionSendVcardAction } from './services/FormSubmissionSendVcardAction.service';
 import { FormSubmissionFindByIdAction } from './services/FormSubmissionFindByIdAction.service';
+import { FormSubmissionDeleteAllDocumentsAction } from './services/FormSubmissionDeleteAllDocumentsAction.service';
 
 @ApiTags('FormSubmission')
 @UseInterceptors(MongooseClassSerializerInterceptor(FormSubmissionModule))
@@ -41,6 +43,7 @@ export class FormSubmissionController {
     private formSubmissionUpdateAction: FormSubmissionUpdateAction,
     private formSubmissionSendVcardAction: FormSubmissionSendVcardAction,
     private formSubmissionFindByIdAction: FormSubmissionFindByIdAction,
+    private formSubmissionsDeleteAllDocumentsAction: FormSubmissionDeleteAllDocumentsAction,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -118,5 +121,13 @@ export class FormSubmissionController {
   @UsePipes(new ValidationPipe({ whitelist: true }))
   sendVcard(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
     return this.formSubmissionSendVcardAction.execute(request, id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('/')
+  deleteAllForms(@Req() request: AppRequest) {
+    // return this.formSubmissionsDeleteAllDocumentsAction.execute(request);
+    return 'Not implemented';
   }
 }
