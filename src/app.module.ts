@@ -29,6 +29,7 @@ import { HistoryImportContactModule } from './modules/contacts/contact.module';
 import { FirstContactModule } from './modules/first-contact/first-contact.module';
 import { KeywordResponseModule } from './modules/keyword-response/keyword-response.module';
 import { PlanSubscriptionModule } from './modules/plan-subscription/plan-subscription.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { PlanSubscriptionModule } from './modules/plan-subscription/plan-subscri
     FirstContactModule,
     KeywordResponseModule,
     PlanSubscriptionModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
