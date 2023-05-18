@@ -14,7 +14,7 @@ COPY ./typings /home/ec2-user/kinsend-api/typings
 COPY ./views /home/ec2-user/kinsend-api/views
 COPY ./*.json /home/ec2-user/kinsend-api/
 COPY ./.eslint* /home/ec2-user/kinsend-api/
-COPY ./.env /home/ec2-user/kinsend-api/
+#COPY ./.env /home/ec2-user/kinsend-api/
 
 WORKDIR /home/ec2-user/kinsend-api
 
