@@ -5,3 +5,5 @@ services:
       context: .
     ports:
       - "3131:3131"
+    volumes:
+      - ".env:/home/ec2-user/kinsend-api/.env:ro"
