@@ -20,7 +20,6 @@ jobs:
   build-docker-image:
     runs-on: ks-linux
     env:
-      ECR_REGISTRY: ""
       ECR_REPOSITORY: kinsend-be
 
     steps:
@@ -35,15 +34,15 @@ jobs:
           role-skip-session-tagging: true
           role-duration-seconds: 900
 
-      - name: Set up environment variables (prod)
-        if: ${{ github.base_ref == 'master' }}
-        env:
-          ECR_REGISTRY: ${PROD_ECR_REGISTRY}
-
-      - name: Set up environment variables (dev)
-        if: ${{ github.base_ref != 'develop' }}
-        env:
-          ECR_REGISTRY: ${DEV_ECR_REGISTRY}
+      - name: Select deployment registry
+        id: registry
+        run: |
+          branch=${{ github.base_ref }}
+          if [[ $branch == "master" ]] ; then 
+              echo "url=${{ env.PROD_ECR_REGISTRY }}" >> $GITHUB_OUTPUT
+          else 
+              echo "url=${{ env.DEV_ECR_REGISTRY }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -53,5 +52,16 @@ jobs:
         env:
           # We're using the pull request number as the tag for the image
           IMAGE_TAG: PR-${{ github.event.number }}
+          REGISTRY: ${{ steps.registry.outputs.url }}
+          IMAGE: ${{ env.ECR_REPOSITORY }}
         run: |
-          docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}  .
+          docker build -t $REGISTRY/$IMAGE:$IMAGE_TAG .
+
+      - name: Push the Docker image
+        env:
+          # We're using the pull request number as the tag for the image
+          IMAGE_TAG: PR-${{ github.event.number }}
+          REGISTRY: ${{ steps.registry.outputs.url }}
+          IMAGE: ${{ env.ECR_REPOSITORY }}
+        run: |
+          docker push $REGISTRY/$IMAGE:$IMAGE_TAG
