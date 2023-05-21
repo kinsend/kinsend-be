@@ -1,6 +1,13 @@
 version: 2
 updates:
-  - package-ecosystem: 'npm'
-    directory: '/'
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'hourly'
+      interval: "hourly"
+
+  # Maintain dependencies for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "hourly"
