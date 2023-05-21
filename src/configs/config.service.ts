@@ -162,7 +162,7 @@ export class ConfigService {
   }
 
   get sendGridApiKey(): string {
-    return process.env.SEND_GRID_APIKEY || this.envConfig['SEND_GRID_APIKEY'] || '';
+    return process.env.SEND_GRID_API_KEY || this.envConfig['SEND_GRID_API_KEY'] || '';
   }
 
   get baseUrl(): string {
