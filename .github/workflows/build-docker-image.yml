@@ -1,0 +1,57 @@
+# This Github workflow only builds a Docker image, it will not publish it to the AWS ECR private registry.
+name: build-docker-image
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: kinsend-be
+  # For DEV
+  DEV_AWS_ACCOUNT_ID: 874822220446
+  DEV_ECR_REGISTRY: 874822220446.dkr.ecr.us-east-1.amazonaws.com
+  # For PROD
+  PROD_AWS_ACCOUNT_ID: 874822220446
+  PROD_ECR_REGISTRY: 874822220446.dkr.ecr.us-east-1.amazonaws.com
+
+jobs:
+  build-docker-image:
+    runs-on: ks-linux
+    env:
+      ECR_REGISTRY: ""
+      ECR_REPOSITORY: kinsend-be
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+#          role-to-assume: arn:aws:iam::202337591493:role/kinsend-github-action-runners-admin
+          role-skip-session-tagging: true
+          role-duration-seconds: 900
+
+      - name: Set up environment variables (prod)
+        if: ${{ github.base_ref == 'master' }}
+        env:
+          ECR_REGISTRY: ${PROD_ECR_REGISTRY}
+
+      - name: Set up environment variables (dev)
+        if: ${{ github.base_ref != 'develop' }}
+        env:
+          ECR_REGISTRY: ${DEV_ECR_REGISTRY}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1.6.0
+
+      - name: Build the Docker image
+        env:
+          # We're using the pull request number as the tag for the image
+          IMAGE_TAG: PR-${{ github.event.number }}
+        run: |
+          docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}  .
