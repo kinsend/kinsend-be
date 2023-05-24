@@ -12,7 +12,15 @@ const int = (value: string | undefined, number: number): number =>
 export class ConfigService {
   private readonly envConfig: { [key: string]: string };
   constructor() {
-    this.envConfig = dotenv.parse(fs.readFileSync('.env'));
+    try {
+      if (fs.existsSync('.env')) {
+        this.envConfig = dotenv.parse(fs.readFileSync('.env'));
+      } else {
+        this.envConfig = {};
+      }
+    } catch(err) {
+      console.error(err)
+    }
   }
   private int(value: string | undefined, number: number): number {
     return value
@@ -154,7 +162,7 @@ export class ConfigService {
   }
 
   get sendGridApiKey(): string {
-    return process.env.SEND_GRID_APIKEY || this.envConfig['SEND_GRID_APIKEY'] || '';
+    return process.env.SEND_GRID_API_KEY || this.envConfig['SEND_GRID_API_KEY'] || '';
   }
 
   get baseUrl(): string {

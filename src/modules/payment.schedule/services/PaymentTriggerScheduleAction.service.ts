@@ -90,12 +90,12 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
             false,
           );
           this.logger.debug(
-            `Create schedule for ${context.user.id} successfull!`,
+            `Successfully created schedule for ${context.user.id}!`,
             planSubscription,
           );
         } catch (error) {
           this.logger.error(error);
-          this.logger.debug(`Skipp schedule of user ${context.user.id}`);
+          this.logger.debug(`Skip schedule of user ${context.user.id}`);
         }
       }
     }
@@ -103,7 +103,7 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
   handleCron() {
-    this.logger.debug('Trigger scron everyday!');
+    this.logger.debug('Triggers cron every day!');
     this.triggerSchedule();
   }
 }
