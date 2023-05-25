@@ -8,33 +8,19 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  AWS_ACCOUNT_ID: 874822220446
+  ECR_REGISTRY: 874822220446.dkr.ecr.us-east-1.amazonaws.com
   ECR_REPOSITORY: kinsend-be
-  # For DEV
-  DEV_AWS_ACCOUNT_ID: 874822220446
-  DEV_ECR_REGISTRY: 874822220446.dkr.ecr.us-east-1.amazonaws.com
-  # For PROD
-  PROD_AWS_ACCOUNT_ID: 874822220446
-  PROD_ECR_REGISTRY: 874822220446.dkr.ecr.us-east-1.amazonaws.com
-
+  
 jobs:
   build-docker-image:
     runs-on: ks-linux
-    env:
-      ECR_REPOSITORY: kinsend-be
+#    env:
+#      ECR_REPOSITORY: kinsend-be
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3.5.2
-
-      - name: Select deployment registry
-        id: registry
-        run: |
-          branch=${{ github.base_ref }}
-          if [[ $branch == "master" ]] ; then 
-              echo "url=${{ env.PROD_ECR_REGISTRY }}" >> $GITHUB_OUTPUT
-          else 
-              echo "url=${{ env.DEV_ECR_REGISTRY }}" >> $GITHUB_OUTPUT
-          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -56,7 +42,7 @@ jobs:
         env:
           # We're using the pull request number as the tag for the image
           IMAGE_TAG: PR-${{ github.event.number }}
-          ECR_REGISTRY: ${{ steps.registry.outputs.url }}
+#          ECR_REGISTRY: ${{ steps.registry.outputs.url }}
           IMAGE: ${{ env.ECR_REPOSITORY }}
         run: |
           docker build -t ${ECR_REGISTRY}/${IMAGE}:${IMAGE_TAG} .
@@ -65,7 +51,7 @@ jobs:
         env:
           # We're using the pull request number as the tag for the image
           IMAGE_TAG: PR-${{ github.event.number }}
-          ECR_REGISTRY: ${{ steps.registry.outputs.url }}
+#          ECR_REGISTRY: ${{ steps.registry.outputs.url }}
           IMAGE: ${{ env.ECR_REPOSITORY }}
         run: |
           docker push $ECR_REGISTRY/$IMAGE:$IMAGE_TAG
