@@ -38,6 +38,10 @@ jobs:
         run: |
           cat ~/.docker/config.json | jq '.auths | keys[] | select(contains("amazonaws"))'
 
+      - name: Debug2
+        run: |
+          aws s3 ls
+
       - name: Build the Docker image
         env:
           # We're using the pull request number as the tag for the image
