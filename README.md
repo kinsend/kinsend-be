@@ -9,7 +9,7 @@ This is the code for the Kinsend backend. It is a NestJS application that uses M
 * [MongoDB](https://www.mongodb.com/) No-SQL database.
 * [TypeScript](https://www.typescriptlang.org/) Main programing language
 * [Architecture](https://en.wikipedia.org/wiki/Domain-driven_design) Domain-driven design
-* [TemplateEngine] (https://handlebarsjs.com/contributing/interactive-examples.html) Handlebars is an open-source project. 
+* [TemplateEngine](https://handlebarsjs.com/contributing/interactive-examples.html) Handlebars is an open-source project. 
 * [CleanCode](https://eslint.org/) auto format code and remove use code
 
 # Installation

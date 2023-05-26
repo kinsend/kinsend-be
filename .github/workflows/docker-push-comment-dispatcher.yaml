@@ -1,0 +1,59 @@
+name: docker-push-comment-dispatcher
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  trigger:
+    runs-on: ks-linux
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/dockerpush') }}
+
+    # You need this, or you will receive:
+    #   Resource not accessible by integration
+    permissions: write-all
+
+    steps:
+      # since this action is triggered by a comment, for the next steps we need
+      # to know the head ref of the pull request in which this comment appeared
+      # so that we can check out the correct working tree
+      - name: Find HEAD hash
+        id: pull_request_info
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            core.setOutput('head_ref', (await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            })).data.head.ref);
+
+      - name: Show revision
+        run:
+          echo "${{ steps.pull_request_info.outputs.head_ref }}"
+
+      - name: Check comment author request validity
+        uses: actions/github-script@v6
+        with:
+          # TODO: Custom token is not needed here, permissions: write-all covers this.
+          #github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const helpers = require('./scripts/actions-script-helpers.js');
+            helpers.validateApplyCommand(github, context, core);
+
+      - name: Trigger build-and-push-docker-image workflow
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'build-and-push-docker-image.yaml',
+              ref: '${{ steps.pull_request_info.outputs.head_ref }}',
+              inputs: {
+                // this is necessary to allow the terraform-apply workflow to report via comments in the PR. 
+                issue_number: "" + context.issue.number
+              }
+            })
