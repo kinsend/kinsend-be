@@ -26,7 +26,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: us-east-1
-#          role-to-assume: arn:aws:iam::202337591493:role/kinsend-infra
+          role-to-assume: arn:aws:iam::202337591493:role/kinsend-infra
           role-skip-session-tagging: true
           role-duration-seconds: 900
 
@@ -40,6 +40,7 @@ jobs:
 
       - name: Debug2
         run: |
+          sleep 3600
           aws s3 ls
 
       - name: Build the Docker image
