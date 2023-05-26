@@ -36,7 +36,7 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+          aws ecr get-login-password --region us-east-1 | docker login  --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
       - name: Debug
         run: |
