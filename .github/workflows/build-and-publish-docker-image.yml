@@ -30,18 +30,22 @@ jobs:
           role-skip-session-tagging: true
           role-duration-seconds: 900
 
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v1.6.0
+
       - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1.6.0
+        run: |
+          aws ecr get-login-password --region us-west-1 | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
       - name: Debug
         run: |
           cat ~/.docker/config.json | jq '.auths | keys[] | select(contains("amazonaws"))'
 
-      - name: Debug2
-        run: |
-          sleep 3600
-          aws s3 ls
+#       - name: Debug2
+#         run: |
+#           sleep 30
+#           aws s3 ls
 
       - name: Build the Docker image
         env:
