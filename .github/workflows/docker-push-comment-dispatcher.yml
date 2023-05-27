@@ -41,7 +41,7 @@ jobs:
             github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'build-and-push-docker-image.yaml',
+              workflow_id: 'build-and-push-docker-image.yml',
               ref: '${{ steps.pull_request_info.outputs.head_ref }}',
               inputs: {
                 // this is necessary to allow the build-and-push-docker-image workflow to report via comments in the PR. 
