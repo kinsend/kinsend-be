@@ -11,11 +11,6 @@ on:
 
   workflow_call:
 
-#  pull_request:
-#    branches:
-#      - develop
-#      - master
-
 env:
   AWS_ACCOUNT_ID: 874822220446
   AWS_REGION: us-east-1
@@ -64,14 +59,22 @@ jobs:
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
-      - name: Build the github-action-runners Docker image
-        id: docker_build_and_push_image
+      - name: Build the kinsend-be Docker image
+        id: docker_build_image
         env:
           # We're using the pull request number as the tag for the image
           #! IMAGE_TAG: PR-${{ github.event.number }}
           IMAGE_TAG: 1.0.0-${{ steps.commit.outputs.short }}
         run: |
-          docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}  .
+          docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG} .
+
+      - name: Push the kinsend-be Docker image
+        id: docker_push_image
+        env:
+          # We're using the pull request number as the tag for the image
+          #! IMAGE_TAG: PR-${{ github.event.number }}
+          IMAGE_TAG: 1.0.0-${{ steps.commit.outputs.short }}
+        run: |
           docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
 
       - name: Post Docker clean-up
@@ -80,26 +83,21 @@ jobs:
           rm -rf ~/.docker/config.json
           #docker system prune --all --force
 
-      - name: Post results
-        if: always()
-        uses: actions/github-script@v6
-        continue-on-error: true
-        env:
-          STEP_INIT_OUTCOME: ${{ steps.docker_build_and_push_image.outcome }}
+      - name: Add reaction
+        uses: peter-evans/create-or-update-comment@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const helpers = require('./scripts/actions-script-helpers.js');
-            
-            helpers.commentResults(
-              github,
-              context,
-              '${{ inputs.issue_number }}',
-              '${{ matrix.module_path }}',
-              [
-                {name: "docker push", detailedSuccess: true},
-              ],
-            );
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ github.event.comment.id }}
+          reactions: hooray
+
+      - name: Comment on PR
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          body: "Successfully pushed Docker image `${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}` to ECR."
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ github.event.comment.id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: LouisBrunner/checks-action@v1.6.0
         name: Post job result
