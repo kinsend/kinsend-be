@@ -1,0 +1,112 @@
+# This Github workflow only builds a Docker image, it will not publish it to the AWS ECR private registry.
+name: build-and-push-docker-image
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        type: string
+        name: Issue number (for prs)
+        required: false
+
+  workflow_call:
+
+#  pull_request:
+#    branches:
+#      - develop
+#      - master
+
+env:
+  AWS_ACCOUNT_ID: 874822220446
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: 874822220446.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REPOSITORY: kinsend-be
+
+jobs:
+  build-docker-image:
+    runs-on: ks-linux
+
+    # These permissions are required to allow writing comments and reporting check status.
+    permissions:
+      actions: read
+      checks: write
+      contents: read
+      issues: write
+      pull-requests: write
+      repository-projects: read
+      statuses: write
+
+    steps:
+      - uses: LouisBrunner/checks-action@v1.6.0
+        name: post job result
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: docker push
+          status: in_progress
+
+      - name: Checkout
+        uses: actions/checkout@v3.5.2
+
+      - name: Get git commit hash
+        uses: pr-mpt/actions-commit-hash@v2
+        id: commit
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::202337591493:role/kinsend-infra
+          role-skip-session-tagging: true
+          role-duration-seconds: 900
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+
+      - name: Build the github-action-runners Docker image
+        id: docker_build_and_push_image
+        env:
+          # We're using the pull request number as the tag for the image
+          #! IMAGE_TAG: PR-${{ github.event.number }}
+          IMAGE_TAG: 1.0.0-${{ steps.commit.outputs.short }}
+        run: |
+          docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}  .
+          docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+
+      - name: Post Docker clean-up
+        if: ${{ always() }}
+        run: |
+          rm -rf ~/.docker/config.json
+          #docker system prune --all --force
+
+      - name: Post results
+        if: always()
+        uses: actions/github-script@v6
+        continue-on-error: true
+        env:
+          STEP_INIT_OUTCOME: ${{ steps.docker_build_and_push_image.outcome }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const helpers = require('./scripts/actions-script-helpers.js');
+            
+            helpers.commentResults(
+              github,
+              context,
+              '${{ inputs.issue_number }}',
+              '${{ matrix.module_path }}',
+              [
+                {name: "docker push", detailedSuccess: true},
+              ],
+            );
+
+      - uses: LouisBrunner/checks-action@v1.6.0
+        name: Post job result
+        if: always()
+        continue-on-error: true
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: publish
+          conclusion: ${{ job.status }}
+          status: completed
