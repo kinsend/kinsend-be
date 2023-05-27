@@ -8,7 +8,7 @@ on:
 jobs:
   trigger:
     runs-on: ks-linux
-    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/dockerpush') }}
+    if: ${{ github.event.issue.pull_request && startsWith(github.event.comment.body, '/docker:push') }}
 
     # You need this, or you will receive:
     #   Resource not accessible by integration
@@ -34,15 +34,6 @@ jobs:
         run:
           echo "${{ steps.pull_request_info.outputs.head_ref }}"
 
-      - name: Check comment author request validity
-        uses: actions/github-script@v6
-        with:
-          # TODO: Custom token is not needed here, permissions: write-all covers this.
-          #github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const helpers = require('./scripts/actions-script-helpers.js');
-            helpers.validateApplyCommand(github, context, core);
-
       - name: Trigger build-and-push-docker-image workflow
         uses: actions/github-script@v6
         with:
@@ -53,7 +44,7 @@ jobs:
               workflow_id: 'build-and-push-docker-image.yaml',
               ref: '${{ steps.pull_request_info.outputs.head_ref }}',
               inputs: {
-                // this is necessary to allow the terraform-apply workflow to report via comments in the PR. 
+                // this is necessary to allow the build-and-push-docker-image workflow to report via comments in the PR. 
                 issue_number: "" + context.issue.number
               }
             })

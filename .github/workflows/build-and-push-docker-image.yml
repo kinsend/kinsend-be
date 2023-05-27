@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
     inputs:
       issue_number:
-        name: Issue number (for PR-s)
         type: string
+        name: Issue number (for prs)
         required: false
 
   workflow_call:
