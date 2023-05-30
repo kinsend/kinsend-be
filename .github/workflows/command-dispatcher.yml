@@ -1,0 +1,33 @@
+name: command-dispatcher
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  dispatcher:
+    runs-on: ks-linux
+    if: ${{ github.event.issue.pull_request }}
+    steps:
+      - name: Dispatching command
+        uses: peter-evans/slash-command-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config: >
+            [
+              {
+                "command": "docker:push",
+                "permission": "write",
+                "issue_type": "pull-request"
+              },
+              {
+                "command": "help",
+                "permission": "write",
+                "issue_type": "pull-request"
+              }
+            ]

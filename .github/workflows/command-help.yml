@@ -1,0 +1,32 @@
+name: command-help
+run-name: command-help-pr-${{ github.event.client_payload.github.payload.issue.number }}
+
+on:
+  repository_dispatch:
+    types: [help-command]
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: write
+
+jobs:
+  help:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+        run: echo "$PAYLOAD_CONTEXT"
+
+      - name: Update comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          body: |
+            > Command       | Description
+            > ------------- | -----------
+            > /docker:push  | Builds and pushed the current PR to ECR tagged as `PR-${{ github.event.client_payload.github.payload.issue.number }}`
+          reaction-type: hooray
