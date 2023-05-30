@@ -28,5 +28,5 @@ jobs:
           body: |
             > Command       | Description
             > ------------- | -----------
-            > /docker:push  | Builds and pushed the current PR to ECR tagged as `PR-${{ github.event.client_payload.github.payload.issue.number }}`
+            > /docker:push  | Builds and pushed the current PR to ECR
           reaction-type: hooray
