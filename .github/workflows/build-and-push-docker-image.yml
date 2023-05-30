@@ -1,6 +1,6 @@
 # This Github workflow only builds a Docker image, it will not publish it to the AWS ECR private registry.
 name: build-and-push-docker-image
-run-name: Build and push image using ${{ inputs.BRANCH != '' && inputs.BRANCH || 'PR-${{ github.event.number }}' }}
+run-name: Build and push docker image for ${{ inputs.BRANCH != '' && inputs.BRANCH || format('PR-{0}', github.event.client_payload.github.payload.issue.number) }}
 
 on:
   workflow_dispatch:
@@ -23,18 +23,20 @@ env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: kinsend-be
   GIT_REF: ${{ inputs.BRANCH != '' && inputs.BRANCH || github.event.client_payload.pull_request.head.sha }}
-  IMAGE_REF: ${{ inputs.BRANCH != '' && inputs.BRANCH || 'PR-${{ github.event.number }}' }}
+  IMAGE_REF: ${{ inputs.BRANCH != '' && inputs.BRANCH || format('PR-{0}', github.event.client_payload.github.payload.issue.number) }}
+
+# These permissions are required to allow writing comments and reporting check status.
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  statuses: write
+  issues: write
+  checks: write
 
 jobs:
   build-docker-image:
     runs-on: ks-linux
-
-    # These permissions are required to allow writing comments and reporting check status.
-    permissions:
-      contents: write
-      actions: write
-      issues: write
-      statuses: write
 
     steps:
 
@@ -58,7 +60,7 @@ jobs:
           accountId=${{ env.DEV_AWS_ACCOUNT_ID }}
           version=1.0.0-${{ env.IMAGE_REF }}
 
-          if [[ "$ref" == "master" || "$ref" == "main" ]]; 
+          if [[ "$ref" == "master" || "$ref" == "main" ]]; then
             accountId=${{ env.PROD_AWS_ACCOUNT_ID }};
             version=1.0.0-master-${{ steps.commit.outputs.short }}
           fi
@@ -86,7 +88,7 @@ jobs:
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.vars.outputs.repository }}
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.vars.outputs.registry }}
 
       - name: Build the kinsend-be Docker image
         run: |
@@ -104,27 +106,44 @@ jobs:
 
       - name: Post job report comment reaction
         uses: peter-evans/create-or-update-comment@v3
+        if: ${{ always() && (github.event.client_payload.slash_command.command != '') }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ github.event.comment.id }}
-          reactions: ${{ success() && 'hooray' || '-1' }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reactions: ${{ job.status == 'success' && 'hooray' || '-1' }}
+
+      - name: Post job report comment failure
+        uses: peter-evans/create-or-update-comment@v3
+        if: ${{ failure() && (github.event.client_payload.slash_command.command != '') }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reactions: ${{ job.status == 'success' && 'hooray' || '-1' }}
+          body: |
+            > 🔴 Failed to push image. For more details check the [build log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
 
       - name: Post job report add comment on success push
         uses: peter-evans/create-or-update-comment@v3
-        if: ${{ success() }}
+        if: ${{ success() && (github.event.client_payload.slash_command.command != '') }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.number }}
-          comment-id: ${{ github.event.comment.id }}
-          body: "Successfully pushed Docker image to `${{ steps.vars.outputs.image }}`"
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
+          body: |
+            #### Status
+            
+            🟢 Docker image `${{ steps.vars.outputs.image }}` was successfully pushed.
+            
+            #### Build log
+            
+            For more details check the [build log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).            
 
-      - name: Post job docker push action report
-        uses: LouisBrunner/checks-action@v1.6.0
-        if: ${{ always() }}
-        continue-on-error: true
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: publish
-          conclusion: ${{ job.status }}
-          status: completed
+            #### Test
+            
+            1. Authenticate via `docker login ${{ steps.vars.outputs.registry }}`
+            2. Execute the following to test the image:
+               ```
+               docker run -it --rm ${{ steps.vars.outputs.image }}
+               ```
