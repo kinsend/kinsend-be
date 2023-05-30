@@ -10,6 +10,8 @@ permissions:
   issues: write  # For doing the emoji reaction on an issue comment
   pull-requests: write  # For doing the emoji reaction on a PR comment
   repository-projects: read
+  checks: read
+  statuses: read
 
 jobs:
   dispatcher:
