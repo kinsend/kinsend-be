@@ -4,23 +4,25 @@ name: build-and-push-docker-image
 on:
   workflow_dispatch:
     inputs:
-      issue_number:
-        type: string
-        name: Issue number (for prs)
-        required: false
+      BRANCH:
+        type: choice
+        options:
+          - develop
+          - master
+        description: Branch to build and push
+        default: develop
+        required: true
 
-  workflow_call:
-
-#  pull_request:
-#    branches:
-#      - develop
-#      - master
+  repository_dispatch:
+    types: [ "docker:push-command" ]
 
 env:
-  AWS_ACCOUNT_ID: 874822220446
+  PROD_AWS_ACCOUNT_ID: 780602547172
+  DEV_AWS_ACCOUNT_ID: 874822220446
   AWS_REGION: us-east-1
-  ECR_REGISTRY: 874822220446.dkr.ecr.us-east-1.amazonaws.com
   ECR_REPOSITORY: kinsend-be
+  GIT_REF: ${{ inputs.BRANCH != '' && inputs.BRANCH || github.event.client_payload.pull_request.head.sha }}
+  IMAGE_REF: ${{ inputs.BRANCH != '' && inputs.BRANCH || 'PR-${{ github.event.number }}' }}
 
 jobs:
   build-docker-image:
@@ -28,51 +30,70 @@ jobs:
 
     # These permissions are required to allow writing comments and reporting check status.
     permissions:
-      actions: read
-      checks: write
-      contents: read
+      contents: write
+      actions: write
       issues: write
-      pull-requests: write
-      repository-projects: read
       statuses: write
 
     steps:
-      - uses: LouisBrunner/checks-action@v1.6.0
-        name: post job result
-        if: always()
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: docker push
-          status: in_progress
 
       - name: Checkout
-        uses: actions/checkout@v3.5.2
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GIT_REF }}
 
       - name: Get git commit hash
         uses: pr-mpt/actions-commit-hash@v2
         id: commit
 
+      - name: Configure dynamic variables
+        id: vars
+        run: |
+          # FOR DEV
+          # GITHUB_OUTPUT=/dev/stdout
+          ref=${{ env.GIT_REF }}
+          echo "Ref => $ref"
+          
+          accountId=${{ env.DEV_AWS_ACCOUNT_ID }}
+          version=1.0.0-${{ env.IMAGE_REF }}
+
+          if [[ "$ref" == "master" || "$ref" == "main" ]]; 
+            accountId=${{ PROD_AWS_ACCOUNT_ID }};
+            version=1.0.0-master-${{ steps.commit.outputs.short }}
+          fi
+
+          registry="${accountId}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
+          repository="${{ env.ECR_REPOSITORY }}"
+          image="${registry}/${repository}:${version}"
+          
+          echo "Account ID: ${accountId}"
+          echo "Repository: ${repository}"
+          echo "Version: ${version}"
+          echo "Image: ${image}"
+          
+          echo "accountId=$accountId" >> $GITHUB_OUTPUT 
+          echo "registry=$registry" >> $GITHUB_OUTPUT
+          echo "image=$image" >> $GITHUB_OUTPUT
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::202337591493:role/kinsend-infra
           role-skip-session-tagging: true
           role-duration-seconds: 900
 
       - name: Login to Amazon ECR
         run: |
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.vars.outputs.repository }}
 
-      - name: Build the github-action-runners Docker image
-        id: docker_build_and_push_image
-        env:
-          # We're using the pull request number as the tag for the image
-          #! IMAGE_TAG: PR-${{ github.event.number }}
-          IMAGE_TAG: 1.0.0-${{ steps.commit.outputs.short }}
+      - name: Build the kinsend-be Docker image
         run: |
-          docker build -t ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}  .
-          docker push ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+          docker build -t ${{ steps.vars.outputs.image }} .
+
+      - name: Push the kinsend-be Docker image
+        run: |
+          docker push ${{ steps.vars.outputs.image }}
 
       - name: Post Docker clean-up
         if: ${{ always() }}
@@ -80,29 +101,24 @@ jobs:
           rm -rf ~/.docker/config.json
           #docker system prune --all --force
 
-      - name: Post results
-        if: always()
-        uses: actions/github-script@v6
-        continue-on-error: true
-        env:
-          STEP_INIT_OUTCOME: ${{ steps.docker_build_and_push_image.outcome }}
+      - name: Post job report add comment reaction
+        uses: peter-evans/create-or-update-comment@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const helpers = require('./scripts/actions-script-helpers.js');
-            
-            helpers.commentResults(
-              github,
-              context,
-              '${{ inputs.issue_number }}',
-              '${{ matrix.module_path }}',
-              [
-                {name: "docker push", detailedSuccess: true},
-              ],
-            );
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ github.event.comment.id }}
+          reactions: hooray
 
-      - uses: LouisBrunner/checks-action@v1.6.0
-        name: Post job result
+      - name: Post job report add comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ github.event.comment.id }}
+          body: "Successfully pushed Docker image `${{ steps.vars.outputs.image }}` to ECR."
+
+      - name: Post job docker push action report
+        uses: LouisBrunner/checks-action@v1.6.0
         if: always()
         continue-on-error: true
         with:
