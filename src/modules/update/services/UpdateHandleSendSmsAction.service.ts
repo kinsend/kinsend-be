@@ -1,10 +1,12 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable unicorn/no-array-reduce */
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 /* eslint-disable new-cap */
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -13,6 +15,8 @@ import {
 } from 'src/modules/form.submission/form.submission.schema';
 import * as schedule from 'node-schedule';
 import { FormSubmissionFindByIdAction } from 'src/modules/form.submission/services/FormSubmissionFindByIdAction.service';
+import { SqsService } from '@ssut/nestjs-sqs';
+import { v4 as uuid } from 'uuid';
 import { UpdateSchedule, UpdateScheduleDocument } from '../update.schedule.schema';
 import { LinkRediectCreateByMessageAction } from './link.redirect/LinkRediectCreateByMessageAction.service';
 import { UpdateUpdateProgressAction } from './UpdateUpdateProgressAction.service';
@@ -31,11 +35,16 @@ import { UpdateChargeMessageTriggerAction } from './UpdateTriggerAction/UpdateCh
 
 @Injectable()
 export class UpdateHandleSendSmsAction {
+  constructor(private readonly sqsService: SqsService) {}
+
   private timesPerformedOtherWeek = 0;
 
   private timesPerformedOtherDay = 0;
 
+  // private readonly sqsService: SqsService;
+
   @Inject(MessageCreateAction) private messageCreateAction: MessageCreateAction;
+
   @Inject(UpdateChargeMessageTriggerAction)
   private updateChargeMessageTriggerAction: UpdateChargeMessageTriggerAction;
 
@@ -58,6 +67,9 @@ export class UpdateHandleSendSmsAction {
     scheduleName: string,
   ): Promise<void> {
     const { logger } = context;
+    if (!update) {
+      return;
+    }
     if (this.isSkipTrigger(context, update.triggerType)) {
       return;
     }
@@ -68,9 +80,65 @@ export class UpdateHandleSendSmsAction {
       update.id,
       datetimeTrigger,
     );
+
     if (isCleanSchedule) {
       return;
     }
+    const chunks = subscribers.reduce((accumulator, _, index) => {
+      if (index % 100 === 0) {
+        accumulator.push(subscribers.slice(index, index + 100));
+      }
+      return accumulator;
+    }, [] as any);
+
+    const promises: Promise<any>[] = chunks.map(async (subscriberChunk) => {
+      try {
+        const messageBody = {
+          message: {
+            subscribers: subscriberChunk,
+            ownerPhoneNumber,
+            update,
+            scheduleName,
+          },
+        };
+
+        const message = JSON.stringify(messageBody);
+        // Logger.log('Sending message', message);
+        // eslint-disable-next-line @typescript-eslint/return-await
+        return await this.sqsService.send('kinsend-dev', {
+          id: uuid(),
+          body: {
+            message: `${message}`,
+            type: 'update',
+            createdAt: new Date().toISOString(),
+          },
+        });
+      } catch (error) {
+        Logger.error('Error sending message', error);
+      }
+    });
+
+    await Promise.all(promises);
+
+    // try {
+    //   const messageBody = { message: subscribers };
+
+    //   const message = JSON.stringify(messageBody);
+
+    //   Logger.log('Sending message', message);
+
+    //   await this.sqsService.send('kinsend-dev', {
+    //     id: uuid(),
+    //     body: {
+    //       message: messageBody.message,
+    //       createdAt: new Date().toISOString(),
+    //     },
+    //   });
+    // } catch (error) {
+    //   Logger.error('Error sending message', error);
+    // }
+
+    return;
 
     logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
     const timeTriggerSchedule = new Date();
