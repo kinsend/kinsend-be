@@ -42,6 +42,8 @@ import { Update, UpdateSchema } from './update.schema';
 import { UpdateReTriggerScheduleAction } from './services/updateReTriggerScheduleAction.service';
 import { UpdateSchedule, UpdateScheduleSchema } from './update.schedule.schema';
 import { UpdateHandleSendSmsAction } from './services/UpdateHandleSendSmsAction.service';
+import { SQSModule } from '../sqs/sqs.module';
+import { AWSModule } from '../aws/aws.module';
 
 @Module({
   controllers: [UpdateController],
@@ -61,6 +63,8 @@ import { UpdateHandleSendSmsAction } from './services/UpdateHandleSendSmsAction.
     forwardRef(() => MessageModule),
     forwardRef(() => FormSubmissionModule),
     forwardRef(() => PaymentModule),
+    SQSModule,
+    AWSModule
   ],
   providers: [
     UpdateCreateAction,
