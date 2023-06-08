@@ -1,27 +1,32 @@
 FROM node:16-alpine
 
+ARG GIT_REF="local_build"
+
 LABEL authors="martin.todorov@kinsend.io"
 
 RUN set -x \
- && apk add --no-cache curl zip unzip mc htop tree jq \
- && mkdir -p /home/ec2-user/kinsend-api
+ && apk add --no-cache bash curl zip unzip mc htop tree jq \
+ && mkdir -p /app
 
-COPY ./public /home/ec2-user/kinsend-api/public
-COPY ./src /home/ec2-user/kinsend-api/src
-COPY ./scripts /home/ec2-user/kinsend-api/scripts
-COPY ./test /home/ec2-user/kinsend-api/test
-COPY ./typings /home/ec2-user/kinsend-api/typings
-COPY ./views /home/ec2-user/kinsend-api/views
-COPY ./*.json /home/ec2-user/kinsend-api/
-COPY ./.eslint* /home/ec2-user/kinsend-api/
+COPY ./public /app/public
+COPY ./src /app/src
+COPY ./scripts /app/scripts
+COPY ./test /app/test
+COPY ./typings /app/typings
+COPY ./views /app/views
+COPY ./*.json /app/
+COPY ./.eslint* /app/
 
-WORKDIR /home/ec2-user/kinsend-api
+WORKDIR /app
 
 RUN set -x \
  && npm ci
 
 RUN set -x \
  && npm run build \
+ && [[ ! -f /tmp/test.json ]] && echo "{}" > /app/dist/public/manifest.json \
+ && /bin/bash -c "set -xe;cat <<< \$(jq -r '. |= . + { \"git_ref\": \"$GIT_REF\" }' /app/dist/public/manifest.json) > /app/dist/public/manifest.json" \
+ && cat /app/dist/public/manifest.json \
  && [[ -d dist ]] || { echo "ERROR: Could not find directory dist which should have been produced by npm run build!"; exit 1; }
 
 EXPOSE 3131/tcp

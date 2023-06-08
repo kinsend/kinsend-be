@@ -28,5 +28,6 @@ jobs:
           body: |
             > Command       | Description
             > ------------- | -----------
-            > /docker:push  | Builds and pushed the current PR to ECR
+            > /docker:push  | Builds and pushes the current PR to ECR
+            > /ecs:deploy   | Builds, pushes the current PR to ECR and deploys it to ECS (later accessible at `api.dev.kinsend.io`)
           reaction-type: hooray

@@ -35,6 +35,11 @@ jobs:
                 "issue_type": "pull-request"
               },
               {
+                "command": "ecs:deploy",
+                "permission": "write",
+                "issue_type": "pull-request"
+              },
+              {
                 "command": "help",
                 "permission": "write",
                 "issue_type": "pull-request"
