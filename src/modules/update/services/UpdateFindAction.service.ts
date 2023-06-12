@@ -18,7 +18,7 @@ export class UpdateFindAction {
     query: UpdateFindQueryQueryDto,
   ): Promise<UpdateDocument[]> {
     const { search, progress, limit, skip, createdAt, condition } = query;
-    const page: number = skip || 0;
+    const page: number = skip || 1;
     const size: number = limit || 10;
     const queryBuilder: FilterQuery<UpdateDocument> = {
       createdBy: context.user.id,
