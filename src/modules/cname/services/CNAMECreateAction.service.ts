@@ -40,7 +40,7 @@ export class CNAMECreateAction {
       domain,
       value: originDomain,
     }).save();
-    await this.amplifyClientService.createSubDomain(context, response.title);
+    // await this.amplifyClientService.createSubDomain(context, response.title);
 
     return response.populate({ path: 'user', select: ['-password'] });
   }
