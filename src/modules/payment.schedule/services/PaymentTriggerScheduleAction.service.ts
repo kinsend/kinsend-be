@@ -91,7 +91,7 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
           );
           this.logger.debug(
             `Successfully created schedule for ${context.user.id}!`,
-            planSubscription,
+            // planSubscription,
           );
         } catch (error) {
           this.logger.error(error);

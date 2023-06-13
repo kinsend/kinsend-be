@@ -35,7 +35,7 @@ export class LoggerMiddleware implements NestMiddleware {
         logger.info(
           {
             responseTime,
-            reqBody: body,
+            // reqBody: body,
             statusCode: response.statusCode,
           },
           'Responsed',
