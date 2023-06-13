@@ -4,7 +4,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AmplifyClientService } from '../../../shared/services/amplify.client.service';
 import { dynamicUpdateModel } from '../../../utils/dynamicUpdateModel';
 import { BadRequestException } from '../../../utils/exceptions/BadRequestException';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
@@ -17,7 +16,6 @@ import { CNAMEGetByTitleAction } from './CNAMEGetByTitleAction.service';
 export class CNAMEUpdateAction {
   constructor(
     @InjectModel(CNAME.name) private cnameModel: Model<CNAMEDocument>,
-    private amplifyClientService: AmplifyClientService,
     private cnameGetByTitleAction: CNAMEGetByTitleAction,
   ) {}
 
@@ -44,7 +42,6 @@ export class CNAMEUpdateAction {
     const cnameUpdated = dynamicUpdateModel<CNAMEDocument>(payload, cnameExist);
     cnameUpdated.updatedAt = new Date();
 
-    await this.amplifyClientService.replaceSubDomain(context, oldTitle, cnameUpdated.title);
     await cnameUpdated.save();
     return cnameUpdated.populate({ path: 'user', select: ['-password'] });
   }
