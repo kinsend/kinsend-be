@@ -8,6 +8,7 @@ import { TagsDeleteByIdsAction } from './services/TagsDeleteByIdsAction.service'
 import { TagsGetAction } from './services/TagsGetAction.service';
 import { TagsGetByIdAction } from './services/TagsGetByIdAction.service';
 import { TagsGetByIdsAction } from './services/TagsGetByIdsAction.service';
+import { TagsSearchByName } from './services/TagsSearchByNameAction.service';
 import { TagsUpdateByIdAction } from './services/TagsUpdateByIdAction.service';
 import { TagsController } from './tags.controller';
 import { Tags, TagsSchema } from './tags.schema';
@@ -27,7 +28,14 @@ import { Tags, TagsSchema } from './tags.schema';
     TagsDeleteByIdAction,
     TagsGetByIdsAction,
     TagsDeleteByIdsAction,
+    TagsSearchByName,
   ],
-  exports: [TagsGetByIdAction, TagsGetByIdsAction, TagsDeleteByIdsAction],
+  exports: [
+    TagsGetByIdAction,
+    TagsGetByIdsAction,
+    TagsDeleteByIdsAction,
+    TagsCreateAction,
+    TagsSearchByName,
+  ],
 })
 export class TagsModule {}

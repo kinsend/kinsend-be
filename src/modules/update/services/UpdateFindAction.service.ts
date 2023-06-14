@@ -11,12 +11,15 @@ import { Update, UpdateDocument } from '../update.schema';
 @Injectable()
 export class UpdateFindAction {
   constructor(@InjectModel(Update.name) private updateModel: Model<UpdateDocument>) {}
+  
 
   async execute(
     context: RequestContext,
     query: UpdateFindQueryQueryDto,
   ): Promise<UpdateDocument[]> {
     const { search, progress, limit, skip, createdAt, condition } = query;
+    const page: number = skip || 1;
+    const size: number = limit || 10;
     const queryBuilder: FilterQuery<UpdateDocument> = {
       createdBy: context.user.id,
     };
@@ -62,13 +65,12 @@ export class UpdateFindAction {
         createdAt: -1,
       })
       .populate([{ path: 'createdBy', select: ['_id'] }, { path: 'recipients' }]);
-
     if (skip) {
-      builder.skip(skip);
+      builder.skip((page - 1) * size);
     }
 
     if (limit) {
-      builder.limit(limit);
+      builder.limit(size);
     }
 
     const updates = await builder;

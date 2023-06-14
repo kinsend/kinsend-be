@@ -12,7 +12,15 @@ const int = (value: string | undefined, number: number): number =>
 export class ConfigService {
   private readonly envConfig: { [key: string]: string };
   constructor() {
-    this.envConfig = dotenv.parse(fs.readFileSync('.env'));
+    try {
+      if (fs.existsSync('.env')) {
+        this.envConfig = dotenv.parse(fs.readFileSync('.env'));
+      } else {
+        this.envConfig = {};
+      }
+    } catch(err) {
+      console.error(err)
+    }
   }
   private int(value: string | undefined, number: number): number {
     return value
@@ -154,7 +162,7 @@ export class ConfigService {
   }
 
   get sendGridApiKey(): string {
-    return process.env.SEND_GRID_APIKEY || this.envConfig['SEND_GRID_APIKEY'] || '';
+    return process.env.SEND_GRID_API_KEY || this.envConfig['SEND_GRID_API_KEY'] || '';
   }
 
   get baseUrl(): string {
@@ -254,14 +262,19 @@ export class ConfigService {
       process.env.PRICE_STARTER_OLD_PLANE || this.envConfig['PRICE_STARTER_OLD_PLANE'] || 1999;
     return Number(result);
   }
+  get priceStarterOldPlaneV2(): number {
+    const result =
+      process.env.PRICE_STARTER_OLD_PLANE || this.envConfig['PRICE_STARTER_OLD_PLANE'] || 4999;
+    return Number(result);
+  }
 
   get priceStarterPlane(): number {
-    const result = process.env.PRICE_STARTER_PLANE || this.envConfig['PRICE_STARTER_PLANE'] || 4999;
+    const result = process.env.PRICE_STARTER_PLANE || this.envConfig['PRICE_STARTER_PLANE'] || 9999;
     return Number(result);
   }
 
   get priceGrowthPlane(): number {
-    const result = process.env.PRICE_GROWTH_PLANE || this.envConfig['PRICE_GROWTH_PLANE'] || 9999;
+    const result = process.env.PRICE_GROWTH_PLANE || this.envConfig['PRICE_GROWTH_PLANE'] || 24999;
     return Number(result);
   }
 

@@ -20,6 +20,7 @@ import { UserAddListPhoneCreateAction } from './services/UserAddListPhoneCreateA
 import { UserFindByPhoneSystemAction } from './services/UserFindByPhoneSystemAction.service';
 import { UserResetPasswordSendEmailAction } from './services/UserResetPasswordSendEmailAction.service';
 import { UserVerifyResetPasswordAction } from './services/UserVerifyResetPasswordAction.service';
+import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.module';
 
 @Module({
   controllers: [UserController],
@@ -29,6 +30,7 @@ import { UserVerifyResetPasswordAction } from './services/UserVerifyResetPasswor
     VirtualCardModule,
     ImageModule,
     forwardRef(() => CNAMEModule),
+    forwardRef(() => PlanSubscriptionModule),
   ],
   providers: [
     UserCreateAction,

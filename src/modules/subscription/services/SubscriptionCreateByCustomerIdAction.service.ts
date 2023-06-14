@@ -1,8 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import Stripe from 'stripe';
 
-import { UserDocument } from 'src/modules/user/user.schema';
-import { PaymentSendInvoiceAction } from 'src/modules/payment/services/PaymentSendInvoiceAction.service';
 import { ConfigService } from '../../../configs/config.service';
 import { PAYMENT_PROGRESS, TYPE_PAYMENT } from '../../../domain/const';
 import { BackgroudJobService } from '../../../shared/services/backgroud.job.service';
@@ -22,6 +20,15 @@ import {
   Item,
 } from '../dtos/CreateSubscriptionByCustomerId.dto';
 import { SubscriptionCreateTriggerPaymentAction } from './SubscriptionCreateTriggerPaymentAction.service';
+import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
+import {
+  PLAN_PAYMENT_METHOD,
+  PLAN_SUBSCRIPTION_STATUS,
+} from '../../plan-subscription/plan-subscription.constant';
+import { IPrice } from '../interfaces/IGetPriceByItems';
+import { PlanSubscriptionCreateAction } from '../../plan-subscription/services/plan-subscription-create-action.service';
+import { PaymentSendInvoiceAction } from '../../payment/services/PaymentSendInvoiceAction.service';
+import { UserDocument } from '../../user/user.schema';
 
 @Injectable()
 export class SubscriptionCreateByCustomerIdAction {
@@ -39,112 +46,139 @@ export class SubscriptionCreateByCustomerIdAction {
     private readonly userFindByStripeCustomerUserIdAction: UserFindByStripeCustomerUserIdAction,
     private paymentSendInvoiceAction: PaymentSendInvoiceAction,
     private subscriptionCreateTriggerPaymentAction: SubscriptionCreateTriggerPaymentAction,
+    private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
+    private planSubscriptionCreateAction: PlanSubscriptionCreateAction,
   ) {}
 
   async execute(
     context: RequestContext,
     payload: CreateSubscriptionByCustomerIdDto,
     isTestMode = false,
-  ): Promise<PaymentScheduleDocument> {
-    const { items } = payload;
+  ): Promise<any> {
+    const { items, customer } = payload;
     // NOTE Do not use subscribe
     // const subscriptions = await this.stripeService.createSubscriptionByCustomer(context, payload);
 
-    // Caculate total price manual and go to charge
-    const userUpdate = await this.userFindByStripeCustomerUserIdAction.execute(payload.customer);
-    if (userUpdate.priceSubscribe && !isTestMode) {
+    // Calculate total price manual and go to charge
+    const userUpdate = await this.userFindByStripeCustomerUserIdAction.execute(customer);
+    const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(userUpdate.id);
+    if (userUpdate.isEnabledBuyPlan && !isTestMode) {
       throw new BadRequestException('User already subscribe to plan');
     }
-    const { prices, productId } = await this.getPriceForCustomerSubscription(
-      context,
-      payload.items,
-    );
-    if (prices.length === 0) {
-      throw new NotFoundException(`price: ${items} not found!`);
-    }
-    const product = await this.stripeService.getProductById(context, productId);
-    if (!product) {
-      throw new NotFoundException('Product not found!');
-    }
+    const price = await this.getPriceByItems(context, items);
+
+    const planPaymentMethod = items[0].planPaymentMethod;
     // Note pricesResult have rate is cent
-    const pricePlan = prices[0];
     const schedule = await this.chargePlanCustomerSubscription(
       context,
       userUpdate,
-      payload.customer,
-      pricePlan,
-      product.name,
+      price,
+      planPaymentMethod,
       isTestMode,
     );
     context.logger.info('***Create schedule successful!***');
-    await userUpdate.updateOne({ isEnabledBuyPlan: true, priceSubscribe: items[0].price });
+    const { priceId } = price;
+
+    await userUpdate.updateOne({ isEnabledBuyPlan: true, priceSubscribe: priceId });
+    if (!planSubscription) {
+      await this.planSubscriptionCreateAction.execute(context, {
+        priceId: priceId,
+        status: PLAN_SUBSCRIPTION_STATUS.ACTIVE,
+        planPaymentMethod: PLAN_PAYMENT_METHOD.MONTHLY,
+        userId: userUpdate.id,
+        registrationDate: new Date(),
+      });
+    }
+
+    if (planSubscription) {
+      planSubscription.status = PLAN_SUBSCRIPTION_STATUS.ACTIVE;
+      planSubscription.registrationDate = new Date();
+      planSubscription.planPaymentMethod = planPaymentMethod;
+
+      if (planSubscription.priceId !== priceId) {
+        planSubscription.priceId = priceId;
+      }
+      await planSubscription.save();
+    }
+
     return schedule;
   }
 
-  private async getPriceForCustomerSubscription(
-    context: RequestContext,
-    prices: Item[],
-  ): Promise<{ prices: number[]; productId: string }> {
-    const listPrice: any[] = [];
-    let productId = '';
-    for await (const item of prices) {
-      const detail = await this.stripeService.getDetailPrice(context, item.price);
-      productId = detail.product as string;
-      listPrice.push(detail.unit_amount);
+  private async getPriceByItems(context: RequestContext, prices: Item[]): Promise<IPrice> {
+    const pricesResponse = await Promise.all(
+      prices.map((price) => {
+        return this.stripeService.getDetailPrice(context, price.price);
+      }),
+    );
+    if (prices.length === 0) {
+      throw new NotFoundException(`price: ${prices} not found!`);
     }
-    return { prices: listPrice, productId };
+    const product = await this.stripeService.getProductById(
+      context,
+      pricesResponse[0].product as string,
+    );
+    if (!product) {
+      throw new NotFoundException('Product not found!');
+    }
+    return {
+      priceId: pricesResponse[0].id,
+      price: pricesResponse[0].unit_amount || 0,
+      productName: product.name,
+    };
   }
 
   private async chargePlanCustomerSubscription(
     context: RequestContext,
     user: UserDocument,
-    stripeCustomerUserId: string,
-    price: number,
-    productName: string,
+    price: IPrice,
+    planPaymentMethod: PLAN_PAYMENT_METHOD,
     isTestMode: boolean,
   ): Promise<any> {
-    const paymentMethod = await this.stripeService.listStoredCreditCards(
+    const { stripeCustomerUserId, id } = user;
+    const { id: cardId, last4NumberCard } = await this.stripeService.getCardByCustomerId(
       context,
       stripeCustomerUserId,
     );
-    const card = paymentMethod.data[0];
-    const numberCard = paymentMethod.data[0]?.card?.last4 || '';
-
-    if (!card) {
-      context.logger.error('******Card user not found!***');
-      throw new BadRequestException('Card user not found!');
+    const { price: pricePlan, productName } = price;
+    let priceCharge = pricePlan;
+    if (planPaymentMethod === PLAN_PAYMENT_METHOD.ANNUAL) {
+      if (productName === 'High Volume') {
+        priceCharge = Number(((pricePlan / 100) * 0.8).toFixed()) * 100 * 12;
+      } else {
+        priceCharge = Number((pricePlan * 0.8).toFixed()) * 12;
+      }
     }
+
     if (!isTestMode) {
       context.logger.info('******Charge plan fee***');
+
       const bill = await this.stripeService.chargePaymentUser(
         context,
-        price,
-        card.id,
+        priceCharge,
+        cardId,
         stripeCustomerUserId,
         'Payment for registry plan',
       );
-      context.logger.info('******Charge plan fee successfull***');
-
+      context.logger.info('******Charge plan fee successful***');
       if (bill.status === 'succeeded') {
         context.logger.info('*****Send mail charge plan fee***');
-        const user = await this.userFindByStripeCustomerUserIdAction.execute(stripeCustomerUserId);
         // Send mail after charge registry plan
         await this.paymentSendInvoiceAction.execute(
           context,
           user,
           bill,
-          numberCard,
+          last4NumberCard,
           'REGISTRY',
           undefined,
           undefined,
           undefined,
           undefined,
           undefined,
-          price,
+          priceCharge,
           productName,
         );
       }
-      await this.saveBillCharged(context, user.id, bill, stripeCustomerUserId);
+      await this.saveBillCharged(context, id, bill, stripeCustomerUserId);
     }
 
     context.logger.info('\n******Goto create schedule payment***\n');
@@ -152,8 +186,8 @@ export class SubscriptionCreateByCustomerIdAction {
       context,
       user,
       price,
-      productName,
-      stripeCustomerUserId,
+      priceCharge,
+      planPaymentMethod,
       isTestMode,
     );
     return schedule;
@@ -162,17 +196,20 @@ export class SubscriptionCreateByCustomerIdAction {
   private async scheduleTriggerCharge(
     context: RequestContext,
     user: UserDocument,
-    pricePlan: number,
-    productName: string,
-    stripeCustomerUserId: string,
+    price: IPrice,
+    priceCharged: number,
+    planPaymentMethod: PLAN_PAYMENT_METHOD,
     isTestMode: boolean,
   ): Promise<any> {
+    const { stripeCustomerUserId, id } = user;
+    const { price: pricePlan, productName } = price;
     const datetime = new Date();
-    const scheduleName = `${stripeCustomerUserId}-${user.id}`;
+    const scheduleName = `${stripeCustomerUserId}-${id}`;
     const schedule = await this.paymentScheduleCreateAction.execute(context, {
-      userId: user.id,
+      userId: id,
       customerId: stripeCustomerUserId,
       progress: PAYMENT_PROGRESS.SCHEDULED,
+      type: planPaymentMethod,
       datetime,
       scheduleName,
       createdAt: datetime,
@@ -180,17 +217,17 @@ export class SubscriptionCreateByCustomerIdAction {
       pricePlan,
     });
     context.logger.info(
-      `\n******Save schedule into db successfull, scheduleId: ${schedule.id} ***\n`,
+      `\n******Save schedule into db successful, scheduleId: ${schedule.id} ***\n`,
     );
 
     await this.subscriptionCreateTriggerPaymentAction.execute(
       context,
       user,
-      stripeCustomerUserId,
-      pricePlan,
+      price,
+      priceCharged,
       datetime,
       scheduleName,
-      productName,
+      planPaymentMethod,
       isTestMode,
     );
     return schedule;

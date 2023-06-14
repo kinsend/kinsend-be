@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable no-underscore-dangle */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import Stripe from 'stripe';
 import * as handlebars from 'handlebars';
 import * as fs from 'node:fs';
@@ -19,6 +19,7 @@ import { PRICE_PER_PHONE_NUMBER, RATE_CENT_USD } from '../../../domain/const';
 
 @Injectable()
 export class PaymentSendInvoiceAction {
+  private logger = new Logger(PaymentSendInvoiceAction.name);
   constructor(
     private mailSendGridService: MailSendGridService,
     private configService: ConfigService,
@@ -347,19 +348,23 @@ export class PaymentSendInvoiceAction {
   }
 
   private async createFilePDF(id: string, htmlToSend: string): Promise<any> {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto('https://google.ru', { waitUntil: 'networkidle0' }); // <== This should help
-    await page.setContent(htmlToSend, { waitUntil: 'networkidle0' });
-    await page.waitForSelector('img');
-    await page.emulateMediaType('print');
+    try {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto('https://google.ru', { waitUntil: 'networkidle0' }); // <== This should help
+      await page.setContent(htmlToSend, { waitUntil: 'networkidle0' });
+      await page.waitForSelector('img');
+      await page.emulateMediaType('print');
 
-    const pdf = await page.pdf({
-      path: `./invoice_${id}.pdf`,
-      printBackground: true,
-      format: 'A4',
-      margin: { top: '0.5cm', right: '1cm', bottom: '0.8cm', left: '1cm' },
-    });
-    await browser.close();
+      const pdf = await page.pdf({
+        path: `./invoice_${id}.pdf`,
+        printBackground: true,
+        format: 'A4',
+        margin: { top: '0.5cm', right: '1cm', bottom: '0.8cm', left: '1cm' },
+      });
+      await browser.close();
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }

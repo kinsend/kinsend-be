@@ -20,6 +20,8 @@ import { now } from '../../../utils/nowDate';
 import { SmsService } from '../../../shared/services/sms.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { ContactImportHistoryCreateAction } from './ContactImportHistoryCreateAction.service';
+import { TagsCreateAction } from 'src/modules/tags/services/TagsCreateAction.service';
+import { TagsSearchByName } from 'src/modules/tags/services/TagsSearchByNameAction.service';
 
 @Injectable()
 export class ContactImportAction {
@@ -45,6 +47,10 @@ export class ContactImportAction {
 
   @Inject() private contactImportHistoryCreateAction: ContactImportHistoryCreateAction;
 
+  @Inject() private tagsCreateAction: TagsCreateAction;
+
+  @Inject() private tagsSearchByName: TagsSearchByName;
+
   constructor(
     @InjectModel(FormSubmission.name) private FormSubmissionModel: Model<FormSubmissionDocument>,
   ) {}
@@ -57,10 +63,26 @@ export class ContactImportAction {
       const contactUpdateTags: FormSubmissionDocument[] = [];
       const tags = tagId ? [tagId] : [];
       for (const item of payload.contacts) {
+        const tempTags: any[] = [];
         const contactExist = await this.formSubmissionFindByPhoneNumberAction.execute(
           context,
           item.phoneNumber,
         );
+        const metadata = item.metaData && JSON.parse(item.metaData);
+        if(metadata.tags) {
+          const tagsArray = metadata.tags.split(',');
+          for (const tag of tagsArray) {
+            if(tag.trim() === '') continue;
+            const tagDoc = await this.tagsSearchByName.execute(context, { name: tag.trim() });
+            if(tagDoc) {
+              tempTags.push(tagDoc._id.toString());
+            } else {
+              const tagCreated = await this.tagsCreateAction.execute(context, { name: tag.trim() });
+              tempTags.push(tagCreated._id.toString());
+            }
+          }
+          item.metaData = JSON.stringify({ ...metadata, tags: undefined });
+        }
         if (contactExist.length !== 0) {
           if (isOverride !== true) {
             // Skip when contact exist
@@ -70,11 +92,11 @@ export class ContactImportAction {
           // override contact exist
           this.looger.debug(`Update contact ${JSON.stringify(item.phoneNumber)}`);
           const contactUpdate = dynamicUpdateModel<FormSubmissionDocument>(item, contactExist[0]);
-          if (tagId) {
-            if (contactUpdate.tags && !contactUpdate.tags.some((tag) => tag.toString() === tagId)) {
-              contactUpdate.tags = tags as any;
+          if (tagId || tempTags.length > 0) {
+            // if (contactUpdate.tags && !contactUpdate.tags.some((tag) => tag.toString() === tagId)) {
+              contactUpdate.tags = [...tags, ...tempTags] as any;
               contactUpdateTags.push(contactUpdate);
-            }
+            // }
           }
           promiseUpdate.push(contactUpdate.save());
         } else {
@@ -82,7 +104,7 @@ export class ContactImportAction {
           promiseInsert.push(
             new this.FormSubmissionModel({
               ...item,
-              tags,
+              tags: [...tags, ...tempTags],
               owner: context.user.id,
             }).save(),
           );

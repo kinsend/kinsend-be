@@ -1,0 +1,47 @@
+name: command-dispatcher
+
+on:
+  issue_comment:
+    types: [created]
+
+##
+## This does not work for private repositories anymore.
+## You must use a bot token or you will receive the following error:
+##   Command 'XYZ' is not configured for the user's permission level 'none'.
+##
+#permissions:
+#  actions: write
+#  contents: write  # For executing the repository_dispatch event
+#  issues: write  # For doing the emoji reaction on an issue comment
+#  pull-requests: write  # For doing the emoji reaction on a PR comment
+#  repository-projects: read
+#  checks: read
+#  statuses: read
+
+jobs:
+  dispatcher:
+    runs-on: ks-linux
+    if: ${{ github.event.issue.pull_request }}
+    steps:
+      - name: Dispatching command
+        uses: peter-evans/slash-command-dispatch@v3
+        with:
+          token: ${{ secrets.KS_DEVOPS_BOT_TOKEN }}
+          config: >
+            [
+              {
+                "command": "docker:push",
+                "permission": "write",
+                "issue_type": "pull-request"
+              },
+              {
+                "command": "ecs:deploy",
+                "permission": "write",
+                "issue_type": "pull-request"
+              },
+              {
+                "command": "help",
+                "permission": "write",
+                "issue_type": "pull-request"
+              }
+            ]

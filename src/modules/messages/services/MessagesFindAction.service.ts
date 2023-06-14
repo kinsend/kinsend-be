@@ -26,12 +26,16 @@ export class MessagesFindAction {
     private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction,
     private segmentFindByIdAction: SegmentFindByIdAction,
   ) {}
+
   async execute(
     context: RequestContext,
     query: MessageFindQueryQueryDto,
     payload: MessageFindDto,
   ): Promise<any[]> {
     const { search } = query;
+    const { page: pageString, pageSize: pageSizeString } = query;
+    const page = (pageString && Number.parseInt(pageString)) || 1;
+    const pageSize = (pageSizeString && Number.parseInt(pageSizeString)) || 20;
     const { user } = context;
     const userId = new mongoose.Types.ObjectId(user.id);
     const match: any = { user: userId as any };
@@ -40,7 +44,7 @@ export class MessagesFindAction {
     }
     const { filters } = payload;
     let subIds: any[] = [];
-    if (filters && filters.length !== 0) {
+    if (filters && filters.length > 0) {
       const subs = await this.handleFindByFilters(context, filters);
       subIds = subs.map((sub) => new mongoose.Types.ObjectId(sub.id));
       match.formSubmission = { $in: subIds };
@@ -105,6 +109,12 @@ export class MessagesFindAction {
       },
       {
         $unset: ['message.formSubmission', 'message._id', 'message.user', '_id', 'owner', 'form'],
+      },
+      {
+        $skip: (page - 1) * pageSize,
+      },
+      {
+        $limit: pageSize,
       },
     ]);
     return listMessages;

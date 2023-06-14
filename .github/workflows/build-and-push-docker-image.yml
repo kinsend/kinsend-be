@@ -1,0 +1,199 @@
+# This Github workflow only builds a Docker image, it will not publish it to the AWS ECR private registry.
+name: build-and-push-docker-image
+run-name: Build and push docker image for ${{ inputs.BRANCH != '' && inputs.BRANCH || format('PR-{0}', github.event.client_payload.github.payload.issue.number) }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      BRANCH:
+        type: choice
+        options:
+          - develop
+          - master
+        description: Branch to build and push
+        default: develop
+        required: true
+
+  repository_dispatch:
+    types: [ "docker:push-command", "ecs:deploy-command" ]
+
+env:
+  PROD_AWS_ACCOUNT_ID: 780602547172
+  DEV_AWS_ACCOUNT_ID: 874822220446
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: kinsend-be
+  GIT_REF: ${{ inputs.BRANCH != '' && inputs.BRANCH || github.event.client_payload.pull_request.head.sha }}
+  IMAGE_REF: ${{ inputs.BRANCH != '' && inputs.BRANCH || format('PR-{0}', github.event.client_payload.github.payload.issue.number) }}
+
+# These permissions are required to allow writing comments and reporting check status.
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  statuses: write
+  issues: write
+  checks: write
+
+jobs:
+  build-docker-image:
+    runs-on: ks-linux
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GIT_REF }}
+
+      - name: Get git commit hash
+        uses: pr-mpt/actions-commit-hash@v2
+        id: commit
+
+      - name: Configure dynamic variables
+        id: vars
+        run: |
+          # For local dev.
+          # GITHUB_OUTPUT=/dev/stdout
+          ref=${{ env.GIT_REF }}
+          echo "Ref => $ref"
+          
+          accountId=${{ env.DEV_AWS_ACCOUNT_ID }}
+          roleId="dev"
+          version=1.0.0-${{ env.IMAGE_REF }}
+          cluster=kinsend-ecs-cluster-dev
+          service=kinsend-be-dev
+          task=kinsend-be
+
+          if [[ "$ref" == "master" || "$ref" == "main" ]]; then
+            accountId=${{ env.PROD_AWS_ACCOUNT_ID }};
+            roleId="prod"
+            version=1.0.0-master-${{ steps.commit.outputs.short }}
+            cluster=kinsend-ecs-cluster-prod
+            service=kinsend-be-prod
+          fi
+
+          registry="${accountId}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
+          repository="${{ env.ECR_REPOSITORY }}"
+          image="${registry}/${repository}:${version}"
+          
+          echo "Account ID: ${accountId}"
+          echo "Role: ${roleId}"
+          echo "Repository: ${repository}"
+          echo "Version: ${version}"
+          echo "Image: ${image}"
+          echo "ECS Cluster: ${cluster}"
+          echo "ECS Service: ${service}"
+          echo "ECS task: ${task}"
+          
+          echo "accountId=$accountId" >> $GITHUB_OUTPUT 
+          echo "roleId=$roleId" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "registry=$registry" >> $GITHUB_OUTPUT
+          echo "image=$image" >> $GITHUB_OUTPUT
+          echo "cluster=$cluster" >> $GITHUB_OUTPUT
+          echo "service=$service" >> $GITHUB_OUTPUT
+          echo "task=$task" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ steps.vars.outputs.accountId }}:role/kinsend-${{ steps.vars.outputs.roleId }}
+          role-skip-session-tagging: true
+          role-duration-seconds: 900
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.vars.outputs.registry }}
+
+      - name: Build the kinsend-be Docker image
+        run: |
+          docker build --build-arg "GIT_REF=${{ steps.vars.outputs.version }}-${{ steps.commit.outputs.short }}" -t ${{ steps.vars.outputs.image }} .
+
+      - name: Push the kinsend-be Docker image
+        run: |
+          docker push ${{ steps.vars.outputs.image }}
+
+      - name: Deploy image to ECS developer cluster (on demand)
+        if: ${{ env.GIT_REF == 'develop' || github.event.client_payload.slash_command.command == 'ecs:deploy' }}
+        run: |
+          AWS_ACCOUNT_ID=${{ steps.vars.outputs.accountId }}
+          AWS_REGION=${{ env.AWS_REGION }}
+          ECR_IMAGE="${{ steps.vars.outputs.image }}"
+          ECS_CLUSTER="${{ steps.vars.outputs.cluster }}"
+          SERVICE_NAME="${{ steps.vars.outputs.service }}"
+          TASK_FAMILY="${{ steps.vars.outputs.task }}"
+          
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_FAMILY" --region "$AWS_REGION")
+          NEW_TASK_DEFINTIION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
+          
+          # Debug.
+          #echo "$NEW_TASK_DEFINTIION"
+          
+          NEW_TASK_INFO=$(aws ecs register-task-definition --region "$AWS_REGION" --cli-input-json "$NEW_TASK_DEFINTIION")
+          NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
+          
+          set -x;
+          aws ecs update-service --cluster ${ECS_CLUSTER} \
+            --service ${SERVICE_NAME} \
+            --task-definition ${TASK_FAMILY}:${NEW_REVISION}`` \
+            --no-cli-pager
+         
+
+      - name: Post job clean-up
+        if: ${{ always() }}
+        run: |
+          rm -rf ~/.docker/config.json
+          #docker system prune --all --force
+
+      - name: Post job report comment reaction
+        uses: peter-evans/create-or-update-comment@v3
+        if: ${{ always() && (github.event.client_payload.slash_command.command != '') }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reactions: ${{ job.status == 'success' && 'hooray' || '-1' }}
+
+      - name: Post job report comment failure
+        uses: peter-evans/create-or-update-comment@v3
+        if: ${{ failure() && (github.event.client_payload.slash_command.command != '') }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reactions: ${{ job.status == 'success' && 'hooray' || '-1' }}
+          body: |
+            > 🔴 Failed to apply command `${{ github.event.client_payload.slash_command.command }}`. For more details check the [build log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+      - name: Post job report add comment on success push
+        uses: peter-evans/create-or-update-comment@v3
+        if: ${{ success() && (github.event.client_payload.slash_command.command != '') }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
+          body: |
+            #### Status
+            
+            🟢 Docker image `${{ steps.vars.outputs.image }}` was successfully pushed.
+            ${{ github.event.client_payload.slash_command.command == 'ecs:deploy' && format('🟢 Image `{0}` was deployed to ECS cluster `{1}`', steps.vars.outputs.image, steps.vars.outputs.cluster) || '🔵 Image deployment was skipped.' }}  
+            
+            #### Build log
+            
+            For more details check the [build log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).            
+
+            #### Test
+            
+            1. Authenticate via `docker login ${{ steps.vars.outputs.registry }}`
+
+            2. Execute the following to test the image locally:
+               ```
+               docker run -it --rm ${{ steps.vars.outputs.image }}
+               ```
+
+            3. https://api.dev.kinsend.io/manifest.json should show `${{ steps.vars.outputs.version }}-${{ steps.commit.outputs.short }}` (if applied command was `/ecs:deploy`)
+               Note: It takes between 2 to 5 minutes for the new deployment to be activated in ECS. Be patient.
+
+            4. https://${{ env.AWS_REGION }}.console.aws.amazon.com/ecs/v2/clusters/${{ steps.vars.outputs.cluster }}/services/${{ steps.vars.outputs.service }}/health?region=${{ env.AWS_REGION }}
+             

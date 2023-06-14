@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '../../../configs/config.service';
-import { AmplifyClientService } from '../../../shared/services/amplify.client.service';
 import { ConflictException } from '../../../utils/exceptions/ConflictException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
@@ -16,7 +15,6 @@ export class CNAMECreateAction {
   constructor(
     @InjectModel(CNAME.name) private cnameModel: Model<CNAMEDocument>,
     private userFindByIdAction: UserFindByIdAction,
-    private amplifyClientService: AmplifyClientService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -40,7 +38,6 @@ export class CNAMECreateAction {
       domain,
       value: originDomain,
     }).save();
-    await this.amplifyClientService.createSubDomain(context, response.title);
 
     return response.populate({ path: 'user', select: ['-password'] });
   }

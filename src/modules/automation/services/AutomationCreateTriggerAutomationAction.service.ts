@@ -45,7 +45,7 @@ export class AutomationCreateTriggerAutomationAction {
       context,
       subscriberPhoneNumber,
     );
-    if (!sub[0].isSubscribed) {
+    if (!sub[0]?.isSubscribed) {
       context.logger.info(
         `Subscriber +${subscriberPhoneNumber.code}${subscriberPhoneNumber.phone} has unsubscribed`,
       );

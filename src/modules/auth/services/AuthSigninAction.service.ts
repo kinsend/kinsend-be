@@ -4,6 +4,7 @@ import { ConfigService } from '../../../configs/config.service';
 import { S3Service } from '../../../shared/services/s3.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
+import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 import { User, UserDocument } from '../../user/user.schema';
 import { AuthRefreshTokenResponseDto } from '../dtos/AuthRefreshTokenResponseDto';
 import { AuthSignInResponseDto } from '../dtos/AuthSigninResponseDto';
@@ -15,6 +16,7 @@ export class AuthSignInAction {
     private jwtService: JwtService,
     private configService: ConfigService,
     private s3Service: S3Service,
+    private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
   ) {}
 
   async execute(context: RequestContext): Promise<AuthSignInResponseDto> {
@@ -30,10 +32,12 @@ export class AuthSignInAction {
       isEnabledPayment,
       image,
       phoneSystem,
+      priceSubscribe,
     } = <UserDocument>user;
     if (!user) {
       throw new NotFoundException('User', 'Username and password are not correct');
     }
+    const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(id);
     const { jwtSecret, accessTokenExpiry } = this.configService;
     const payloadAccessToken: AuthAccessTokenResponseDto = {
       id,
@@ -47,6 +51,8 @@ export class AuthSignInAction {
       isEnabledPayment,
       image,
       phoneSystem,
+      priceSubscribe,
+      planSubscription,
     };
 
     const accessToken = this.jwtService.sign(payloadAccessToken, {

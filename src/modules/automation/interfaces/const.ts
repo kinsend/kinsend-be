@@ -21,6 +21,7 @@ export enum STATUS {
 export enum TASK_TYPE {
   DELAY = 'DELAY',
   ACTION = 'ACTION',
+  SEND_MESSAGE = 'SEND_MESSAGE',
 }
 
 export enum AUTOMATION_STATUS {
