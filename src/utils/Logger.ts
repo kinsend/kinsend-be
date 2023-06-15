@@ -191,6 +191,6 @@ const LOG_LEVEL = process.env.LOG_LEVEL || '';
 const logLevel: bunyan.LogLevelString = isLogLevel(LOG_LEVEL) ? LOG_LEVEL : 'debug';
 
 export const rootLogger: Logger = bunyan.createLogger({
-  name: 'kin-send-looger',
+  name: 'kinsend-logger',
   level: logLevel,
 });
