@@ -1,6 +1,6 @@
 FROM node:16-alpine
 
-ARG GIT_REF="local_build"
+ARG MANIFEST_VERSION="local_build"
 
 LABEL authors="martin.todorov@kinsend.io"
 
@@ -25,7 +25,7 @@ RUN set -x \
 RUN set -x \
  && npm run build \
  && [[ ! -f /tmp/test.json ]] && echo "{}" > /app/dist/public/manifest.json \
- && /bin/bash -c "set -xe;cat <<< \$(jq -r '. |= . + { \"git_ref\": \"$GIT_REF\" }' /app/dist/public/manifest.json) > /app/dist/public/manifest.json" \
+ && /bin/bash -c "set -xe;cat <<< \$(jq -r '. |= . + { \"git_ref\": \"$MANIFEST_VERSION\" }' /app/dist/public/manifest.json) > /app/dist/public/manifest.json" \
  && cat /app/dist/public/manifest.json \
  && [[ -d dist ]] || { echo "ERROR: Could not find directory dist which should have been produced by npm run build!"; exit 1; }
 
