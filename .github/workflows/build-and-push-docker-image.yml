@@ -60,6 +60,7 @@ jobs:
           accountId=${{ env.DEV_AWS_ACCOUNT_ID }}
           roleId="dev"
           version=1.0.0-${{ env.IMAGE_REF }}
+          manifestVersion=$version
           cluster=kinsend-ecs-cluster-dev
           service=kinsend-be-dev
           task=kinsend-be
@@ -68,8 +69,14 @@ jobs:
             accountId=${{ env.PROD_AWS_ACCOUNT_ID }};
             roleId="prod"
             version=1.0.0-master-${{ steps.commit.outputs.short }}
+            manifestVersion=$version
             cluster=kinsend-ecs-cluster-prod
             service=kinsend-be-prod
+          fi
+          if [[ "$ref" == "develop" ]]; then
+            # We are not using "version", because for the `develop` branch the version is fixed to just `1.0.0-develop`
+            # without a hash to reduce the need for cleaning up old or one-time versions from ECR.
+            manifestVersion=1.0.0-develop-${{ steps.commit.outputs.short }}
           fi
 
           registry="${accountId}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
@@ -80,6 +87,7 @@ jobs:
           echo "Role: ${roleId}"
           echo "Repository: ${repository}"
           echo "Version: ${version}"
+          echo "Manifest version: ${manifestVersion}"
           echo "Image: ${image}"
           echo "ECS Cluster: ${cluster}"
           echo "ECS Service: ${service}"
@@ -88,6 +96,7 @@ jobs:
           echo "accountId=$accountId" >> $GITHUB_OUTPUT 
           echo "roleId=$roleId" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
+          echo "manifestVersion=$manifestVersion" >> $GITHUB_OUTPUT
           echo "registry=$registry" >> $GITHUB_OUTPUT
           echo "image=$image" >> $GITHUB_OUTPUT
           echo "cluster=$cluster" >> $GITHUB_OUTPUT
@@ -108,7 +117,7 @@ jobs:
 
       - name: Build the kinsend-be Docker image
         run: |
-          docker build --build-arg "GIT_REF=${{ steps.vars.outputs.version }}-${{ steps.commit.outputs.short }}" -t ${{ steps.vars.outputs.image }} .
+          docker build --build-arg "MANIFEST_VERSION=${{ steps.vars.outputs.manifestVersion }}" -t ${{ steps.vars.outputs.image }} .
 
       - name: Push the kinsend-be Docker image
         run: |
