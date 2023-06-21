@@ -103,7 +103,7 @@ export class UpdateHandleSendSmsAction {
         };
 
         const message = JSON.stringify(messageBody);
-        // Logger.log('Sending message', message);
+        Logger.log('Sending message', message);
         // eslint-disable-next-line @typescript-eslint/return-await
         return await this.sqsService.send('kinsend-dev', {
           id: uuid(),
