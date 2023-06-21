@@ -221,11 +221,11 @@ export class ConfigService {
   }
 
   get awsAccessKeyId(): string {
-    return process.env.AWS_ACCESS_KEY_ID ?? '';
+    return process.env.AWS_ACCESS_KEY_ID ?? this.envConfig['AWS_ACCESS_KEY_ID'] ?? '';
   }
 
   get awsSecretAccessKey(): string {
-    return process.env.AWS_SECRET_ACCESS_KEY ?? '';
+    return process.env.AWS_SECRET_ACCESS_KEY ?? this.envConfig['AWS_SECRET_ACCESS_KEY'] ?? '';
   }
 
   get originDomain(): string {
