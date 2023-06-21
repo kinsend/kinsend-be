@@ -67,7 +67,9 @@ export class UpdateHandleSendSmsAction {
     scheduleName: string,
   ): Promise<void> {
     const { logger } = context;
-
+    if (!update) {
+      return;
+    }
     if (this.isSkipTrigger(context, update.triggerType)) {
       return;
     }
@@ -102,6 +104,7 @@ export class UpdateHandleSendSmsAction {
 
         const message = JSON.stringify(messageBody);
         // Logger.log('Sending message', message);
+        // eslint-disable-next-line @typescript-eslint/return-await
         return await this.sqsService.send('kinsend-dev', {
           id: uuid(),
           body: {
