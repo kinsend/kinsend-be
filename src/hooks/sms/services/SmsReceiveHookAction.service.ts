@@ -96,37 +96,29 @@ export class SmsReceiveHookAction {
   private async handleSmsReceiveUpdate(context: RequestContext, payload: any) {
     try {
       await this.saveSms(context, payload.From, payload.To, payload.Body);
-    console.log("saveSms finished ===================");
       const createdBy = await this.userFindByPhoneSystemAction.execute(
         convertStringToPhoneNumber(payload.To),
       );
-    console.log("userFindByPhoneSystemAction finished ===================");
 
       if (createdBy.length === 0) {
+        console.log('length 0');
         return;
       }
 
       const updates = await this.updatesFindByCreatedByAction.execute(context, createdBy[0].id);
-      console.log("updates from updatesFindByCreatedByAction", updates)
       if (updates.length === 0) {
+        console.log('updates length 0');
         return;
       }
-      console.log("updatesFindByCreatedByAction finished ===================");
 
       const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
         context,
         convertStringToPhoneNumber(payload.From),
       );
-      console.log("subscribers from formSubmissionFindByPhoneNumberAction", subscribers)
-      console.log("formSubmissionFindByPhoneNumberAction finished ===================");
 
       const subscriber = this.getSubcriberByOwner(subscribers, createdBy[0]);
-      console.log("subscriber from getSubcriberByOwner", subscriber);
-      console.log("getSubcriberByOwner finished ===================");
-      
+      console.log('subscriber', subscriber);
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
-      console.log("updatesFiltered from filterUpdatesSubscribedbySubscriber", updatesFiltered)
-      console.log("filterUpdatesSubscribedbySubscriber finished ===================");
 
       await this.updateReportingUpdateByResponseAction.execute(
         context,
@@ -134,8 +126,6 @@ export class SmsReceiveHookAction {
         subscriber,
         payload.Body,
       );
-      console.log("updateReportingUpdateByResponseAction finished ===================");
-
     } catch (error) {
       context.logger.error({
         message: 'Handle sms receive update fail!',
@@ -164,7 +154,6 @@ export class SmsReceiveHookAction {
     content: string,
     type?: TYPE_MESSAGE,
   ) {
-    console.log("saveSms started ===================");
     await Promise.all([
       this.formSubmissionUpdateLastContactedAction.execute(context, to, from),
       this.messageCreateAction.execute(context, {
@@ -177,7 +166,6 @@ export class SmsReceiveHookAction {
         phoneNumberReceipted: to,
       }),
     ]);
-    console.log("saveSms finished ===================");
   }
 
   private async handleFirstContact(

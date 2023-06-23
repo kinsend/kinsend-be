@@ -27,7 +27,9 @@ export class FormSubmissionFindByPhoneNumberAction {
     if (owner) {
       query.owner = DataHelper.toObjectId(owner);
     }
+    console.log('Query', query);
     const formSubmission = await this.formSubmissionModel.find(query);
+    console.log('Form Submission', formSubmission);
     return formSubmission;
   }
 }
