@@ -12,6 +12,7 @@ export class UserFindByPhoneSystemAction {
     const user = await this.userModel.find({
       phoneSystem: { $elemMatch: { $and: [{ phone: phone.phone }, { code: phone.code }] } },
     });
+    console.log('user in UserFindByPhoneSystemAction', user);
     return user;
   }
 }
