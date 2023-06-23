@@ -19,6 +19,7 @@ export class FormSubmissionFindByPhoneNumberAction {
     phone: PhoneNumber,
     owner?: string,
   ): Promise<FormSubmissionDocument[]> {
+    console.log('phone in FormSubmissionFindByPhoneNumberAction', phone);
     const query: any = {
       'phoneNumber.phone': phone.phone,
       'phoneNumber.code': phone.code,
