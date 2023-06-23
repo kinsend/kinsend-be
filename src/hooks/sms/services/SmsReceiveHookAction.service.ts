@@ -1,3 +1,5 @@
+/* eslint-disable unicorn/prefer-array-find */
+/* eslint-disable @typescript-eslint/lines-between-class-members */
 /* eslint-disable unicorn/no-useless-undefined */
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger } from '@nestjs/common';
@@ -99,23 +101,23 @@ export class SmsReceiveHookAction {
       const createdBy = await this.userFindByPhoneSystemAction.execute(
         convertStringToPhoneNumber(payload.To),
       );
-
+      console.log('Created By', createdBy);
       if (createdBy.length === 0) {
         console.log('length 0');
         return;
       }
-
       const updates = await this.updatesFindByCreatedByAction.execute(context, createdBy[0].id);
       if (updates.length === 0) {
         console.log('updates length 0');
         return;
       }
+      console.log('updates', updates);
 
       const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
         context,
         convertStringToPhoneNumber(payload.From),
       );
-
+      console.log('Subscribers', subscribers);
       const subscriber = this.getSubcriberByOwner(subscribers, createdBy[0]);
       console.log('subscriber', subscriber);
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
