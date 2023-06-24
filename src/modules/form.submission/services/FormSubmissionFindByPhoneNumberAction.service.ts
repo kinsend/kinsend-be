@@ -19,7 +19,6 @@ export class FormSubmissionFindByPhoneNumberAction {
     phone: PhoneNumber,
     owner?: string,
   ): Promise<FormSubmissionDocument[]> {
-    console.log('phone in FormSubmissionFindByPhoneNumberAction', phone);
     const query: any = {
       'phoneNumber.phone': phone.phone,
       'phoneNumber.code': phone.code,
@@ -27,9 +26,7 @@ export class FormSubmissionFindByPhoneNumberAction {
     if (owner) {
       query.owner = DataHelper.toObjectId(owner);
     }
-    console.log('Query', query);
     const formSubmission = await this.formSubmissionModel.find(query);
-    console.log('Form Submission', formSubmission);
     return formSubmission;
   }
 }
