@@ -9,6 +9,7 @@ import { Item } from '../../subscription/dtos/CreateSubscriptionByCustomerId.dto
 import { IPrice } from '../../subscription/interfaces/IGetPriceByItems';
 import { PlanSubscriptionCreateDto } from '../dto/plan-subscription-create.dto';
 import { PlanSubscription, PlanSubscriptionDocument } from '../plan-subscription.schema';
+import { ChargebeeService } from 'src/shared/services/chargebee.service';
 
 @Injectable()
 export class PlanSubscriptionCreateAction {
@@ -17,6 +18,7 @@ export class PlanSubscriptionCreateAction {
     private subscriptionPlanDocument: Model<PlanSubscriptionDocument>,
 
     private stripeService: StripeService,
+    private chargebeeService: ChargebeeService,
   ) {}
 
   async execute(
@@ -38,23 +40,24 @@ export class PlanSubscriptionCreateAction {
   private async getPriceByItems(context: RequestContext, prices: Item[]): Promise<IPrice> {
     const pricesResponse = await Promise.all(
       prices.map((price) => {
-        return this.stripeService.getDetailPrice(context, price.price);
+        // return this.stripeService.getDetailPrice(context, price.price);
+        return this.chargebeeService.getDetailPrice(context, price.price);
       }),
     );
     if (prices.length === 0) {
       throw new NotFoundException(`price: ${prices} not found!`);
     }
-    const product = await this.stripeService.getProductById(
-      context,
-      pricesResponse[0].product as string,
-    );
-    if (!product) {
-      throw new NotFoundException('Product not found!');
-    }
+    // const product = await this.stripeService.getProductById(
+    //   context,
+    //   pricesResponse[0].product as string,
+    // );
+    // if (!product) {
+    //   throw new NotFoundException('Product not found!');
+    // }
     return {
       priceId: pricesResponse[0].id,
-      price: pricesResponse[0].unit_amount || 0,
-      productName: product.name,
+      price: pricesResponse[0]?.metadata?.prices?.amount || 0,
+      productName: pricesResponse[0].name,
     };
   }
 }

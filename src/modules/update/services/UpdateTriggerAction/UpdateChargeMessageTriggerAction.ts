@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ChargebeeService } from 'src/shared/services/chargebee.service';
 import Stripe from 'stripe';
 import { ConfigService } from '../../../../configs/config.service';
 import {
@@ -15,8 +16,8 @@ import { RequestContext } from '../../../../utils/RequestContext';
 import { regionPhoneNumber } from '../../../../utils/utilsPhoneNumber';
 import { MailSendGridService } from '../../../mail/mail-send-grid.service';
 import { MessageDocument } from '../../../messages/message.schema';
-import { MessagesFindByConditionAction } from '../../../messages/services/MessagesFindByConditionAction.service';
 import { MessageUpdateManyAction } from '../../../messages/services/MessageUpdateManyAction.service';
+import { MessagesFindByConditionAction } from '../../../messages/services/MessagesFindByConditionAction.service';
 import { PaymentMonthlyCreateAction } from '../../../payment.monthly/services/PaymentMonthlyCreateAction.service';
 import { PaymentSendInvoiceAction } from '../../../payment/services/PaymentSendInvoiceAction.service';
 import { MessageContext } from '../../../subscription/interfaces/message.interface';
@@ -27,6 +28,7 @@ export class UpdateChargeMessageTriggerAction {
   constructor(
     private smsService: SmsService,
     private stripeService: StripeService,
+    private chargebee: ChargebeeService,
     private configService: ConfigService,
     private userFindByIdAction: UserFindByIdAction,
     private mailSendGridService: MailSendGridService,
@@ -122,6 +124,13 @@ export class UpdateChargeMessageTriggerAction {
       stripeCustomerUserId,
       description,
     );
+    // These code for chargebee (Don't delete)
+    // const paymentIntent = await this.chargebee.chargePaymentUser(
+    //   context,
+    //   fee,
+    //   stripeCustomerUserId,
+    //   description,
+    // );
 
     return { numberCard, bill: paymentIntent };
   }
@@ -171,19 +180,24 @@ export class UpdateChargeMessageTriggerAction {
       typeMessage,
       statusPaid: false,
     });
+    let noOfSegments = 0;
+    messages.map((msg: any, idx: number) => {
+      noOfSegments += Math.floor(msg?.content?.length / 160) + 1;
+    });
     let totalPrice = 0;
     if (
       typeMessage === TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC ||
       typeMessage === TYPE_MESSAGE.MESSAGE_DOMESTIC
     ) {
-      totalPrice += messages.length * (PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD);
+      totalPrice += noOfSegments * (PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD);
     } else if (typeMessage === TYPE_MESSAGE.MMS) {
       totalPrice += messages.length * this.configService.priceMMS * RATE_CENT_USD;
     } else {
       // International
       for await (const message of messages) {
+        const segments = message.content ? Math.floor(message?.content?.length / 160) + 1 : 1;
         const price = await this.handlePricePerMessage(context, message.phoneNumberReceipted);
-        totalPrice += Number(price) * 2;
+        totalPrice += Number(price) * segments;
       }
     }
 

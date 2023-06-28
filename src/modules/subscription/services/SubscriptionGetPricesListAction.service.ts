@@ -2,6 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
+import { ChargebeeService } from 'src/shared/services/chargebee.service';
 import { ConfigService } from '../../../configs/config.service';
 import { StripeService } from '../../../shared/services/stripe.service';
 import { RequestContext } from '../../../utils/RequestContext';
@@ -10,17 +11,17 @@ import { RequestContext } from '../../../utils/RequestContext';
 export class SubscriptionGetPricesListAction {
   constructor(
     private readonly stripeService: StripeService,
+    private readonly chargebeeService: ChargebeeService,
 
     private configService: ConfigService,
   ) {}
 
-  async execute(context: RequestContext): Promise<Stripe.Response<Stripe.ApiList<Stripe.Price>>> {
-    const prices = await this.stripeService.getPricesList(context);
-    const pricesResult = prices.data.filter((price) =>
-      this.configService.planAvailable.includes((price.product as any).name),
+  async execute(context: RequestContext): Promise<any> {
+    const prices = await this.chargebeeService.getPricesList(context);
+    const pricesResult = prices.filter((price: any) =>
+      this.configService.planAvailable.includes(price.name),
     );
     return {
-      ...prices,
       data: pricesResult,
     };
   }

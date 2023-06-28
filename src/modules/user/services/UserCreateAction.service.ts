@@ -34,8 +34,9 @@ export class UserCreateAction {
     private planSubscriptionCreateAction: PlanSubscriptionCreateAction,
   ) {}
 
-  async execute(context: RequestContext, payload: UserCreatePayloadDto): Promise<UserDocument> {
+  async execute(context: RequestContext, payload: UserCreatePayloadDto): Promise<any> {
     const { email, password, planSubscription } = payload;
+    console.log('Payload ----', payload);
     const { correlationId } = context;
     const checkExistedUser = await this.userModel.findOne({ $or: [{ email }] });
 

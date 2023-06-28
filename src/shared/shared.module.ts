@@ -14,6 +14,7 @@ import { ConfigService } from '../configs/config.service';
 import { AmplifyClientService } from './services/amplify.client.service';
 import { ValidateDomainService } from './services/validate.domain.service';
 import { BackgroudJobService } from './services/backgroud.job.service';
+import { ChargebeeService } from './services/chargebee.service';
 
 const configService = new ConfigService();
 const { jwtSecret, accessTokenExpiry } = configService;
@@ -48,6 +49,7 @@ const { jwtSecret, accessTokenExpiry } = configService;
     AmplifyClientService,
     ValidateDomainService,
     BackgroudJobService,
+    ChargebeeService,
   ],
   providers: [
     ConfigService,
@@ -59,6 +61,7 @@ const { jwtSecret, accessTokenExpiry } = configService;
     AmplifyClientService,
     ValidateDomainService,
     BackgroudJobService,
+    ChargebeeService,
   ],
 })
 export class SharedModule {}

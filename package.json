@@ -43,6 +43,7 @@
     "bull": "^4.10.4",
     "bunyan": "^1.8.15",
     "cache-manager": "^3.6.1",
+    "chargebee-typescript": "^2.21.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "date-and-time": "^2.4.0",

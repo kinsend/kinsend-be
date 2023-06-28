@@ -205,6 +205,7 @@ export class UpdateHandleSendSmsAction {
     file?: string,
     updateId?: string,
   ) {
+    console.log('saveSms running');
     return (status = 'success', error?: string) =>
       this.messageCreateAction.execute(context, {
         content: message,

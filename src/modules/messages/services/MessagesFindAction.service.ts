@@ -32,6 +32,7 @@ export class MessagesFindAction {
     query: MessageFindQueryQueryDto,
     payload: MessageFindDto,
   ): Promise<any[]> {
+    console.log('payload -------------', payload);
     const { search } = query;
     const { page: pageString, pageSize: pageSizeString } = query;
     const page = (pageString && Number.parseInt(pageString)) || 1;

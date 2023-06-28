@@ -194,6 +194,14 @@ export class ConfigService {
     return process.env.STRIPE_SECRET_KEY || this.envConfig['STRIPE_SECRET_KEY'] || '';
   }
 
+  get chargebeeSite(): string {
+    return process.env.CHARGEBEE_SITE || this.envConfig['CHARGEBEE_SITE'] || '';
+  }
+
+  get chargebeeApiKey(): string {
+    return process.env.CHARGEBEE_API_KEY || this.envConfig['CHARGEBEE_API_KEY'] || '';
+  }
+
   get stripeCurrency(): string {
     return process.env.STRIPE_CURRENCY || this.envConfig['STRIPE_CURRENCY'] || '';
   }
@@ -231,7 +239,7 @@ export class ConfigService {
   }
   get backendDomain(): string {
     return (
-      process.env.BACKEND_DOMAIN || this.envConfig['BACKEND_DOMAIN'] || 'https://dev.api.kinsend.io'
+      process.env.BACKEND_DOMAIN || this.envConfig['BACKEND_DOMAIN'] || 'https://api.dev.kinsend.io'
     );
   }
 

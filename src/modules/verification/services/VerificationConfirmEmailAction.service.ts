@@ -17,6 +17,7 @@ import { STATUS } from '../../../domain/const';
 import { User, UserDocument } from '../../user/user.schema';
 import { UserConfirmationTokenDto } from '../../user/dtos/UserConfirmationToken.dto';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
+import { ChargebeeService } from 'src/shared/services/chargebee.service';
 
 @Injectable()
 export class VerificationConfirmEmailAction {
@@ -25,6 +26,7 @@ export class VerificationConfirmEmailAction {
     @InjectConnection() private readonly connection: mongoose.Connection,
     private configService: ConfigService,
     private stripeService: StripeService,
+    private chargebeeService: ChargebeeService,
     private jwtService: JwtService,
   ) {}
 
@@ -49,7 +51,13 @@ export class VerificationConfirmEmailAction {
         throw new ForbiddenException('User has verified Stripe customer');
       }
       const fullName = `${checkExistedUser.firstName} ${checkExistedUser.lastName}`;
-      const customerInfo = await this.stripeService.createCustomerUser(context, fullName, email);
+      // const customerInfo = await this.stripeService.createCustomerUser(context, fullName, email);
+      const customerInfo = await this.chargebeeService.createCustomerUser(
+        context,
+        checkExistedUser.firstName,
+        checkExistedUser.lastName,
+        email,
+      );
       const user = await this.userModel.findByIdAndUpdate(checkExistedUser.id, {
         status: STATUS.ACTIVE,
         stripeCustomerUserId: customerInfo.id,

@@ -47,7 +47,7 @@ export const TTL = 60;
 
 export const BILLING_CYCLE_ANCHOR = 30;
 
-export const PRICE_PER_MESSAGE_DOMESTIC = 0.01;
+export const PRICE_PER_MESSAGE_DOMESTIC = 0.012;
 
 export const PRICE_PER_MESSAGE_INTERNATIONAL = 0.16;
 
