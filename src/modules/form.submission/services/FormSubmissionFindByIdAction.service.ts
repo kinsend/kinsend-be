@@ -12,10 +12,17 @@ export class FormSubmissionFindByIdAction {
   ) {}
 
   async execute(context: RequestContext, id: string): Promise<FormSubmissionDocument> {
-    const formSubmission = await this.formSubmissionModel.findById(id);
+
+    const formSubmission = await this.formSubmissionModel.findOne({
+      id: id,
+      owner: context.user.id,
+    });
+
     if (!formSubmission) {
       throw new NotFoundException('FormSubmission', 'FormSubmission not found!');
     }
+
     return formSubmission.populate('tags');
+
   }
 }
