@@ -61,7 +61,7 @@ export class FormSubmissionsGetAction {
             createdAt : 1,
             updatedAt : 1
           },
-          metadata : 1,
+          metaData : 1,
           createdAt : 1,
           updatedAt : 1
         }
