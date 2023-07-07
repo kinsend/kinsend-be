@@ -13,20 +13,29 @@ export class FormSubmissionsGetAction {
     @InjectModel(FormSubmission.name) private formSubmissionModel: Model<FormSubmissionDocument>,
   ) {}
 
-  async execute(context: RequestContext, limit : number, pageNumber : number) {
+  async execute(context: RequestContext, limit : number, pageNumber : number, searchFilter : string) {
 
-    let totalFormSubmissions = await this.formSubmissionModel.countDocuments({
-      owner: context.user.id,
-    });
+    let whereConditions : any = {
+      owner: new mongoose.Types.ObjectId(context.user.id),
+    };
+
+    if(searchFilter){
+
+      whereConditions = {
+        owner : new mongoose.Types.ObjectId(context.user.id),
+        email : { $regex : searchFilter, $options : 'i' }
+      }
+      
+    }
+
+    let totalFormSubmissions = await this.formSubmissionModel.countDocuments(whereConditions);
 
     let totalNumberOfPages = Math.ceil(totalFormSubmissions / limit);
 
 
     let mongooseAggregateConditions : mongoose.PipelineStage[] = [
       {
-        $match : {
-          owner : new mongoose.Types.ObjectId(context.user.id)
-        },
+        $match : whereConditions,
       },
       {
         $lookup : {
@@ -64,7 +73,6 @@ export class FormSubmissionsGetAction {
         $limit : limit
       }
     ];
-
 
     let formSubmissionRes = await this.formSubmissionModel.aggregate(mongooseAggregateConditions)
 
