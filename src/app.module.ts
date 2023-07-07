@@ -30,6 +30,7 @@ import { FirstContactModule } from './modules/first-contact/first-contact.module
 import { KeywordResponseModule } from './modules/keyword-response/keyword-response.module';
 import { PlanSubscriptionModule } from './modules/plan-subscription/plan-subscription.module';
 import { HealthModule } from './modules/health/health.module';
+import { a2pRegistrationModule } from './modules/a2p-registration/a2p-registration.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { HealthModule } from './modules/health/health.module';
     KeywordResponseModule,
     PlanSubscriptionModule,
     HealthModule,
+    a2pRegistrationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
