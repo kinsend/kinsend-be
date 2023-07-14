@@ -81,13 +81,11 @@ export class FormSubmissionUpdateAction {
       }
     }
 
-    formUpdate.populate([
+    return formUpdate.populate([
       { path: 'form' },
       { path: 'tags' },
       { path: 'owner', select: ['-password'] },
     ]);
-
-    return await this.formSubmissionFindByIdAction.getFormSubmissionById(context.user.id, formSubId);
 
   }
 
