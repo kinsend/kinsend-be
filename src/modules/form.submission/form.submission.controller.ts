@@ -87,6 +87,9 @@ export class FormSubmissionController {
     @Query('pageNumber', ParseIntPipe) pageNumber : number,
     @Query('searchFilter') searchFilter : string
   ) {
+
+    searchFilter = decodeURIComponent(searchFilter);
+
     return this.formSubmissionsGetAction.execute(request, limit, pageNumber, searchFilter);
   }
 
