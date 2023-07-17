@@ -85,100 +85,14 @@ export class UpdateHandleSendSmsAction {
       return;
     }
     const chunks = subscribers.reduce((accumulator, _, index) => {
-      if (index % 100 === 0) {
-        accumulator.push(subscribers.slice(index, index + 100));
+      if (index % 200 === 0) {
+        accumulator.push(subscribers.slice(index, index + 200));
       }
       return accumulator;
-    }, [] as any);
+    }, [] as FormSubmission[][]);
 
-    const promises: Promise<any>[] = chunks.map(async (subscriberChunk) => {
-      try {
-        const messageBody = {
-          message: {
-            subscribers: subscriberChunk,
-            ownerPhoneNumber,
-            update,
-            scheduleName,
-          },
-        };
-
-        const message = JSON.stringify(messageBody);
-        Logger.log('Sending message', message);
-        // eslint-disable-next-line @typescript-eslint/return-await
-        return await this.sqsService.send('kinsend-dev', {
-          id: uuid(),
-          body: {
-            message: `${message}`,
-            type: 'update',
-            createdAt: new Date().toISOString(),
-          },
-        });
-      } catch (error) {
-        Logger.error('Error sending message', error);
-      }
-    });
-
-    await Promise.all(promises);
-
-    // try {
-    //   const messageBody = { message: subscribers };
-
-    //   const message = JSON.stringify(messageBody);
-
-    //   Logger.log('Sending message', message);
-
-    //   await this.sqsService.send('kinsend-dev', {
-    //     id: uuid(),
-    //     body: {
-    //       message: messageBody.message,
-    //       createdAt: new Date().toISOString(),
-    //     },
-    //   });
-    // } catch (error) {
-    //   Logger.error('Error sending message', error);
-    // }
-
-    return;
-
-    logger.info(`Sending sms to subscribers. Interval: ${update.triggerType}`);
-    const timeTriggerSchedule = new Date();
-    await Promise.all(
-      subscribers.map(async (sub) => {
-        const { phoneNumber, firstName, lastName, email, _id } = sub;
-        const subscriber = await this.formSubmissionFindByIdAction.execute(context, _id.toString());
-        if (!subscriber || !subscriber.isSubscribed) {
-          return;
-        }
-        const to = `+${phoneNumber.code}${phoneNumber.phone}`;
-        const messageReview = await this.handleGenerateLinkRedirect(
-          update,
-          sub,
-          context,
-          linkRediectCreateByMessageAction,
-        );
-        const message = messageReview === null ? update.message : messageReview;
-        const messageFilled = fillMergeFieldsToMessage(message, {
-          fname: firstName,
-          lname: lastName,
-          name: firstName + lastName,
-          mobile: to,
-          email,
-        });
-        // Note: run async for update lastContacted
-        formSubmissionUpdateLastContactedAction.execute(context, to, ownerPhoneNumber);
-
-        return smsService.sendMessage(
-          context,
-          ownerPhoneNumber,
-          messageFilled,
-          update.fileUrl,
-          to,
-          `api/hook/sms/update/status/${update.id}`,
-          this.saveSms(context, ownerPhoneNumber, to, messageFilled, update.fileUrl, update.id),
-        );
-      }),
-    );
-    if (update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
+    if (chunks.length === 0 && update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
+      Logger.warn('Do not have a subscriber, marking update as done');
       // Note: update process for update type Once
       await updateUpdateProgressAction.execute(context, update.id, UPDATE_PROGRESS.DONE);
       await this.updateScheduleModel.updateOne(
@@ -188,11 +102,37 @@ export class UpdateHandleSendSmsAction {
         },
       );
     }
-    try {
-      await this.updateChargeMessageTriggerAction.execute(context, update.id, timeTriggerSchedule);
-    } catch (error) {
-      logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
-    }
+
+    const promises: Promise<AWS.SQS.SendMessageBatchResultEntryList | undefined>[] = chunks.map(
+      async (subscriberChunk) => {
+        try {
+          const messageBody = {
+            message: {
+              subscribers: subscriberChunk,
+              ownerPhoneNumber,
+              update,
+              scheduleName,
+            },
+          };
+
+          const message = JSON.stringify(messageBody);
+          Logger.log('Sending message', message);
+          // eslint-disable-next-line @typescript-eslint/return-await
+          return await this.sqsService.send('kinsend-dev', {
+            id: uuid(),
+            body: {
+              message: `${message}`,
+              type: 'update',
+              createdAt: new Date().toISOString(),
+            },
+          });
+        } catch (error) {
+          Logger.error('Error sending message', error);
+        }
+      },
+    );
+
+    await Promise.all(promises);
   }
 
   private isSkipTrigger(context: RequestContext, triggerType: INTERVAL_TRIGGER_TYPE) {
