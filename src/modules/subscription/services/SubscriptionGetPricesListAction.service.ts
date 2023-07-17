@@ -8,6 +8,7 @@ import { RequestContext } from '../../../utils/RequestContext';
 
 @Injectable()
 export class SubscriptionGetPricesListAction {
+
   constructor(
     private readonly stripeService: StripeService,
 
@@ -16,9 +17,11 @@ export class SubscriptionGetPricesListAction {
 
   async execute(context: RequestContext): Promise<Stripe.Response<Stripe.ApiList<Stripe.Price>>> {
     const prices = await this.stripeService.getPricesList(context);
+    context.logger.info(`Fetching raw prices`, prices)
     const pricesResult = prices.data.filter((price) =>
       this.configService.planAvailable.includes((price.product as any).name),
     );
+    context.logger.info(`Filtered prices`, pricesResult)
     return {
       ...prices,
       data: pricesResult,
