@@ -117,7 +117,7 @@ jobs:
 
       - name: Build the kinsend-be Docker image
         run: |
-          docker build --build-arg "MANIFEST_VERSION=${{ steps.vars.outputs.manifestVersion }}" -t ${{ steps.vars.outputs.image }} .
+          docker build --no-cache --build-arg "MANIFEST_VERSION=${{ steps.vars.outputs.manifestVersion }}" -t ${{ steps.vars.outputs.image }} .
 
       - name: Push the kinsend-be Docker image
         run: |
