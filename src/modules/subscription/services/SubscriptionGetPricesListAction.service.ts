@@ -18,7 +18,9 @@ export class SubscriptionGetPricesListAction {
     const prices = await this.stripeService.getPricesList(context);
     context.logger.info('Fetching raw prices', prices);
     const pricesResult = prices.data.filter(
-      (price: any) => price.product?.metadata?.isActive === 'true',
+      (price: any) =>
+        price.product?.metadata?.isActive === 'true' &&
+        price.id !== 'price_1NTqSpL9qtTnHtkvVijjvr0t',
     );
     context.logger.info('Filtered prices', pricesResult);
     return {
