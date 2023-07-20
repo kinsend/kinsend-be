@@ -21,10 +21,24 @@ export class FormSubmissionsGetAction {
 
     if(searchFilter){
 
-      whereConditions = {
-        owner : new mongoose.Types.ObjectId(context.user.id),
-        email : { $regex : searchFilter, $options : 'i' }
-      }
+      whereConditions = { $or : [
+        {
+          owner : new mongoose.Types.ObjectId(context.user.id),
+          email : { $regex : searchFilter, $options : 'i' }
+        },
+        {
+          owner : new mongoose.Types.ObjectId(context.user.id),
+          firstName : { $regex : searchFilter, $options : 'i' }
+        },
+        {
+          owner : new mongoose.Types.ObjectId(context.user.id),
+          lastName : { $regex : searchFilter, $options : 'i' }
+        },
+        {
+          owner : new mongoose.Types.ObjectId(context.user.id),
+          "phoneNumber.phone" : { $regex : searchFilter, $options : 'i' }
+        }
+      ]};
       
     }
 
