@@ -332,7 +332,7 @@ export class StripeService {
 
   async getPricesList(
     context: RequestContext,
-    limit = 30,
+    limit = 100,
   ): Promise<Stripe.Response<Stripe.ApiList<Stripe.Price>>> {
     const { logger, correlationId } = context;
     try {
