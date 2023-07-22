@@ -26,13 +26,22 @@ export class FormSubmissionsGetAction {
           owner : new mongoose.Types.ObjectId(context.user.id),
           email : { $regex : `.*${searchFilter}.*`, $options : 'i' }
         },
+        // {
+        //   owner : new mongoose.Types.ObjectId(context.user.id),
+        //   firstName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
+        // },
+        // {
+        //   owner : new mongoose.Types.ObjectId(context.user.id),
+        //   lastName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
+        // },
         {
-          owner : new mongoose.Types.ObjectId(context.user.id),
-          firstName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
-        },
-        {
-          owner : new mongoose.Types.ObjectId(context.user.id),
-          lastName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
+          $expr: {
+            $regexMatch: {
+              input: { $concat: ["$firstName", " ", "$lastName"] },
+              regex: `.*${searchFilter}.*`,
+              options: 'i',
+            },
+          },
         },
         {
           owner : new mongoose.Types.ObjectId(context.user.id),
@@ -64,6 +73,7 @@ export class FormSubmissionsGetAction {
           _id : { $toString : '$_id' },
           firstName : 1,
           lastName : 1,
+          name : {$concat : ["$firstName", " ", "$lastName"]},
           email : 1,
           phoneNumber : 1,
           tags : {
