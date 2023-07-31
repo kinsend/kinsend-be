@@ -110,6 +110,7 @@ export class UpdateHandleSendSmsAction {
             message: {
               subscribers: subscriberChunk,
               ownerPhoneNumber,
+              ownerEmail: update.createdBy.email,
               update: update.id,
               scheduleName,
             },
