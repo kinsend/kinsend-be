@@ -1,12 +1,15 @@
 /* eslint-disable new-cap */
-import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import {
+  A2pRegistration,
+  A2pRegistrationDocument,
+} from 'src/modules/a2p-registration/a2p-registration.schema';
 import { RequestContext } from '../../../utils/RequestContext';
-import { KeywordResponse, KeywordResponseDocument } from '../keyword-response.schema';
-import { TaskDocument } from '../../automation/task.schema';
-import { AUTO_KEYWORD_RESPONSE_TYPE } from '../constant';
 import { AutoKeyWordResponse } from '../auto-keyword-response.schema';
+import { AUTO_KEYWORD_RESPONSE_TYPE } from '../constant';
+import { KeywordResponse, KeywordResponseDocument } from '../keyword-response.schema';
 import { KeywordResponseModel } from '../model/keyword-response.model';
 
 @Injectable()
@@ -14,6 +17,7 @@ export class KeywordResponseGetAction {
   constructor(
     @InjectModel(KeywordResponse.name)
     private keywordResponseDocument: Model<KeywordResponseDocument>,
+    @InjectModel(A2pRegistration.name) private a2pRegistration: Model<A2pRegistrationDocument>,
   ) {}
 
   async execute(context: RequestContext, isBuildModel = true): Promise<any> {
@@ -25,6 +29,11 @@ export class KeywordResponseGetAction {
       keywordResponseDocument = await new this.keywordResponseDocument({
         createdBy: user.id,
       }).save();
+    }
+    const userA2pInfo = await this.a2pRegistration.findOne({ userId: user.id });
+    if (!userA2pInfo || userA2pInfo?.progress !== 'APPROVED') {
+      keywordResponseDocument.isEnable = false;
+      await keywordResponseDocument.save();
     }
     const response = await keywordResponseDocument.populate({
       path: 'autoKeywordResponses',

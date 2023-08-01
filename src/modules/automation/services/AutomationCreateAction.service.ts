@@ -10,16 +10,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { convertTimeToTimeObject } from '../../../utils/convertTimeToTimeObject';
-import { DayEnum, getNextDayOfWeek, MonthNumberEnum } from '../../../utils/getDayOfNextWeek';
+import {
+  A2pRegistration,
+  A2pRegistrationDocument,
+} from 'src/modules/a2p-registration/a2p-registration.schema';
 import { Logger } from '../../../utils/Logger';
 import { RequestContext } from '../../../utils/RequestContext';
+import { convertTimeToTimeObject } from '../../../utils/convertTimeToTimeObject';
+import { DayEnum, MonthNumberEnum, getNextDayOfWeek } from '../../../utils/getDayOfNextWeek';
 import { TagsGetByIdsAction } from '../../tags/services/TagsGetByIdsAction.service';
 import { User, UserDocument } from '../../user/user.schema';
 import { Automation, AutomationDocument } from '../automation.schema';
 import { AutomationCreatePayload, Delay, TaskPayload } from '../dtos/AutomationCreatePayload.dto';
 import { AutomationUnsave } from '../interfaces/automation.interface';
-import { DURATION, TASK_TYPE, TRIGGER_TYPE } from '../interfaces/const';
+import { AUTOMATION_STATUS, DURATION, TASK_TYPE, TRIGGER_TYPE } from '../interfaces/const';
 import { Task, TaskDocument } from '../task.schema';
 
 @Injectable()
@@ -28,6 +32,7 @@ export class AutomationCreateAction {
     @InjectModel(Automation.name) private automatonModel: Model<AutomationDocument>,
     @InjectModel(Task.name) private taskModel: Model<TaskDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(A2pRegistration.name) private a2pRegistration: Model<A2pRegistrationDocument>,
     private tagsGetByIdsAction: TagsGetByIdsAction,
   ) {}
 
@@ -57,10 +62,14 @@ export class AutomationCreateAction {
     }
     const { user } = context;
     const userModel = new this.userModel({ ...user, _id: new mongoose.Types.ObjectId(user.id) });
+    // CHECKING IF USER HAS A2P REGISTRATION
+    const userA2pInfo = await this.a2pRegistration.findOne({ userId: context.user.id });
     const automation = await new this.automatonModel({
       ...automationUnsave,
       tasks,
       user: userModel,
+      status:
+        userA2pInfo?.progress === 'APPROVED' ? AUTOMATION_STATUS.ENABLE : AUTOMATION_STATUS.DISABLE,
     }).save();
     return automation.populate([
       { path: 'tasks' },
