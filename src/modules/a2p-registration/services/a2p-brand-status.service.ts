@@ -61,7 +61,7 @@ export class A2pBrandStatusService {
       const brandStatusResponse = await this.fetchBrandStatus(context, userA2pInfo.brandSid);
       console.log('brandStatusResponse', brandStatusResponse);
       if(brandStatusResponse.status === 'FAILED') {
-        console.log('brandStatusResponse', brandStatusResponse);
+        console.log(`brandStatusResponse Failed for ${context.user.email}`, brandStatusResponse);
         return {
           status: 'FAILED',
           message: 'User Brand registration is FAILED',
@@ -126,7 +126,6 @@ export class A2pBrandStatusService {
         userA2pInfo.messageServiceSid,
       );
 
-      console.log('campaignStatusResponse', campaignStatusResponse);
 
       if (campaignStatusResponse?.campaign_status === 'IN_PROGRESS') {
         return {
@@ -138,7 +137,8 @@ export class A2pBrandStatusService {
         };
       }
       if (campaignStatusResponse?.campaign_status === 'FAILED') {
-        console.log('campaignStatusResponse', campaignStatusResponse);
+        console.log(`campaignStatusResponse Failed for ${context.user.email}`, campaignStatusResponse);
+
         return {
           status: 'FAILED',
           message: 'Campaign verification is FAILED',

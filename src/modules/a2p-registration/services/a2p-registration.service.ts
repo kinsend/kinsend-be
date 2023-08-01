@@ -484,7 +484,7 @@ export class A2pRegistrationTrustHubService {
       const bundle = await this.twilioClient.trusthub.v1.trustProducts.create({
         friendlyName: 'A2P Trust Bundle',
         email: customerEmail,
-        policySid: 'RNb0d4771c2c98518d916a3d4cd70a8f8b',
+        policySid: this.configService.twilioTrustBundlePolicySid,
       });
 
       return bundle;
@@ -629,7 +629,7 @@ export class A2pRegistrationTrustHubService {
     try {
       const evaluation = await this.twilioClient.trusthub.v1
         .trustProducts(trustBundleSid)
-        .trustProductsEvaluations.create({ policySid: 'RNb0d4771c2c98518d916a3d4cd70a8f8b' });
+        .trustProductsEvaluations.create({ policySid: this.configService.twilioTrustBundlePolicySid });
 
       return evaluation;
     } catch (error) {

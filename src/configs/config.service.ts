@@ -59,27 +59,25 @@ export class ConfigService {
   }
 
   get twilioPolicySid(): string {
+    return process.env.TWILIO_POLICY_SID || this.envConfig['TWILIO_POLICY_SID'] || '';
+  }
+
+  get twilioTrustBundlePolicySid(): string {
     return (
-      process.env.TWILIO_POLICY_SID ||
-      this.envConfig['TWILIO_POLICY_SID'] ||
-      'RNdfbf3fae0e1107f8aded0e7cead80bf5'
+      process.env.TWILIO_TRUSTBUNDLE_POLICY_SID ||
+      this.envConfig['TWILIO_TRUSTBUNDLE_POLICY_SID'] ||
+      ''
     );
   }
 
   get twilioPrimaryProfileSid(): string {
     return (
-      process.env.TWILIO_PRIMARY_PROFILE_SID ||
-      this.envConfig['TWILIO_PRIMARY_PROFILE_SID'] ||
-      'BUc347f45021e940550e023d691d0ca7a6'
+      process.env.TWILIO_PRIMARY_PROFILE_SID || this.envConfig['TWILIO_PRIMARY_PROFILE_SID'] || ''
     );
   }
 
   get twilioComplianceType(): string {
-    return (
-      process.env.TWILIO_COMPLIANCE_TYPE ||
-      this.envConfig['TWILIO_COMPLIANCE_TYPE'] ||
-      'QE2c6890da8086d771620e9b13fadeba0b'
-    );
+    return process.env.TWILIO_COMPLIANCE_TYPE || this.envConfig['TWILIO_COMPLIANCE_TYPE'] || '';
   }
 
   get redisClusterPort(): number {
