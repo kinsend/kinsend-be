@@ -30,7 +30,7 @@ import { FirstContactModule } from './modules/first-contact/first-contact.module
 import { KeywordResponseModule } from './modules/keyword-response/keyword-response.module';
 import { PlanSubscriptionModule } from './modules/plan-subscription/plan-subscription.module';
 import { HealthModule } from './modules/health/health.module';
-import { a2pRegistrationModule } from './modules/a2p-registration/a2p-registration.module';
+import { A2pRegistrationModule } from './modules/a2p-registration/a2p-registration.module';
 
 @Module({
   imports: [
@@ -62,7 +62,7 @@ import { a2pRegistrationModule } from './modules/a2p-registration/a2p-registrati
     KeywordResponseModule,
     PlanSubscriptionModule,
     HealthModule,
-    a2pRegistrationModule,
+    A2pRegistrationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

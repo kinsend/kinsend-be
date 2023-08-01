@@ -1,9 +1,14 @@
+/* eslint-disable no-unneeded-ternary */
+/* eslint-disable quotes */
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-console */
 /* eslint-disable unicorn/prevent-abbreviations */
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as QueryString from 'qs';
 import { ConfigService } from 'src/configs/config.service';
 import { RequestContext } from 'src/utils/RequestContext';
 import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
@@ -17,15 +22,13 @@ export class A2pRegistrationTrustHubService {
   constructor(
     @InjectModel(A2pRegistration.name) private a2pRegistration: Model<A2pRegistrationDocument>,
     private readonly configService: ConfigService,
+    private httpService: HttpService,
   ) {
     const { twilioAccountSid, twilioAuthToken } = this.configService;
     this.twilioClient = new Twilio(twilioAccountSid, twilioAuthToken);
   }
 
   async execute(context: any, payload: any): Promise<any> {
-    // console.log('context =============', context);
-    // console.log('payload =============', payload);
-    // return {};
     const {
       email,
       phoneNumber,
@@ -48,17 +51,20 @@ export class A2pRegistrationTrustHubService {
       companyType,
       stockExchange,
       stockTicker,
-      description,
-      messageFlow,
-      messageSample,
-      usAppToPersonUsecase,
       name,
+      planType,
     } = payload;
-    // const a2pRegistration = await this.a2pRegistration.find();
-    // return a2pRegistration;
+    const a2pRegistration = await this.a2pRegistration.find({
+      userId: context.user.id,
+    });
+
+    if (a2pRegistration.length > 0) {
+      throw new IllegalStateException('A2P Registration already exists');
+    }
 
     // Create an empty secondary customer profile bundle (1.2)
     const emptySecCustomer = await this.createEmptySecCustomerProfile(context, customerEmail);
+
     // Create end-user object of type (1.3)
     const endUserObject = await this.createEndUserObject(
       context,
@@ -69,6 +75,7 @@ export class A2pRegistrationTrustHubService {
       business_name,
       websiteUrl,
     );
+
     // Create End User Of Type Auth (1.4)
     const endUserObjectAuth = await this.createEndUserOfTypeAuth(
       context,
@@ -79,9 +86,8 @@ export class A2pRegistrationTrustHubService {
       email,
       businessTitle,
     );
+
     // Create End User Supporting Document (1.6)
-    // const fullName = `${firstName} ${lastName}`;
-    // const fullName = name;
     const endUserSupportingDocument = await this.createSupportingDocument(
       context,
       name,
@@ -91,6 +97,7 @@ export class A2pRegistrationTrustHubService {
       postalCode,
       isoCountryCode,
     );
+
     // Create Customer Document (1.6.1)
     const addressSid = endUserSupportingDocument.sid;
     const customerDocument = await this.createCustomerDocument(context, addressSid);
@@ -107,28 +114,25 @@ export class A2pRegistrationTrustHubService {
       emptySecCustomerSid,
       { authSid, supportingDocSid, customerProfileInfoSid },
     );
+
     // Evalute the assigned values (1.8)
     const secondaryCustomerSid = assignedValues.customerProfileSid;
     const evaluationResult = await this.runEvaluation(context, secondaryCustomerSid);
-    console.log('evaluationResult', evaluationResult);
     if (evaluationResult.status !== 'compliant') {
-      console.log('not equal to complaint true');
       return evaluationResult;
     }
+
     // Submit customer profile for review (1.9)
     const submittedCustomerProfile = await this.submitSecCustomerProfile(
       context,
       secondaryCustomerSid,
     );
 
-    console.log('submittedCustomerProfile =============', submittedCustomerProfile);
-    // return submittedCustomerProfile;
-
     // CREATE AN A2P TRUST PRODUCT
 
     // Create an empty A2P trust Bundle (2.2)
     const a2pEmptyTrustBundle = await this.createEmptyA2pTrustBundle(context, customerEmail);
-    console.log('a2pEmptyTrustBundle', a2pEmptyTrustBundle);
+
     // Create an End User of type us_a2p_msg_profile_info (2.3.1 - 2.3.4)
     const attributes = {
       business_name,
@@ -148,7 +152,7 @@ export class A2pRegistrationTrustHubService {
       stockTicker,
       attributes,
     );
-    console.log('endUserObjectA2p', endUserObjectA2p);
+
     // Assign end user to A2P Trust Bundle (2.4)
     const trustBundleSid = a2pEmptyTrustBundle.sid;
     const endUserObjectSid = endUserObjectA2p.sid;
@@ -158,7 +162,7 @@ export class A2pRegistrationTrustHubService {
       trustBundleSid,
       endUserObjectSid,
     );
-    console.log('assignedEndUserToA2pTrustBundle', assignedEndUserToA2pTrustBundle);
+
     // Assign secondary customer profile to A2P Trust Bundle (2.5)
     const assignedSecCustomerToA2pTrustBundleRes =
       await this.assignSecondaryCustomerProfileToA2pTrustBundle(
@@ -167,12 +171,8 @@ export class A2pRegistrationTrustHubService {
         secondaryCustomerSid,
       );
 
-    console.log('assignedSecCustomerToA2pTrustBundleRes', assignedSecCustomerToA2pTrustBundleRes);
-
     // Run evaluation on A2P Trust Bundle (2.6)
     const a2pTrustProductEvaluation = await this.runA2pTrustEvaluation(context, trustBundleSid);
-    console.log('a2pTrustProductEvaluation ************', a2pTrustProductEvaluation);
-    return a2pTrustProductEvaluation;
     // Submit A2P Trust Bundle for review (2.7)
     const submittedA2pTrustBundle = await this.submitA2pTrustBundle(context, trustBundleSid);
 
@@ -183,37 +183,32 @@ export class A2pRegistrationTrustHubService {
       context,
       emptySecCustomerSid,
       trustBundleSid,
+      planType,
     );
 
     // fetch to check the brand status (3.0.1)
     const brandSid = createA2pBrandRes.sid;
-    const brandStatus = await this.fetchToCheckBrandStatus(context, brandSid);
 
     // CREATE A MESSAGEING SERVICE
     // (4.1)
     const createdMessagingService = await this.createNewMessagingService(context);
 
-    // CREATE AN A2P CAMPAIGN (5)
-
-    // Fetch possible A2P Campaigns use cases (5.1)
-    const possibleA2pCampaigns = await this.fetchA2pCompaignUsecases(
-      context,
-      createdMessagingService.sid,
+    const newA2pRegistration = new this.a2pRegistration({
+      userId: context.user.id,
+      progress: 'PENDING',
+      submittedFormValues: JSON.stringify(payload),
+      messageServiceSid: createdMessagingService.sid,
       brandSid,
-    );
+      brandStatus: createA2pBrandRes.status,
+      planType,
+      createdAt: new Date(),
+    });
 
-    // create A2P Campaign (5.2)
-    const createA2pCampaignRes = await this.createA2pCompaign(
-      context,
-      createdMessagingService.sid,
-      brandSid,
-      description,
-      messageFlow,
-      messageSample,
-      usAppToPersonUsecase,
-    );
-
-    return { message: 'Hello World!' };
+    await newA2pRegistration.save();
+    return {
+      status: 'Brand Created Successfully',
+      message: 'Your application is in review. This will take about 2-3 business days.',
+    };
   }
 
   createEmptySecCustomerProfile = async (context: RequestContext, email: string) => {
@@ -227,7 +222,7 @@ export class A2pRegistrationTrustHubService {
 
       return customerProfile;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Create an empty secondary customer profile bundle error',
@@ -250,15 +245,7 @@ export class A2pRegistrationTrustHubService {
     websiteUrl: string,
   ) => {
     const { logger, correlationId } = context;
-    console.log(
-      'Business Info:',
-      businessRegionsOfOperation,
-      businessType,
-      businessRegistrationNumber,
-      businessIndustry,
-      businessName,
-      websiteUrl,
-    );
+
     try {
       const attributes = {
         business_name: businessName,
@@ -279,7 +266,7 @@ export class A2pRegistrationTrustHubService {
 
       return endUserObject;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Create end user object error',
@@ -318,7 +305,7 @@ export class A2pRegistrationTrustHubService {
 
       return endUserObject;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Create end user of type Authorized error',
@@ -351,7 +338,7 @@ export class A2pRegistrationTrustHubService {
 
       return supportingDocument;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Create supporting document error',
@@ -373,7 +360,7 @@ export class A2pRegistrationTrustHubService {
 
       return customerDocument;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Create customer document error',
@@ -393,14 +380,12 @@ export class A2pRegistrationTrustHubService {
     try {
       // Assign End User Authorized Representative 1
       const authRes = await this.assignCustomerDetailThroughSid(context, bundleSid, sids.authSid);
-      console.log('authRes', authRes);
       // Assign End User Supporting Document
       const supportingDocRes = await this.assignCustomerDetailThroughSid(
         context,
         bundleSid,
         sids.supportingDocSid,
       );
-      console.log('supportingDocRes', supportingDocRes);
 
       // Assign End User Customer Profile Business Info
       const customerProfileInfoRes = await this.assignCustomerDetailThroughSid(
@@ -408,18 +393,16 @@ export class A2pRegistrationTrustHubService {
         bundleSid,
         sids.customerProfileInfoSid,
       );
-      console.log('customerProfileInfoRes', customerProfileInfoRes);
       // Assign End User Primary Customer Profile
       const assignedValuesRes = await this.assignCustomerDetailThroughSid(
         context,
         bundleSid,
-        // customerProfileInfoRes.sid,
         this.configService.twilioPrimaryProfileSid,
       );
 
       return assignedValuesRes;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Assign End User Object error',
@@ -436,7 +419,6 @@ export class A2pRegistrationTrustHubService {
     sid: string,
   ) => {
     const { logger, correlationId } = context;
-    console.log('sid ==== ', sid, bundleSid);
     try {
       const customerProfile = await this.twilioClient.trusthub.v1
         .customerProfiles(bundleSid)
@@ -444,7 +426,7 @@ export class A2pRegistrationTrustHubService {
 
       return customerProfile;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Assign Customer Detail Single Call error',
@@ -464,7 +446,7 @@ export class A2pRegistrationTrustHubService {
 
       return evaluation;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Run Evaluation error',
@@ -502,7 +484,7 @@ export class A2pRegistrationTrustHubService {
       const bundle = await this.twilioClient.trusthub.v1.trustProducts.create({
         friendlyName: 'A2P Trust Bundle',
         email: customerEmail,
-        policySid: this.configService.twilioPolicySid,
+        policySid: 'RNb0d4771c2c98518d916a3d4cd70a8f8b',
       });
 
       return bundle;
@@ -525,7 +507,6 @@ export class A2pRegistrationTrustHubService {
     attributes: any,
   ) => {
     const { logger, correlationId } = context;
-    console.log('attributes', attributes);
     try {
       let endUserObject;
       switch (companyType) {
@@ -582,7 +563,7 @@ export class A2pRegistrationTrustHubService {
 
       return endUserObject;
     } catch (error) {
-      console.log('error -------- ', error);
+      console.log('error --------', error);
       logger.error({
         correlationId,
         message: 'Request Create end user of type Authorized error',
@@ -648,7 +629,7 @@ export class A2pRegistrationTrustHubService {
     try {
       const evaluation = await this.twilioClient.trusthub.v1
         .trustProducts(trustBundleSid)
-        .trustProductsEvaluations.create({ policySid: this.configService.twilioPolicySid });
+        .trustProductsEvaluations.create({ policySid: 'RNb0d4771c2c98518d916a3d4cd70a8f8b' });
 
       return evaluation;
     } catch (error) {
@@ -687,17 +668,20 @@ export class A2pRegistrationTrustHubService {
     context: RequestContext,
     customerProfileBundleSid: string,
     a2PProfileBundleSid: string,
+    planType: string,
   ) => {
     const { logger, correlationId } = context;
     try {
       const brand = await this.twilioClient.messaging.v1.brandRegistrations.create({
-        skipAutomaticSecVet: true,
+        skipAutomaticSecVet: planType === 'starter' ? true : false,
         customerProfileBundleSid,
         a2PProfileBundleSid,
+        // mock: true,
       });
 
       return brand;
     } catch (error) {
+      console.log('error -------- ', error);
       logger.error({
         correlationId,
         message: 'Request Create A2P Brand error',
@@ -806,6 +790,7 @@ export class A2pRegistrationTrustHubService {
 
       return usecases;
     } catch (error) {
+      console.log('error -------- ', error);
       logger.error({
         correlationId,
         message: 'Request Fetch A2p Compaign Usecases error',
@@ -813,116 +798,6 @@ export class A2pRegistrationTrustHubService {
       });
 
       throw new IllegalStateException('Request to Fetch A2p Compaign Usecases not success');
-    }
-  };
-
-  createA2pCompaign = async (
-    context: RequestContext,
-    messageServiceSid: string,
-    brandSid: string,
-    desc: string,
-    messageFlow: string,
-    messageSamples: string[],
-    usAppToPersonUsecase: string,
-    // hasEmbeddedLinks: boolean,
-    // hasPhoneNumbers: boolean,
-  ) => {
-    const { logger, correlationId } = context;
-    try {
-      const campaign = await this.twilioClient.messaging.v1
-        .services(messageServiceSid)
-        .usAppToPerson.create({
-          // optInKeywords: ['START', 'BEGIN'],
-          // optInMessage: 'Thanks for subscribing',
-          description: desc,
-          // messageFlow,
-          messageSamples,
-          usAppToPersonUsecase,
-          hasEmbeddedLinks: true,
-          hasEmbeddedPhone: true,
-          brandRegistrationSid: brandSid,
-        });
-
-      return campaign;
-    } catch (error) {
-      logger.error({
-        correlationId,
-        message: 'Request Create A2p Compaign error',
-        error,
-      });
-
-      throw new IllegalStateException('Request to Create A2p Compaign not success');
-    }
-  };
-
-  checkA2pCompaignStatus = async (context: RequestContext, messageServiceSid: string) => {
-    const { logger, correlationId } = context;
-    try {
-      const campaign = await this.twilioClient.messaging.v1
-        .services(messageServiceSid)
-        .usAppToPerson(this.configService.twilioComplianceType)
-        .fetch();
-
-      return campaign;
-    } catch (error) {
-      logger.error({
-        correlationId,
-        message: 'Request Check A2p Compaign Status error',
-        error,
-      });
-
-      throw new IllegalStateException('Request to Check A2p Compaign Status not success');
-    }
-  };
-
-  addPhoneNumberToMessageingService = async (
-    context: RequestContext,
-    messageServiceSid: string,
-    phoneNumberSid: string,
-  ) => {
-    const { logger, correlationId } = context;
-    try {
-      const phone = await this.twilioClient.messaging.v1
-        .services(messageServiceSid)
-        .phoneNumbers.create({
-          phoneNumberSid,
-        });
-
-      return phone;
-    } catch (error) {
-      logger.error({
-        correlationId,
-        message: 'Request Add Phone Number To Messageing Service error',
-        error,
-      });
-
-      throw new IllegalStateException(
-        'Request to Add Phone Number To Messageing Service not success',
-      );
-    }
-  };
-
-  fetchPhoneNumberResource = async (
-    context: RequestContext,
-    messageServiceSid: string,
-    phoneNumberSid: string,
-  ) => {
-    const { logger, correlationId } = context;
-    try {
-      const phone = await this.twilioClient.messaging.v1
-        .services(messageServiceSid)
-        .phoneNumbers(phoneNumberSid)
-        .fetch();
-
-      return phone;
-    } catch (error) {
-      logger.error({
-        correlationId,
-        message: 'Request Fetch Phone Number Resource error',
-        error,
-      });
-
-      throw new IllegalStateException('Request to Fetch Phone Number Resource not success');
     }
   };
 }

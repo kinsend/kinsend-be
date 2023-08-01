@@ -75,3 +75,8 @@ export enum REGISTRATION_STATUS {
   APPROVED = 'APPROVED',
   FAILED = 'FAILED',
 }
+
+export enum A2P_PLAN_TYPE {
+  STARTER = 'STARTER',
+  STANDARD = 'STANDARD',
+}
