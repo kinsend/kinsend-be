@@ -212,8 +212,6 @@ export class A2pBrandStatusService {
         url: `https://messaging.twilio.com/v1/Services/${messageServiceSid}/Compliance/Usa2p`,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          //   Authorization:
-          //     'Basic QUNkOTQ1N2YxZGQyNDJmNDhjZjM4ZjBiYjFmYjkxMDQwMzpkMjFlMGIxNmEwZmExOTFjZDkxYTdmMzUwMThjZTZlMw==',
         },
         auth: {
           username: this.configService.twilioAccountSid,
