@@ -8,30 +8,23 @@
 /* eslint-disable new-cap */
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import {
-  FormSubmission,
-  FormSubmissionDocument,
-} from 'src/modules/form.submission/form.submission.schema';
-import * as schedule from 'node-schedule';
-import { FormSubmissionFindByIdAction } from 'src/modules/form.submission/services/FormSubmissionFindByIdAction.service';
 import { SqsService } from '@ssut/nestjs-sqs';
+import { Model } from 'mongoose';
+import * as schedule from 'node-schedule';
+import { FormSubmission } from 'src/modules/form.submission/form.submission.schema';
+import { FormSubmissionFindByIdAction } from 'src/modules/form.submission/services/FormSubmissionFindByIdAction.service';
 import { v4 as uuid } from 'uuid';
-import { UpdateSchedule, UpdateScheduleDocument } from '../update.schedule.schema';
-import { LinkRediectCreateByMessageAction } from './link.redirect/LinkRediectCreateByMessageAction.service';
-import { UpdateUpdateProgressAction } from './UpdateUpdateProgressAction.service';
-import { UpdateFindByIdWithoutReportingAction } from './UpdateFindByIdWithoutReportingAction.service';
-import { UpdateDocument } from '../update.schema';
-import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from '../interfaces/const';
-import { MessageCreateAction } from '../../messages/services/MessageCreateAction.service';
+import { SmsService } from '../../../shared/services/sms.service';
 import { RequestContext } from '../../../utils/RequestContext';
 import { FormSubmissionUpdateLastContactedAction } from '../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
-import { SmsService } from '../../../shared/services/sms.service';
-import { fillMergeFieldsToMessage } from '../../../utils/fillMergeFieldsToMessage';
-import { REGION_DOMESTIC, TYPE_MESSAGE } from '../../../domain/const';
-import { getLinksInMessage } from '../../../utils/getLinksInMessage';
-import { regionPhoneNumber } from '../../../utils/utilsPhoneNumber';
+import { MessageCreateAction } from '../../messages/services/MessageCreateAction.service';
+import { INTERVAL_TRIGGER_TYPE, UPDATE_PROGRESS } from '../interfaces/const';
+import { UpdateSchedule, UpdateScheduleDocument } from '../update.schedule.schema';
+import { UpdateDocument } from '../update.schema';
+import { UpdateFindByIdWithoutReportingAction } from './UpdateFindByIdWithoutReportingAction.service';
 import { UpdateChargeMessageTriggerAction } from './UpdateTriggerAction/UpdateChargeMessageTriggerAction';
+import { UpdateUpdateProgressAction } from './UpdateUpdateProgressAction.service';
+import { LinkRediectCreateByMessageAction } from './link.redirect/LinkRediectCreateByMessageAction.service';
 
 @Injectable()
 export class UpdateHandleSendSmsAction {
@@ -66,7 +59,6 @@ export class UpdateHandleSendSmsAction {
     datetimeTrigger: Date,
     scheduleName: string,
   ): Promise<void> {
-    const { logger } = context;
     if (!update) {
       return;
     }
@@ -104,20 +96,19 @@ export class UpdateHandleSendSmsAction {
     }
 
     const promises: Promise<AWS.SQS.SendMessageBatchResultEntryList | undefined>[] = chunks.map(
-      async (subscriberChunk) => {
+      async (subscriberChunk, index) => {
         try {
           const messageBody = {
             message: {
               subscribers: subscriberChunk,
               ownerPhoneNumber,
-              ownerEmail: update.createdBy.email,
               update: update.id,
               scheduleName,
             },
           };
 
           const message = JSON.stringify(messageBody);
-          Logger.log('Sending message', message);
+          Logger.log(`Sending chunk#${index}`, message);
           // eslint-disable-next-line @typescript-eslint/return-await
           return await this.sqsService.send('kinsend-dev', {
             id: uuid(),
@@ -204,54 +195,5 @@ export class UpdateHandleSendSmsAction {
       return;
     }
     my_job.cancel();
-  }
-
-  private saveSms(
-    context: RequestContext,
-    from: string,
-    to: string,
-    message: string,
-    file?: string,
-    updateId?: string,
-  ) {
-    return (status = 'success', error?: string) =>
-      this.messageCreateAction.execute(context, {
-        content: message,
-        updateId,
-        dateSent: new Date(),
-        isSubscriberMessage: false,
-        status,
-        fileAttached: file,
-        phoneNumberSent: from,
-        phoneNumberReceipted: to,
-        errorMessage: error,
-        typeMessage: !file ? this.handleTypeMessage(to) : TYPE_MESSAGE.MMS,
-      });
-  }
-
-  private async handleGenerateLinkRedirect(
-    update: UpdateDocument,
-    subscriber: FormSubmission,
-    context: RequestContext,
-    linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction,
-  ) {
-    const links = getLinksInMessage(update.message);
-    if (links.length === 0) {
-      return null;
-    }
-    const linkCreated = await linkRediectCreateByMessageAction.execute(
-      context,
-      update,
-      subscriber as FormSubmissionDocument,
-    );
-    return linkCreated.messageReview;
-  }
-
-  private handleTypeMessage(phoneNumberReceipted: string): TYPE_MESSAGE {
-    const region = regionPhoneNumber(phoneNumberReceipted);
-    if (!region || region === REGION_DOMESTIC) {
-      return TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC;
-    }
-    return TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL;
   }
 }
