@@ -1,12 +1,15 @@
 import { forwardRef, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
+import { AWSModule } from '../aws/aws.module';
 import { FormSubmissionModule } from '../form.submission/form.submission.module';
 import { FormModule } from '../form/form.module';
 import { MessageModule } from '../messages/message.module';
 import { PaymentMonthlyModule } from '../payment.monthly/payment.monthly.module';
 import { PaymentModule } from '../payment/payment.module';
 import { SegmentModule } from '../segment/segment.module';
+import { SQSModule } from '../sqs/sqs.module';
 import { TagsModule } from '../tags/tags.module';
 import { UserModule } from '../user/user.module';
 import { LinkRedirect, LinkRedirectSchema } from './link.redirect.schema';
@@ -25,8 +28,10 @@ import { UpdateDeleteByIdAction } from './services/UpdateDeleteByIdAction.servic
 import { UpdateFindAction } from './services/UpdateFindAction.service';
 import { UpdateFindByIdAction } from './services/UpdateFindByIdAction.service';
 import { UpdateFindByIdWithoutReportingAction } from './services/UpdateFindByIdWithoutReportingAction.service';
+import { UpdateHandleSendSmsAction } from './services/UpdateHandleSendSmsAction.service';
 import { UpdateHandleTrigerAction } from './services/UpdateHandleTrigerAction';
 import { UpdateModelUpdateAction } from './services/UpdateModelUpdateAction.service';
+import { UpdateReTriggerScheduleAction } from './services/updateReTriggerScheduleAction.service';
 import { UpdateSendTestAction } from './services/UpdateSendTestAction.service';
 import { UpdatesFindByCreatedByAction } from './services/UpdatesFindByCreatedByAction.service';
 import { UpdatesGetCountByCreatedByAction } from './services/UpdatesGetCountByCreatedByAction.service';
@@ -38,12 +43,8 @@ import { UpdateTaggedTriggerAction } from './services/UpdateTriggerAction/Update
 import { UpdateUpdateProgressAction } from './services/UpdateUpdateProgressAction.service';
 import { UpdateController } from './update.controller';
 import { UpdateReporting, UpdateReportingSchema } from './update.reporting.schema';
-import { Update, UpdateSchema } from './update.schema';
-import { UpdateReTriggerScheduleAction } from './services/updateReTriggerScheduleAction.service';
 import { UpdateSchedule, UpdateScheduleSchema } from './update.schedule.schema';
-import { UpdateHandleSendSmsAction } from './services/UpdateHandleSendSmsAction.service';
-import { SQSModule } from '../sqs/sqs.module';
-import { AWSModule } from '../aws/aws.module';
+import { Update, UpdateSchema } from './update.schema';
 
 @Module({
   controllers: [UpdateController],
@@ -64,9 +65,11 @@ import { AWSModule } from '../aws/aws.module';
     forwardRef(() => FormSubmissionModule),
     forwardRef(() => PaymentModule),
     SQSModule,
-    AWSModule
+    AWSModule,
+    ConfigModule,
   ],
   providers: [
+    ConfigService,
     UpdateCreateAction,
     UpdateFindByIdAction,
     UpdateModelUpdateAction,
