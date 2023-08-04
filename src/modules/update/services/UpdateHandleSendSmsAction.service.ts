@@ -7,6 +7,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable new-cap */
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { SqsService } from '@ssut/nestjs-sqs';
 import { Model } from 'mongoose';
@@ -28,7 +29,10 @@ import { LinkRediectCreateByMessageAction } from './link.redirect/LinkRediectCre
 
 @Injectable()
 export class UpdateHandleSendSmsAction {
-  constructor(private readonly sqsService: SqsService) {}
+  constructor(
+    private readonly sqsService: SqsService,
+    private readonly configService: ConfigService,
+  ) {}
 
   private timesPerformedOtherWeek = 0;
 
@@ -110,7 +114,7 @@ export class UpdateHandleSendSmsAction {
           const message = JSON.stringify(messageBody);
           Logger.log(`Sending chunk#${index}`, message);
           // eslint-disable-next-line @typescript-eslint/return-await
-          return await this.sqsService.send('kinsend-dev', {
+          return await this.sqsService.send(`${this.configService.get('aws.sqsName')}`, {
             id: uuid(),
             body: {
               message: `${message}`,
