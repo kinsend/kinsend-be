@@ -30,6 +30,8 @@ import { FirstContactModule } from './modules/first-contact/first-contact.module
 import { KeywordResponseModule } from './modules/keyword-response/keyword-response.module';
 import { PlanSubscriptionModule } from './modules/plan-subscription/plan-subscription.module';
 import { HealthModule } from './modules/health/health.module';
+import { AWSModule } from './modules/aws/aws.module';
+import { ConfigModule } from './modules/config/config.module';
 
 @Module({
   imports: [
@@ -61,6 +63,8 @@ import { HealthModule } from './modules/health/health.module';
     KeywordResponseModule,
     PlanSubscriptionModule,
     HealthModule,
+    AWSModule,
+    ConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -10,8 +10,10 @@ import {
   Body,
   Delete,
   Param,
+  Get,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiTags } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import JwtRefreshGuard from '../../providers/guards/JwtRefreshGuard.provider';
 import { LocalAuthGuard } from '../../providers/guards/LocalAuthGuard.provider';
 import { AppRequest } from '../../utils/AppRequest';
@@ -36,7 +38,13 @@ export class AuthController {
     private authRefreshTokenAction: AuthRefreshTokenAction,
     private authBlackListTokenAction: AuthBlackListTokenAction,
     private authSigninProviderAction: AuthSigninProviderAction,
+    private readonly configService: ConfigService,
   ) {}
+
+  @Get()
+  async getAuth() {
+    return this.configService;
+  }
 
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)

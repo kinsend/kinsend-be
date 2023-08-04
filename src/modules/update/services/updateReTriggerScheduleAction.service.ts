@@ -21,22 +21,31 @@ import { rootLogger } from '../../../utils/Logger';
 @Injectable()
 export class UpdateReTriggerScheduleAction implements OnModuleInit {
   private logger = new Logger();
+
   @InjectModel(UpdateSchedule.name) private updateScheduleModel: Model<UpdateScheduleDocument>;
+
   @Inject() private backgroudJobService: BackgroudJobService;
+
   @Inject(UpdateHandleSendSmsAction) private updateHandleSendSmsAction: UpdateHandleSendSmsAction;
+
   @Inject(LinkRediectCreateByMessageAction)
   private linkRediectCreateByMessageAction: LinkRediectCreateByMessageAction;
+
   @Inject(FormSubmissionUpdateLastContactedAction)
   private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction;
+
   @Inject(SmsService) private smsService: SmsService;
+
   @Inject(UpdateUpdateProgressAction)
   private updateUpdateProgressAction: UpdateUpdateProgressAction;
+
   @Inject(UpdateFindByIdWithoutReportingAction)
   private updateFindByIdWithoutReportingAction: UpdateFindByIdWithoutReportingAction;
 
   onModuleInit() {
     this.handleCron();
   }
+
   async handleCron() {
     this.logger.debug('Running update schedule');
     const schedules = await this.updateScheduleModel
