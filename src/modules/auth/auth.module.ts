@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 import { JwtRefreshTokenStrategy } from '../../providers/strategies/JwtRefreshStrategy.provider';
 import { LocalAuthStrategy } from '../../providers/strategies/LocalAuthStrategy.provider';
 import { SharedModule } from '../../shared/shared.module';
@@ -15,6 +16,7 @@ import { JwtAuthStrategy } from '../../providers/strategies/JwtAuthStrategy.prov
 import { AuthSigninByGoogleAction } from './services/AuthSigninByGoogleAction.service';
 import { AuthSigninProviderAction } from './services/AuthSigninProviderAction.service';
 import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.module';
+import { ConfigModule } from '../config/config.module';
 
 @Module({
   imports: [
@@ -22,8 +24,10 @@ import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.m
     UserModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PlanSubscriptionModule,
+    ConfigModule,
   ],
   providers: [
+    ConfigService,
     LocalAuthStrategy,
     JwtRefreshTokenStrategy,
     JwtAuthStrategy,

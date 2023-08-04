@@ -220,6 +220,14 @@ export class ConfigService {
     return process.env.BUCKET_NAME ?? '';
   }
 
+  get awsAccessKeyId(): string {
+    return process.env.AWS_ACCESS_KEY_ID ?? this.envConfig['AWS_ACCESS_KEY_ID'] ?? '';
+  }
+
+  get awsSecretAccessKey(): string {
+    return process.env.AWS_SECRET_ACCESS_KEY ?? this.envConfig['AWS_SECRET_ACCESS_KEY'] ?? '';
+  }
+
   get originDomain(): string {
     return (
       process.env.ORIGIN_DOMAIN || this.envConfig['ORIGIN_DOMAIN'] || 'dxjxo84zunoqc.cloudfront.net'
