@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable prettier/prettier */
 /* eslint-disable unicorn/prevent-abbreviations */
 /* eslint-disable unicorn/catch-error-name */
@@ -142,6 +143,9 @@ export class A2pBrandStatusService {
           `campaignStatusResponse Failed for ${context.user.email}`,
           campaignStatusResponse,
         );
+
+      console.log('campaignStatusResponse Errors', JSON.stringify(campaignStatusResponse.errors));
+
 
         return {
           status: 'FAILED',
