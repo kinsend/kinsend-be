@@ -1,22 +1,24 @@
+/* eslint-disable unicorn/consistent-destructuring */
+/* eslint-disable no-await-in-loop */
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as schedule from 'node-schedule';
 
-import { PaymentScheduleFindAction } from './PaymentScheduleFindAction.service';
+import * as moment from 'moment';
 import { ConfigService } from 'src/configs/config.service';
-import { IPrice } from '../../subscription/interfaces/IGetPriceByItems';
-import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 import {
   PLAN_PAYMENT_METHOD,
   PLAN_SUBSCRIPTION_STATUS,
 } from '../../plan-subscription/plan-subscription.constant';
-import * as moment from 'moment';
+import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
+import { IPrice } from '../../subscription/interfaces/IGetPriceByItems';
+import { PaymentScheduleFindAction } from './PaymentScheduleFindAction.service';
 
-import { PlanSubscriptionCreateAction } from '../../plan-subscription/services/plan-subscription-create-action.service';
-import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
-import { SubscriptionCreateTriggerPaymentAction } from '../../subscription/services/SubscriptionCreateTriggerPaymentAction.service';
-import { RequestContext } from '../../../utils/RequestContext';
-import { rootLogger } from '../../../utils/Logger';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { rootLogger } from '../../../utils/Logger';
+import { RequestContext } from '../../../utils/RequestContext';
+import { PlanSubscriptionCreateAction } from '../../plan-subscription/services/plan-subscription-create-action.service';
+import { SubscriptionCreateTriggerPaymentAction } from '../../subscription/services/SubscriptionCreateTriggerPaymentAction.service';
+import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
 
 @Injectable()
 export class PaymentTriggerScheduleAction implements OnModuleInit {

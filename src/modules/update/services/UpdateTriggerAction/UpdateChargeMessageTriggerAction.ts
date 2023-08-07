@@ -59,7 +59,6 @@ export class UpdateChargeMessageTriggerAction {
     );
 
     const isValid = await this.verifyPriceCharge(context, totalFee);
-
     if (isValid) {
       context.logger.info('Total fee more than limit. Go to charge');
       const { numberCard, bill } = await this.handleChargeStripeCustomer(
@@ -96,7 +95,7 @@ export class UpdateChargeMessageTriggerAction {
   }
 
   private async verifyPriceCharge(context: RequestContext, totalFee: number): Promise<boolean> {
-    // ex: totalFee <= 5 $ids
+    // ex: totalFee <= 1 $ids
     if (totalFee <= PRICE_ATTACH_CHARGE * RATE_CENT_USD) {
       return false;
     }
@@ -122,7 +121,6 @@ export class UpdateChargeMessageTriggerAction {
       stripeCustomerUserId,
       description,
     );
-
     return { numberCard, bill: paymentIntent };
   }
 
@@ -171,19 +169,26 @@ export class UpdateChargeMessageTriggerAction {
       typeMessage,
       statusPaid: false,
     });
+    let noOfSegments = 0;
+    messages.map((message: any) => {
+      noOfSegments += Math.floor(message?.content?.length / 160) + 1;
+    });
     let totalPrice = 0;
     if (
       typeMessage === TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC ||
       typeMessage === TYPE_MESSAGE.MESSAGE_DOMESTIC
     ) {
-      totalPrice += messages.length * (PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD);
+      // totalPrice += messages.length * (PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD);
+      totalPrice += noOfSegments * (PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD);
     } else if (typeMessage === TYPE_MESSAGE.MMS) {
       totalPrice += messages.length * this.configService.priceMMS * RATE_CENT_USD;
     } else {
       // International
       for await (const message of messages) {
+        const segments = message.content ? Math.floor(message?.content?.length / 160) + 1 : 1;
         const price = await this.handlePricePerMessage(context, message.phoneNumberReceipted);
-        totalPrice += Number(price) * 2;
+        // totalPrice += Number(price) * 2;
+        totalPrice += Number(price) * segments * 2;
       }
     }
 

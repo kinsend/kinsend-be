@@ -332,6 +332,8 @@ export class SmsService {
     } catch (error: any) {
       const errorMessage = error.message || error;
 
+      console.log('error', error);
+
       logger.error({
         correlationId,
         message: 'Send message fail!',
