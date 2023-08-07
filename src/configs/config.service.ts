@@ -70,6 +70,10 @@ export class ConfigService {
     );
   }
 
+  get twilioMockStatus(): string {
+    return process.env.TWILIO_IS_MOCK || this.envConfig['TWILIO_IS_MOCK'] || '';
+  }
+
   get twilioPrimaryProfileSid(): string {
     return (
       process.env.TWILIO_PRIMARY_PROFILE_SID || this.envConfig['TWILIO_PRIMARY_PROFILE_SID'] || ''

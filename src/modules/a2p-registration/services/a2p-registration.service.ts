@@ -676,7 +676,7 @@ export class A2pRegistrationTrustHubService {
         skipAutomaticSecVet: planType === 'starter' ? true : false,
         customerProfileBundleSid,
         a2PProfileBundleSid,
-        // mock: true,
+        mock: this.configService.twilioMockStatus === 'true' ? true : false,
       });
 
       return brand;
