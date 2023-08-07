@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/return-await */
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/providers/guards/JwtAuthGuard.provider';
@@ -19,14 +20,14 @@ export class A2PRegistrationController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('/trusthub')
-  createTrustHub(@Req() request: AppRequest, @Body() payload: any) {
-    return this.a2pRegistrationTrustHubService.execute(request, payload);
+  async createTrustHub(@Req() request: AppRequest, @Body() payload: any) {
+    return await this.a2pRegistrationTrustHubService.execute(request, payload);
   }
 
   @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.CREATED)
+  // @HttpCode(HttpStatus.CREATED)
   @Get('/brandStatus')
-  checkBrandStatus(@Req() request: AppRequest) {
-    return this.a2pBrandStatusService.execute(request);
+  async checkBrandStatus(@Req() request: AppRequest) {
+    return await this.a2pBrandStatusService.execute(request);
   }
 }
