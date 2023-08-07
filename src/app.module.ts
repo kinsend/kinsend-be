@@ -32,7 +32,7 @@ import { PlanSubscriptionModule } from './modules/plan-subscription/plan-subscri
 import { HealthModule } from './modules/health/health.module';
 import { AWSModule } from './modules/aws/aws.module';
 import { ConfigModule } from './modules/config/config.module';
-import { a2pRegistrationModule } from './modules/a2p-registration/a2p-registration.module';
+import { A2pRegistrationModule } from './modules/a2p-registration/a2p-registration.module';
 
 @Module({
   imports: [
@@ -66,7 +66,7 @@ import { a2pRegistrationModule } from './modules/a2p-registration/a2p-registrati
     HealthModule,
     AWSModule,
     ConfigModule,
-    a2pRegistrationModule,
+    A2pRegistrationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
