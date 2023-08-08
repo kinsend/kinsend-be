@@ -100,13 +100,15 @@ export class A2pBrandStatusService {
             form.messageSample,
             form.usAppToPersonUsecase,
           );
-        console.log('createA2pCampaignRes',createA2pCampaignRes);
+          console.log('createA2pCampaignRes', createA2pCampaignRes);
         } catch (error) {
-          throw new HttpException(`Error while creating campaign ${error}`, HttpStatus.BAD_REQUEST);
+          console.log('error --- ', error);
+          throw new HttpException({
+            profileStatus: 'FAILED',
+            message: `${error.response.message}`,
+          }, HttpStatus.BAD_REQUEST);
         }
 
-
-       
         try {
           userA2pInfo.brandStatus = 'APPROVED';
           userA2pInfo.campaignStatus = createA2pCampaignRes.campaign_status;
@@ -121,7 +123,10 @@ export class A2pBrandStatusService {
             createdAt: userA2pInfo?.createdAt,
           };
         } catch (error) {
-          throw new HttpException(`Error while saving data in mongo ${error}`, HttpStatus.BAD_REQUEST);
+          throw new HttpException(
+            `Error while saving data in mongo ${error}`,
+            HttpStatus.BAD_REQUEST,
+          );
         }
       }
     }
@@ -141,7 +146,6 @@ export class A2pBrandStatusService {
         context,
         userA2pInfo.messageServiceSid,
       );
-
 
       if (campaignStatusResponse?.campaign_status === 'IN_PROGRESS') {
         return {
@@ -258,10 +262,10 @@ export class A2pBrandStatusService {
       };
 
       const { data } = await this.httpService.axiosRef(config);
-      return  data;
+      return data;
     } catch (error) {
       // console.log('error', error);
-      console.log('error', error.response.data);
+      console.log(`error for ${context.user.email}`, error.response.data);
       logger.error({
         correlationId,
         message: 'Request Create A2p Compaign error',
@@ -269,7 +273,10 @@ export class A2pBrandStatusService {
       });
       // TODO: HTTPException
       throw new HttpException(
-        `Request to Create A2p Compaign not success ${error}`,
+        {
+          error: 'Request to Create A2p Compaign not success',
+          message: `${error.response.data.message}`,
+        },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
