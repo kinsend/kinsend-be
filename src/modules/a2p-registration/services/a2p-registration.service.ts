@@ -756,13 +756,15 @@ export class A2pRegistrationTrustHubService {
   };
 
   createNewMessagingService = async (context: RequestContext) => {
-    const { logger, correlationId } = context;
+    const { logger, correlationId,user } = context;
     try {
       const messagingService = await this.twilioClient.messaging.v1.services.create({
         inboundRequestUrl: `${this.configService.backendDomain}/api/hook/sms`,
         fallbackUrl: `${this.configService.backendDomain}/api/hook/sms`,
-        friendlyName: 'A2P Messaging Service',
+        friendlyName: `A2P Messaging Service ${user.id}`,
       });
+
+      console.log('messagingService ====================',messagingService)
 
       return messagingService;
     } catch (error) {

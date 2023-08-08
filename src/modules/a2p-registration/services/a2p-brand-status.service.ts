@@ -89,16 +89,24 @@ export class A2pBrandStatusService {
       if (brandStatusResponse.status === 'APPROVED') {
         // Creating Campaign
         const form = JSON.parse(userA2pInfo.submittedFormValues);
+        let createA2pCampaignRes;
+        try {
+          createA2pCampaignRes = await this.createA2pCompaign(
+            context,
+            userA2pInfo.messageServiceSid,
+            userA2pInfo.brandSid,
+            form.description,
+            form.messageFlow,
+            form.messageSample,
+            form.usAppToPersonUsecase,
+          );
+        console.log('createA2pCampaignRes',createA2pCampaignRes);
+        } catch (error) {
+          throw new HttpException(`Error while creating campaign ${error}`, HttpStatus.BAD_REQUEST);
+        }
 
-        const createA2pCampaignRes = await this.createA2pCompaign(
-          context,
-          userA2pInfo.messageServiceSid,
-          userA2pInfo.brandSid,
-          form.description,
-          form.messageFlow,
-          form.messageSample,
-          form.usAppToPersonUsecase,
-        );
+
+       
         try {
           userA2pInfo.brandStatus = 'APPROVED';
           userA2pInfo.campaignStatus = createA2pCampaignRes.campaign_status;
@@ -113,7 +121,7 @@ export class A2pBrandStatusService {
             createdAt: userA2pInfo?.createdAt,
           };
         } catch (error) {
-          throw new HttpException(`Error while creating campaign ${error}`, HttpStatus.BAD_REQUEST);
+          throw new HttpException(`Error while saving data in mongo ${error}`, HttpStatus.BAD_REQUEST);
         }
       }
     }
@@ -134,7 +142,6 @@ export class A2pBrandStatusService {
         userA2pInfo.messageServiceSid,
       );
 
-      console.log('campaignStatusResponse', campaignStatusResponse);
 
       if (campaignStatusResponse?.campaign_status === 'IN_PROGRESS') {
         return {
@@ -251,10 +258,10 @@ export class A2pBrandStatusService {
       };
 
       const { data } = await this.httpService.axiosRef(config);
-      return data.campaign;
+      return  data;
     } catch (error) {
-      console.log('error', error);
-      console.log('error', error.data);
+      // console.log('error', error);
+      console.log('error', error.response.data);
       logger.error({
         correlationId,
         message: 'Request Create A2p Compaign error',
@@ -262,7 +269,7 @@ export class A2pBrandStatusService {
       });
       // TODO: HTTPException
       throw new HttpException(
-        'Request to Create A2p Compaign not success',
+        `Request to Create A2p Compaign not success ${error}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
