@@ -60,7 +60,7 @@ jobs:
           accountId=${{ env.DEV_AWS_ACCOUNT_ID }}
           roleId="dev"
           version=1.0.0-${{ env.IMAGE_REF }}
-          manifestVersion=$version
+          manifestVersion=$version-${{ steps.commit.outputs.short }}
           cluster=kinsend-ecs-cluster-dev
           service=kinsend-be-dev
           task=kinsend-be
@@ -72,8 +72,7 @@ jobs:
             manifestVersion=$version
             cluster=kinsend-ecs-cluster-prod
             service=kinsend-be-prod
-          fi
-          if [[ "$ref" == "develop" ]]; then
+          elif [[ "$ref" == "develop" ]]; then
             # We are not using "version", because for the `develop` branch the version is fixed to just `1.0.0-develop`
             # without a hash to reduce the need for cleaning up old or one-time versions from ECR.
             manifestVersion=1.0.0-develop-${{ steps.commit.outputs.short }}
