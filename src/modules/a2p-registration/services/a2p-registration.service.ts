@@ -201,6 +201,7 @@ export class A2pRegistrationTrustHubService {
       brandSid,
       brandStatus: createA2pBrandRes.status,
       planType,
+      bundleSid: secondaryCustomerSid,
       createdAt: new Date(),
     });
 

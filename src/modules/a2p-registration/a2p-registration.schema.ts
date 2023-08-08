@@ -36,6 +36,9 @@ export class A2pRegistration {
   campaignStatus: string;
 
   @Prop({ type: String })
+  bundleSid: string;
+
+  @Prop({ type: String })
   planType: A2P_PLAN_TYPE;
 
   @Prop({ type: Date })

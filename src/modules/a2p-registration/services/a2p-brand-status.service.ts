@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable consistent-return */
 /* eslint-disable prettier/prettier */
 /* eslint-disable unicorn/prevent-abbreviations */
@@ -5,7 +6,7 @@
 /* eslint-disable @typescript-eslint/lines-between-class-members */
 /* eslint-disable unicorn/filename-case */
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as QueryString from 'qs';
@@ -31,21 +32,25 @@ export class A2pBrandStatusService {
   }
   async execute(context: RequestContext): Promise<any> {
     const { logger } = context;
-
     const { phoneSystem } = context.user;
     if (!phoneSystem || (phoneSystem as PhoneNumber[]).length === 0) {
       logger.info('Skip Registration status Check. Phone number is empty!');
-      return;
+      throw new HttpException('Phone number is empty!', HttpStatus.BAD_REQUEST);
     }
     const phoneNumber = `+${phoneSystem[0].code}${phoneSystem[0].phone}`;
 
     const userA2pInfo = await this.a2pRegistration.findOne({ userId: context.user.id });
     if (!userA2pInfo) {
-      return {
-        status: 'NOT_REGISTERED',
-        message: 'User not registered',
-      };
+      throw new HttpException(
+        {
+          status: 'NOT_REGISTERED',
+          message: 'User not registered',
+        },
+        HttpStatus.NOT_FOUND,
+      );
     }
+
+    console.log('userA2pInfo', userA2pInfo);
 
     const { submittedFormValues } = userA2pInfo;
     const formValues = JSON.parse(submittedFormValues);
@@ -83,31 +88,36 @@ export class A2pBrandStatusService {
 
       if (brandStatusResponse.status === 'APPROVED') {
         // Creating Campaign
-
         const form = JSON.parse(userA2pInfo.submittedFormValues);
 
-        const createA2pCampaignRes = await this.createA2pCompaign(
-          context,
-          userA2pInfo.messageServiceSid,
-          userA2pInfo.brandSid,
-          form.description,
-          form.messageFlow,
-          form.messageSample,
-          form.usAppToPersonUsecase,
-        );
+        try {
+          const createA2pCampaignRes = await this.createA2pCompaign(
+            context,
+            userA2pInfo.messageServiceSid,
+            userA2pInfo.brandSid,
+            form.description,
+            form.messageFlow,
+            form.messageSample,
+            form.usAppToPersonUsecase,
+          );
+  
+          userA2pInfo.brandStatus = 'APPROVED';
+          userA2pInfo.campaignStatus = createA2pCampaignRes?.campaign_status;
+          await userA2pInfo.save();
+  
+          return {
+            createA2pCampaignRes,
+            status: 'PENDING',
+            message: 'Campaign Created verification is in progress',
+            planType: formValues.planType,
+            useCase: formValues.usAppToPersonUsecase,
+            createdAt: userA2pInfo?.createdAt,
+          };
+        } catch (error) {
+          throw new HttpException(`Error while creating campaign ${error}`, HttpStatus.BAD_REQUEST);
+        }
 
-        userA2pInfo.brandStatus = 'APPROVED';
-        userA2pInfo.campaignStatus = createA2pCampaignRes?.campaign_status;
-        await userA2pInfo.save();
-
-        return {
-          createA2pCampaignRes,
-          status: 'PENDING',
-          message: 'Campaign Created verification is in progress',
-          planType: formValues.planType,
-          useCase: formValues.usAppToPersonUsecase,
-          createdAt: userA2pInfo?.createdAt,
-        };
+        
       }
     }
 
@@ -144,8 +154,7 @@ export class A2pBrandStatusService {
           campaignStatusResponse,
         );
 
-      console.log('campaignStatusResponse Errors', JSON.stringify(campaignStatusResponse.errors));
-
+        console.log('campaignStatusResponse Errors', JSON.stringify(campaignStatusResponse.errors));
 
         return {
           status: 'FAILED',
@@ -156,34 +165,43 @@ export class A2pBrandStatusService {
       }
       if (campaignStatusResponse?.campaign_status === 'VERIFIED') {
         // Associating Campaign with Number
-        const config: any = {
-          method: 'get',
-          url: `https://api.twilio.com/2010-04-01/Accounts/${this.configService.twilioAccountSid}/IncomingPhoneNumbers.json?PhoneNumber=${phoneNumber}`,
-          auth: {
-            username: this.configService.twilioAccountSid,
-            password: this.configService.twilioAuthToken,
-          },
-        };
 
-        const fetchNumberSid: any = await this.httpService.axiosRef(config);
+        try {
+          const config: any = {
+            method: 'get',
+            url: `https://api.twilio.com/2010-04-01/Accounts/${this.configService.twilioAccountSid}/IncomingPhoneNumbers.json?PhoneNumber=${phoneNumber}`,
+            auth: {
+              username: this.configService.twilioAccountSid,
+              password: this.configService.twilioAuthToken,
+            },
+          };
+  
+          const fetchNumberSid: any = await this.httpService.axiosRef(config);
+  
+          const phoneNmberSid = fetchNumberSid.data.incoming_phone_numbers[0].sid;
+  
+          
+  
+          const associateNumberWithCampaign = await this.addPhoneNumberToMessageingService(
+            context,
+            userA2pInfo.messageServiceSid,
+            phoneNmberSid,
+          );
+  
+          userA2pInfo.progress = REGISTRATION_STATUS.APPROVED;
+          userA2pInfo.campaignStatus = 'VERIFIED';
+          await userA2pInfo.save();
+          return {
+            status: 'APPROVED',
+            message: 'Campaign verification is APPROVED',
+            planType: formValues.planType,
+            useCase: formValues.usAppToPersonUsecase,
+          };
+        } catch (error) {
+          throw new HttpException(`Request to Fetch Number Sid and associating Number to comapign not success: ${error}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-        const phoneNmberSid = fetchNumberSid.data.incoming_phone_numbers[0].sid;
-
-        const associateNumberWithCampaign = await this.addPhoneNumberToMessageingService(
-          context,
-          userA2pInfo.messageServiceSid,
-          phoneNmberSid,
-        );
-
-        userA2pInfo.progress = REGISTRATION_STATUS.APPROVED;
-        userA2pInfo.campaignStatus = 'VERIFIED';
-        await userA2pInfo.save();
-        return {
-          status: 'APPROVED',
-          message: 'Campaign verification is APPROVED',
-          planType: formValues.planType,
-          useCase: formValues.usAppToPersonUsecase,
-        };
+        
       }
     }
   }
@@ -199,8 +217,8 @@ export class A2pBrandStatusService {
         message: 'Request Fetch Brand Status error',
         error,
       });
-
-      throw new IllegalStateException('Request to Fetch Brand Status not success');
+      throw new HttpException('Request to Fetch Brand Status not success', HttpStatus.BAD_REQUEST);
+      // throw new IllegalStateException('Request to Fetch Brand Status not success');
     }
   };
 
@@ -254,8 +272,8 @@ export class A2pBrandStatusService {
         message: 'Request Create A2p Compaign error',
         error,
       });
-
-      throw new IllegalStateException('Request to Create A2p Compaign not success');
+      // TODO: HTTPException
+      throw new HttpException('Request to Create A2p Compaign not success', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   };
 
@@ -289,8 +307,9 @@ export class A2pBrandStatusService {
         message: 'Request Create A2p Compaign error',
         error,
       });
-
-      throw new IllegalStateException('Request to Create A2p Compaign not success');
+      // TODO: HTTPException
+      throw new HttpException('Request to Create A2p Compaign not success', HttpStatus.BAD_REQUEST);
+      // throw new IllegalStateException('Request to Create A2p Compaign not success');
     }
   };
 
@@ -315,9 +334,7 @@ export class A2pBrandStatusService {
         error,
       });
 
-      throw new IllegalStateException(
-        'Request to Add Phone Number To Messageing Service not success',
-      );
+      throw new HttpException('Request to Add Phone Number To Messageing Service not success', HttpStatus.BAD_REQUEST);
     }
   };
 
@@ -332,7 +349,8 @@ export class A2pBrandStatusService {
         message: 'Request Update An A2p Brand error',
         error,
       });
-      throw new IllegalStateException('Request to Update An A2p Brand not success');
+      throw new HttpException('Request to Update An A2p Brand not success', HttpStatus.BAD_REQUEST);
+      // throw new IllegalStateException('Request to Update An A2p Brand not success');
     }
   };
 }
