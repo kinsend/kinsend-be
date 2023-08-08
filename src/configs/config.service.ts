@@ -18,8 +18,8 @@ export class ConfigService {
       } else {
         this.envConfig = {};
       }
-    } catch(err) {
-      console.error(err)
+    } catch (err) {
+      console.error(err);
     }
   }
   private int(value: string | undefined, number: number): number {
@@ -56,6 +56,32 @@ export class ConfigService {
 
   get redisClusterHost(): string {
     return process.env.REDIS_CLUSTER_HOST || this.envConfig['REDIS_CLUSTER_HOST'] || '127.0.0.1';
+  }
+
+  get twilioPolicySid(): string {
+    return process.env.TWILIO_POLICY_SID || this.envConfig['TWILIO_POLICY_SID'] || '';
+  }
+
+  get twilioTrustBundlePolicySid(): string {
+    return (
+      process.env.TWILIO_TRUSTBUNDLE_POLICY_SID ||
+      this.envConfig['TWILIO_TRUSTBUNDLE_POLICY_SID'] ||
+      ''
+    );
+  }
+
+  get twilioMockStatus(): string {
+    return process.env.TWILIO_IS_MOCK || this.envConfig['TWILIO_IS_MOCK'] || '';
+  }
+
+  get twilioPrimaryProfileSid(): string {
+    return (
+      process.env.TWILIO_PRIMARY_PROFILE_SID || this.envConfig['TWILIO_PRIMARY_PROFILE_SID'] || ''
+    );
+  }
+
+  get twilioComplianceType(): string {
+    return process.env.TWILIO_COMPLIANCE_TYPE || this.envConfig['TWILIO_COMPLIANCE_TYPE'] || '';
   }
 
   get redisClusterPort(): number {
@@ -239,7 +265,7 @@ export class ConfigService {
   }
   get backendDomain(): string {
     return (
-      process.env.BACKEND_DOMAIN || this.envConfig['BACKEND_DOMAIN'] || 'https://dev.api.kinsend.io'
+      process.env.BACKEND_DOMAIN || this.envConfig['BACKEND_DOMAIN'] || 'https://api.dev.kinsend.io'
     );
   }
 
