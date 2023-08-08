@@ -90,21 +90,20 @@ export class A2pBrandStatusService {
         // Creating Campaign
         const form = JSON.parse(userA2pInfo.submittedFormValues);
 
+        const createA2pCampaignRes = await this.createA2pCompaign(
+          context,
+          userA2pInfo.messageServiceSid,
+          userA2pInfo.brandSid,
+          form.description,
+          form.messageFlow,
+          form.messageSample,
+          form.usAppToPersonUsecase,
+        );
         try {
-          const createA2pCampaignRes = await this.createA2pCompaign(
-            context,
-            userA2pInfo.messageServiceSid,
-            userA2pInfo.brandSid,
-            form.description,
-            form.messageFlow,
-            form.messageSample,
-            form.usAppToPersonUsecase,
-          );
-  
           userA2pInfo.brandStatus = 'APPROVED';
-          userA2pInfo.campaignStatus = createA2pCampaignRes?.campaign_status;
+          userA2pInfo.campaignStatus = createA2pCampaignRes.campaign_status;
           await userA2pInfo.save();
-  
+
           return {
             createA2pCampaignRes,
             status: 'PENDING',
@@ -116,8 +115,6 @@ export class A2pBrandStatusService {
         } catch (error) {
           throw new HttpException(`Error while creating campaign ${error}`, HttpStatus.BAD_REQUEST);
         }
-
-        
       }
     }
 
@@ -175,19 +172,17 @@ export class A2pBrandStatusService {
               password: this.configService.twilioAuthToken,
             },
           };
-  
+
           const fetchNumberSid: any = await this.httpService.axiosRef(config);
-  
+
           const phoneNmberSid = fetchNumberSid.data.incoming_phone_numbers[0].sid;
-  
-          
-  
+
           const associateNumberWithCampaign = await this.addPhoneNumberToMessageingService(
             context,
             userA2pInfo.messageServiceSid,
             phoneNmberSid,
           );
-  
+
           userA2pInfo.progress = REGISTRATION_STATUS.APPROVED;
           userA2pInfo.campaignStatus = 'VERIFIED';
           await userA2pInfo.save();
@@ -198,10 +193,11 @@ export class A2pBrandStatusService {
             useCase: formValues.usAppToPersonUsecase,
           };
         } catch (error) {
-          throw new HttpException(`Request to Fetch Number Sid and associating Number to comapign not success: ${error}`, HttpStatus.INTERNAL_SERVER_ERROR);
+          throw new HttpException(
+            `Request to Fetch Number Sid and associating Number to comapign not success: ${error}`,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
         }
-
-        
       }
     }
   }
@@ -254,16 +250,8 @@ export class A2pBrandStatusService {
         }),
       };
 
-      const campaign = await this.httpService
-        .axiosRef(config)
-        .then((res) => {
-          return res.data;
-        })
-        .catch((err) => {
-          console.log(err.response.data);
-        });
-
-      return campaign;
+      const { data } = await this.httpService.axiosRef(config);
+      return data.campaign;
     } catch (error) {
       console.log('error', error);
       console.log('error', error.data);
@@ -273,7 +261,10 @@ export class A2pBrandStatusService {
         error,
       });
       // TODO: HTTPException
-      throw new HttpException('Request to Create A2p Compaign not success', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Request to Create A2p Compaign not success',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   };
 
@@ -334,7 +325,10 @@ export class A2pBrandStatusService {
         error,
       });
 
-      throw new HttpException('Request to Add Phone Number To Messageing Service not success', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Request to Add Phone Number To Messageing Service not success',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   };
 
