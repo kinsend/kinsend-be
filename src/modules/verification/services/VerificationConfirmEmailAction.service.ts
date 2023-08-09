@@ -3,26 +3,30 @@
 /* eslint-disable new-cap */
 /* eslint-disable unicorn/prefer-module */
 import { Injectable } from '@nestjs/common';
-import { InjectModel, InjectConnection } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import omit from 'lodash';
-import * as mongoose from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import * as fs from 'fs';
+import * as handlebars from 'handlebars';
+import * as mongoose from 'mongoose';
+import { Model } from 'mongoose';
+import * as path from 'path';
+import { MailSendGridService } from 'src/modules/mail/mail-send-grid.service';
 import { ConfigService } from '../../../configs/config.service';
-import { VerificationConfirmEmailQueryDto } from '../dtos/VerificationConfirmEmailQuery.dto';
-import { StripeService } from '../../../shared/services/stripe.service';
-import { ForbiddenException } from '../../../utils/exceptions/ForbiddenException';
-import { RequestContext } from '../../../utils/RequestContext';
 import { STATUS } from '../../../domain/const';
-import { User, UserDocument } from '../../user/user.schema';
-import { UserConfirmationTokenDto } from '../../user/dtos/UserConfirmationToken.dto';
+import { StripeService } from '../../../shared/services/stripe.service';
+import { RequestContext } from '../../../utils/RequestContext';
+import { ForbiddenException } from '../../../utils/exceptions/ForbiddenException';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
+import { UserConfirmationTokenDto } from '../../user/dtos/UserConfirmationToken.dto';
+import { User, UserDocument } from '../../user/user.schema';
+import { VerificationConfirmEmailQueryDto } from '../dtos/VerificationConfirmEmailQuery.dto';
 
 @Injectable()
 export class VerificationConfirmEmailAction {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectConnection() private readonly connection: mongoose.Connection,
+    private mailSendGridService: MailSendGridService,
     private configService: ConfigService,
     private stripeService: StripeService,
     private jwtService: JwtService,
@@ -35,30 +39,48 @@ export class VerificationConfirmEmailAction {
     try {
       const decodedJwtEmailToken = this.jwtService.decode(query.token);
       const { email } = <UserConfirmationTokenDto>decodedJwtEmailToken;
-      const checkExistedUser = await this.userModel.findOne({ $or: [{ email }] });
+      const user = await this.userModel.findOne({ $or: [{ email }] });
 
-      if (!checkExistedUser) {
+      if (!user) {
         throw new NotFoundException('User', 'User not found');
       }
 
-      if (checkExistedUser.status === STATUS.ACTIVE) {
+      if (user.status === STATUS.ACTIVE) {
+        // TODO: Error message improvement
         throw new ForbiddenException('User has already active');
       }
 
-      if (checkExistedUser.stripeCustomerUserId) {
+      if (user.stripeCustomerUserId) {
+        // TODO: Error message improvement
         throw new ForbiddenException('User has verified Stripe customer');
       }
-      const fullName = `${checkExistedUser.firstName} ${checkExistedUser.lastName}`;
+      const fullName = `${user.firstName} ${user.lastName}`;
       const customerInfo = await this.stripeService.createCustomerUser(context, fullName, email);
-      const user = await this.userModel.findByIdAndUpdate(checkExistedUser.id, {
+      const updatedUser = await this.userModel.findByIdAndUpdate(user.id, {
         status: STATUS.ACTIVE,
         stripeCustomerUserId: customerInfo.id,
       });
 
-      return user;
+      const { mailForm } = this.configService;
+      const filePath = path.join(__dirname, '../../../views/templates/mail/welcome-email.html');
+      const source = fs.readFileSync(filePath, 'utf-8').toString();
+      const template = handlebars.compile(source);
+      const replacements = {
+        name: `${user.firstName}`,
+        email,
+      };
+      const htmlToSend = template(replacements);
+      const mail = {
+        to: email,
+        from: mailForm,
+        subject: 'Welcome to Kinsend',
+        html: htmlToSend,
+      };
+      this.mailSendGridService.sendWelcomeEmail(mail);
+      return updatedUser;
     } catch (error) {
       context.logger.error(error);
-      throw new ForbiddenException(error.message || 'User token not found');
+      throw new ForbiddenException(error.message || 'Missing or invalid token!');
     }
   }
 }
