@@ -84,9 +84,10 @@ export class FormSubmissionController {
   getSubmissions(
     @Req() request: AppRequest, 
     @Query('limit', ParseIntPipe) limit : number, 
-    @Query('pageNumber', ParseIntPipe) pageNumber : number
+    @Query('pageNumber', ParseIntPipe) pageNumber : number,
+    @Query('searchFilter') searchFilter : string
   ) {
-    return this.formSubmissionsGetAction.execute(request, limit, pageNumber);
+    return this.formSubmissionsGetAction.execute(request, limit, pageNumber, searchFilter);
   }
 
   @ApiBearerAuth()
