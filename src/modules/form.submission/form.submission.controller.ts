@@ -100,7 +100,7 @@ export class FormSubmissionController {
   @HttpCode(HttpStatus.OK)
   @Get('/:id')
   getFormSubmission(@Req() request: AppRequest, @Param('id', TranformObjectIdPipe) id: string) {
-    return this.formSubmissionFindByIdAction.getFormSubmissionById(request.user.id, id);
+    return this.formSubmissionFindByIdAction.execute(request, id);
   }
 
   @ApiBearerAuth()
