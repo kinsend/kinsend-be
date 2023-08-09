@@ -88,7 +88,10 @@ export class FormSubmissionController {
     @Query('searchFilter') searchFilter : string
   ) {
 
-    searchFilter = decodeURIComponent(searchFilter);
+    if(searchFilter){
+      searchFilter = decodeURIComponent(searchFilter);
+    }
+   
 
     return this.formSubmissionsGetAction.execute(request, limit, pageNumber, searchFilter);
   }
