@@ -6,8 +6,10 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -79,8 +81,12 @@ export class FormSubmissionController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getSubmissions(@Req() request: AppRequest) {
-    return this.formSubmissionsGetAction.execute(request);
+  getSubmissions(
+    @Req() request: AppRequest, 
+    @Query('limit', ParseIntPipe) limit : number, 
+    @Query('pageNumber', ParseIntPipe) pageNumber : number
+  ) {
+    return this.formSubmissionsGetAction.execute(request, limit, pageNumber);
   }
 
   @ApiBearerAuth()
