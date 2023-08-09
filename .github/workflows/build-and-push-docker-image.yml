@@ -46,8 +46,11 @@ jobs:
           ref: ${{ env.GIT_REF }}
 
       - name: Get git commit hash
-        uses: pr-mpt/actions-commit-hash@v2
         id: commit
+        run: |
+          short_sha=$(git rev-parse --short HEAD)
+          echo "Short sha is: ${short_sha}"
+          echo "short=$short_sha" >> $GITHUB_OUTPUT     
 
       - name: Configure dynamic variables
         id: vars
