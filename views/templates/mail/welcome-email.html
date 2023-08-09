@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Kinsend!</title>
+    <style>
+      @media only screen and (max-width: 768px) {
+        p {
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+
+  <body style="margin: 0px 20px 20px 20px; font-family: sans-serif">
+    <div
+      class="container"
+      style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; box-sizing: border-box"
+    >
+      <div class="heading-div" style="text-align: center">
+        <h1 style="margin: 0px 20px 20px 20px; font-family: sans-serif">Welcome to Kinsend!</h1>
+        <p style="margin-left: 20px; font-family: sans-serif; margin-top: -15px; font-weight: 500">
+          Trusted by thousands of companies
+        </p>
+        <!-- Correct the spelling of "thousands" -->
+      </div>
+
+      <div class="desc-div">
+        <!-- Replace &lt;fname&gt; with the actual first name -->
+        <p style="margin-left: 20px; font-family: sans-serif">Hey {{name}},</p>
+
+        <p style="margin-left: 20px; font-family: sans-serif">
+          Our mission at Kinsend is to help you reach, connect, and stay in contact with all of your
+          clients and leads, and of course,
+          <b>CLOSE MORE DEALS.</b>
+        </p>
+        <p style="margin-left: 20px; font-family: sans-serif">
+          With Kinsend, you can send out SMS blasts, set up automations, create intake forms, and
+          much more!
+        </p>
+      </div>
+
+      <div class="image-div">
+        <!-- Host images on the cloud and provide their URLs in the src attribute -->
+        <img
+          src="https://kinsend-app-public.s3.amazonaws.com/assets/kinsend_img.png"
+          alt
+          width="100%"
+          style="margin: 0px 20px 20px 20px; font-family: sans-serif"
+        />
+      </div>
+
+      <p style="margin-left: 20px; font-family: sans-serif">How to get started:</p>
+      <div>
+        <div class="cards" style="display: flex">
+          <div class="card-img">
+            <img
+              src="https://kinsend-app-public.s3.amazonaws.com/assets/peoples.png"
+              alt
+              width
+              style="margin: 0px 20px 20px 20px; font-family: sans-serif; margin-top: 6px"
+            />
+          </div>
+          <div class="cards-inner" style="margin-top: 3px">
+            <h2 style="margin: 0px 20px 20px 20px; font-family: sans-serif">
+              Upload your contacts
+            </h2>
+            <p
+              class="description"
+              style="margin-left: 20px; font-family: sans-serif; margin-top: -17px"
+            >
+              You can create your contacts manually or import them
+              <a href="{{frontEndUrl}}/settings/csv-contacts-import">here</a>.
+            </p>
+          </div>
+        </div>
+
+        <div class="cards" style="display: flex">
+          <div class="card-img">
+            <img
+              src="https://kinsend-app-public.s3.amazonaws.com/assets/mobile_icon.png"
+              alt
+              style="margin: 0px 20px 20px 20px; font-family: sans-serif; margin-top: 6px"
+            />
+          </div>
+          <div class="cards-inner" style="margin-top: 3px">
+            <h2 style="margin: 0px 20px 20px 20px; font-family: sans-serif">
+              Set up your first campaign
+            </h2>
+            <p
+              class="description"
+              style="margin-left: 20px; font-family: sans-serif; margin-top: -17px"
+            >
+              Create your first message blast <a href="{{frontEndUrl}}/updates">here</a> or
+              set up your first automation sequence
+              <a href="{{frontEndUrl}}/automations/new">here</a>.
+            </p>
+          </div>
+        </div>
+
+        <div class="cards" style="display: flex">
+          <div class="card-img">
+            <img
+              src="https://kinsend-app-public.s3.amazonaws.com/assets/comm_icon.png"
+              alt
+              style="margin: 0px 20px 20px 20px; font-family: sans-serif; margin-top: 6px"
+            />
+          </div>
+          <div class="cards-inner" style="margin-top: 3px">
+            <h2 style="margin: 0px 20px 20px 20px; font-family: sans-serif">
+              Join a live training
+            </h2>
+            <p
+              class="description"
+              style="margin-left: 20px; font-family: sans-serif; margin-top: -17px"
+            >
+              Level up your SMS marketing strategy with a
+              <a href="https://calendly.com/kinsend/kinsend-account-setup"
+                >one-on-one product training</a
+              >, or read through our <a href="https://support.kinsend.io">support articles</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="footer-section">
+        <p style="margin-left: 20px; font-family: sans-serif">Happy texting!</p>
+
+        <p style="margin-left: 20px; font-family: sans-serif">
+          Best regards, <br />
+          Alex Bangiyev <br />
+          CEO & Founder of Kinsend
+        </p>
+
+        <p style="margin-left: 20px; font-family: sans-serif">
+          P.S. This is your login data, in case you ever lose it:
+        </p>
+
+        <p style="margin-left: 20px; font-family: sans-serif">Your email: {{email}}</p>
+        <!-- Replace with the actual email address -->
+      </div>
+    </div>
+  </body>
+</html>
