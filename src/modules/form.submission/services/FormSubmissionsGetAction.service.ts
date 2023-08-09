@@ -35,6 +35,7 @@ export class FormSubmissionsGetAction {
         //   lastName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
         // },
         {
+          owner: new mongoose.Types.ObjectId(context.user.id),
           $expr: {
             $regexMatch: {
               input: { $concat: ["$firstName", " ", "$lastName"] },
