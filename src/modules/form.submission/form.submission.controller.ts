@@ -135,10 +135,10 @@ export class FormSubmissionController {
   @Delete('/')
   deleteAllForms(
     @Req() request: AppRequest,
-    @Body() formSubmissionIds: string[],
+    @Body() data: {formSubmissionIds : string[]},
   ) {
     
-    return this.formSubmissionsDeleteAllDocumentsAction.execute(request, formSubmissionIds);
+    return this.formSubmissionsDeleteAllDocumentsAction.execute(request, data.formSubmissionIds);
     
   }
 }
