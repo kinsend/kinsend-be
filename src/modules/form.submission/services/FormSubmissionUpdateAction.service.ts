@@ -39,7 +39,7 @@ export class FormSubmissionUpdateAction {
     const formSubmissionExist = await this.formSubmissionFindByIdAction.execute(context, formSubId);
 
     const formUpdate = dynamicUpdateModel<FormSubmissionDocument>(
-      { ...payload, isSubscribed: true },
+      { ...payload },
       formSubmissionExist,
     );
 
