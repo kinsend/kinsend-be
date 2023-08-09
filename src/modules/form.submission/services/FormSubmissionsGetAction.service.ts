@@ -24,19 +24,19 @@ export class FormSubmissionsGetAction {
       whereConditions = { $or : [
         {
           owner : new mongoose.Types.ObjectId(context.user.id),
-          email : { $regex : searchFilter, $options : 'i' }
+          email : { $regex : `.*${searchFilter}.*`, $options : 'i' }
         },
         {
           owner : new mongoose.Types.ObjectId(context.user.id),
-          firstName : { $regex : searchFilter, $options : 'i' }
+          firstName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
         },
         {
           owner : new mongoose.Types.ObjectId(context.user.id),
-          lastName : { $regex : searchFilter, $options : 'i' }
+          lastName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
         },
         {
           owner : new mongoose.Types.ObjectId(context.user.id),
-          "phoneNumber.phone" : { $regex : searchFilter, $options : 'i' }
+          "phoneNumber.phone" : { $regex : `.*${searchFilter}.*`, $options : 'i' }
         }
       ]};
       

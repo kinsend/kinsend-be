@@ -89,7 +89,7 @@ export class FormSubmissionController {
   ) {
 
     if(searchFilter){
-      searchFilter = decodeURIComponent(searchFilter);
+      searchFilter = searchFilter.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
     }
    
 
