@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/filename-case */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-types */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as SendGrid from '@sendgrid/mail';
 import { ConfigService } from '../../configs/config.service';
 
@@ -17,8 +17,8 @@ export class MailSendGridService {
     try {
       const transport = await SendGrid.send(mail);
       return transport;
-    } catch (err) {
-      console.log('error :>> ', err);
+    } catch (error) {
+      Logger.error('Error sending user confirmation mail', error);
       return undefined;
     }
   }
@@ -29,7 +29,20 @@ export class MailSendGridService {
     try {
       const transport = await SendGrid.send(mail);
       return transport;
-    } catch (err) {
+    } catch (error) {
+      Logger.error('Error sending user status payment mail', error);
+      return undefined;
+    }
+  }
+
+  async sendWelcomeEmail(
+    mail: SendGrid.MailDataRequired,
+  ): Promise<[SendGrid.ClientResponse, {}] | undefined> {
+    try {
+      const transport = await SendGrid.send(mail);
+      return transport;
+    } catch (error) {
+      Logger.error('Error sending welcome email', error);
       return undefined;
     }
   }

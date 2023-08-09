@@ -10,9 +10,13 @@ export class FormSubmissionDeleteAllDocumentsAction {
     @InjectModel(FormSubmission.name) private formSubmissionModel: Model<FormSubmissionDocument>,
   ) {}
 
-  async execute(context: RequestContext) {
+  async execute(context: RequestContext, formSubmissionIds : string[]) {
+
     await this.formSubmissionModel.deleteMany({
-      owner: context.user.id,
+      owner :  context.user.id,
+      _id: { $in: formSubmissionIds },
     });
+
+    return {message : 'delete successfully'};
   }
 }
