@@ -349,7 +349,11 @@ export class PaymentSendInvoiceAction {
 
   private async createFilePDF(id: string, htmlToSend: string): Promise<any> {
     try {
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({
+        headless: true,
+        executablePath: process.env.CHROME_BIN || undefined,
+        args: ['--no-sandbox', '--headless', '--disable-gpu', '--disable-dev-shm-usage']
+      });;
       const page = await browser.newPage();
       await page.goto('https://google.ru', { waitUntil: 'networkidle0' }); // <== This should help
       await page.setContent(htmlToSend, { waitUntil: 'networkidle0' });

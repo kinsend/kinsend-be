@@ -4,8 +4,13 @@ ARG MANIFEST_VERSION="local_build"
 
 LABEL authors="martin.todorov@kinsend.io"
 
+# https://github.com/kinsend/kinsend-be/issues/88
+ENV CHROME_BIN="/usr/bin/chromium-browser"
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true"
+
 RUN set -x \
  && apk add --no-cache bash curl zip unzip mc htop tree jq \
+ && apk add --no-cache udev ttf-freefont chromium \
  && mkdir -p /app
 
 COPY ./public /app/public
