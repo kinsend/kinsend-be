@@ -11,7 +11,6 @@ import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import * as path from 'path';
 import { MailSendGridService } from 'src/modules/mail/mail-send-grid.service';
-import { ConfigService as ConfigServiceNest } from '@nestjs/config';
 import { ConfigService } from '../../../configs/config.service';
 import { STATUS } from '../../../domain/const';
 import { StripeService } from '../../../shared/services/stripe.service';
@@ -29,7 +28,6 @@ export class VerificationConfirmEmailAction {
     @InjectConnection() private readonly connection: mongoose.Connection,
     private mailSendGridService: MailSendGridService,
     private configService: ConfigService,
-    private readonly configServiceNest: ConfigServiceNest,
     private stripeService: StripeService,
     private jwtService: JwtService,
   ) {}
@@ -63,14 +61,14 @@ export class VerificationConfirmEmailAction {
         stripeCustomerUserId: customerInfo.id,
       });
 
-      const { mailForm } = this.configService;
+      const { mailForm, frontEndDomain } = this.configService;
       const filePath = path.join(__dirname, '../../../views/templates/mail/welcome-email.html');
       const source = fs.readFileSync(filePath, 'utf-8').toString();
       const template = handlebars.compile(source);
       const replacements = {
         name: `${user.firstName}`,
         email,
-        frontEndUrl: this.configServiceNest.get<string>('app.frontEndUrl'),
+        frontEndUrl: frontEndDomain,
       };
       const htmlToSend = template(replacements);
       const mail = {
