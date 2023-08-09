@@ -6,8 +6,10 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -79,8 +81,19 @@ export class FormSubmissionController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Get('')
-  getSubmissions(@Req() request: AppRequest) {
-    return this.formSubmissionsGetAction.execute(request);
+  getSubmissions(
+    @Req() request: AppRequest, 
+    @Query('limit', ParseIntPipe) limit : number, 
+    @Query('pageNumber', ParseIntPipe) pageNumber : number,
+    @Query('searchFilter') searchFilter : string
+  ) {
+
+    if(searchFilter){
+      searchFilter = searchFilter.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
+    }
+   
+    return this.formSubmissionsGetAction.execute(request, limit, pageNumber, searchFilter);
+
   }
 
   @ApiBearerAuth()
@@ -126,8 +139,12 @@ export class FormSubmissionController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete('/')
-  deleteAllForms(@Req() request: AppRequest) {
-    // return this.formSubmissionsDeleteAllDocumentsAction.execute(request);
-    return 'Not implemented';
+  deleteAllForms(
+    @Req() request: AppRequest,
+    @Body() data: {formSubmissionIds : string[]},
+  ) {
+    
+    return this.formSubmissionsDeleteAllDocumentsAction.execute(request, data.formSubmissionIds);
+    
   }
 }

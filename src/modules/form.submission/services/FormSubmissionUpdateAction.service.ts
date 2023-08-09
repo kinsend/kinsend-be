@@ -31,22 +31,33 @@ export class FormSubmissionUpdateAction {
     formSubId: string,
     payload: FormSubmissionUpdatePayload,
   ): Promise<FormSubmissionDocument> {
+
     const { tagIds } = payload;
+
     const user = await this.userFindByIdAction.execute(context, context.user.id);
+
     const formSubmissionExist = await this.formSubmissionFindByIdAction.execute(context, formSubId);
+
     const formUpdate = dynamicUpdateModel<FormSubmissionDocument>(
-      { ...payload, isSubscribed: true },
+      { ...payload },
       formSubmissionExist,
     );
 
     let newTags: string[] = [];
     if (tagIds && tagIds.length > 0) {
+
       newTags = this.getNewTagAdd(formSubmissionExist, tagIds);
+
       formUpdate.tags = await this.tagsGetByIdsAction.execute(context, tagIds);
+
     }
+
     if (tagIds && tagIds.length === 0) {
+
       formUpdate.tags = [];
+
     }
+    
     await formUpdate.save();
     // automation
     if (newTags.length > 0) {
@@ -75,6 +86,7 @@ export class FormSubmissionUpdateAction {
       { path: 'tags' },
       { path: 'owner', select: ['-password'] },
     ]);
+
   }
 
   private getNewTagAdd(formSubmission: FormSubmissionDocument, tagIds: string[]): string[] {
