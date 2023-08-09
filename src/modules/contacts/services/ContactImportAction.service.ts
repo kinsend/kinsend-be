@@ -67,6 +67,7 @@ export class ContactImportAction {
         const contactExist = await this.formSubmissionFindByPhoneNumberAction.execute(
           context,
           item.phoneNumber,
+          context.user.id
         );
         const metadata = item.metaData && JSON.parse(item.metaData);
         if(metadata.tags) {
