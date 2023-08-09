@@ -133,8 +133,12 @@ export class FormSubmissionController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete('/')
-  deleteAllForms(@Req() request: AppRequest) {
-    // return this.formSubmissionsDeleteAllDocumentsAction.execute(request);
-    return 'Not implemented';
+  deleteAllForms(
+    @Req() request: AppRequest,
+    @Body() formSubmissionIds: string[],
+  ) {
+    
+    return this.formSubmissionsDeleteAllDocumentsAction.execute(request, formSubmissionIds);
+    
   }
 }
