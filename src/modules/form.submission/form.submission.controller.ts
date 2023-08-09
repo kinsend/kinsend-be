@@ -92,8 +92,8 @@ export class FormSubmissionController {
       searchFilter = searchFilter.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
     }
    
-
     return this.formSubmissionsGetAction.execute(request, limit, pageNumber, searchFilter);
+
   }
 
   @ApiBearerAuth()
