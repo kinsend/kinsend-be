@@ -174,7 +174,6 @@ export class StripeService {
     customerId: string,
   ): Promise<Stripe.Response<Stripe.ApiList<Stripe.PaymentMethod>>> {
     const { logger, correlationId, user } = context;
-    console.log(`stripe customer id for ${user.email}`, customerId);
     try {
       const listCardInfo = await this.stripe.paymentMethods.list({
         customer: customerId,
