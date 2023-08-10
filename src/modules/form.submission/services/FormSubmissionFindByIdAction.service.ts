@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
+import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { FormSubmission, FormSubmissionDocument } from '../form.submission.schema';
-import mongoose from 'mongoose';
 
 @Injectable()
 export class FormSubmissionFindByIdAction {
@@ -13,13 +12,13 @@ export class FormSubmissionFindByIdAction {
   ) {}
 
   async execute(context: RequestContext, id: string): Promise<FormSubmissionDocument> {
-
-    const formSubmission = await this.formSubmissionModel.findById(id);
+    const formSubmission = await this.formSubmissionModel.findOne({
+      _id: id,
+      owner: context.user.id,
+    });
     if (!formSubmission) {
       throw new NotFoundException('FormSubmission', 'FormSubmission not found!');
     }
     return formSubmission.populate('tags');
-
   }
-
 }
