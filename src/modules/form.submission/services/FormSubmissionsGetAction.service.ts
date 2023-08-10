@@ -2,10 +2,9 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RequestContext } from '../../../utils/RequestContext';
 import { FormSubmission, FormSubmissionDocument } from '../form.submission.schema';
-import mongoose from 'mongoose';
 
 @Injectable()
 export class FormSubmissionsGetAction {
@@ -13,50 +12,52 @@ export class FormSubmissionsGetAction {
     @InjectModel(FormSubmission.name) private formSubmissionModel: Model<FormSubmissionDocument>,
   ) {}
 
-  async execute(context: RequestContext, limit : number, pageNumber : number, searchFilter : string) {
-
+  async execute(context: RequestContext, inputLimit : number, pageNumber : number, searchFilter : string) {
     let whereConditions : any = {
       owner: new mongoose.Types.ObjectId(context.user.id),
     };
-
-    if(searchFilter){
-
-      whereConditions = { $or : [
-        {
-          owner : new mongoose.Types.ObjectId(context.user.id),
-          email : { $regex : `.*${searchFilter}.*`, $options : 'i' }
-        },
-        // {
-        //   owner : new mongoose.Types.ObjectId(context.user.id),
-        //   firstName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
-        // },
-        // {
-        //   owner : new mongoose.Types.ObjectId(context.user.id),
-        //   lastName : { $regex : `.*${searchFilter}.*`, $options : 'i' }
-        // },
-        {
-          $expr: {
-            $regexMatch: {
-              input: { $concat: ["$firstName", " ", "$lastName"] },
-              regex: `.*${searchFilter}.*`,
-              options: 'i',
-            },
+    let limit = inputLimit;
+    if (inputLimit > 100) {
+      limit = 100;
+    }
+    if (inputLimit <= 0) {
+      limit = 10;
+    }
+    if (searchFilter) {
+      whereConditions = {
+        $and: [
+          {
+            $or: [
+              {
+                email: { $regex: `.*${searchFilter}.*`, $options: 'i' },
+              },
+              {
+                $expr: {
+                  $regexMatch: {
+                    input: { $concat: ['$firstName', ' ', '$lastName'] },
+                    regex: `.*${searchFilter}.*`,
+                    options: 'i',
+                  },
+                },
+              },
+              {
+                'phoneNumber.phone': { $regex: `.*${searchFilter}.*`, $options: 'i' },
+              },
+            ],
           },
-        },
-        {
-          owner : new mongoose.Types.ObjectId(context.user.id),
-          "phoneNumber.phone" : { $regex : `.*${searchFilter}.*`, $options : 'i' }
-        }
-      ]};
-      
+          {
+            owner: new mongoose.Types.ObjectId(context.user.id),
+          },
+        ],
+      };
     }
 
-    let totalFormSubmissions = await this.formSubmissionModel.countDocuments(whereConditions);
+    const totalFormSubmissions = await this.formSubmissionModel.countDocuments(whereConditions);
 
-    let totalNumberOfPages = Math.ceil(totalFormSubmissions / limit);
+    const totalNumberOfPages = Math.ceil(totalFormSubmissions / limit);
 
 
-    let mongooseAggregateConditions : mongoose.PipelineStage[] = [
+    const mongooseAggregateConditions : mongoose.PipelineStage[] = [
       {
         $match : whereConditions,
       },
@@ -65,8 +66,8 @@ export class FormSubmissionsGetAction {
           from : 'tags',
           localField : 'tags',
           foreignField : '_id',
-          as : 'tags'
-        }
+          as : 'tags',
+        },
       },
       {
         $project : {
@@ -83,29 +84,28 @@ export class FormSubmissionsGetAction {
             contacts : 1,
             unknown : 1,
             createdAt : 1,
-            updatedAt : 1
+            updatedAt : 1,
           },
           metaData : 1,
           createdAt : 1,
-          updatedAt : 1
-        }
+          updatedAt : 1,
+          owner: { $toString : '$owner' },
+        },
       },
       {
-        $skip : (pageNumber - 1) * limit
+        $skip : (pageNumber - 1) * limit,
       },
       {
-        $limit : limit
-      }
+        $limit : limit,
+      },
     ];
 
-    let formSubmissionRes = await this.formSubmissionModel.aggregate(mongooseAggregateConditions)
+    const formSubmissionResponse = await this.formSubmissionModel.aggregate(mongooseAggregateConditions);
 
     return {
-      data : formSubmissionRes,
+      data : formSubmissionResponse,
       totalNumberOfSubmission : totalFormSubmissions,
-      totalNumberOfPages : totalNumberOfPages,
-    }
-
+      totalNumberOfPages,
+    };
   }
-
 }

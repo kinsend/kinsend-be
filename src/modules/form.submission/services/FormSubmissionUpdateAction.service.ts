@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
@@ -31,7 +32,6 @@ export class FormSubmissionUpdateAction {
     formSubId: string,
     payload: FormSubmissionUpdatePayload,
   ): Promise<FormSubmissionDocument> {
-
     const { tagIds } = payload;
 
     const user = await this.userFindByIdAction.execute(context, context.user.id);
@@ -45,19 +45,15 @@ export class FormSubmissionUpdateAction {
 
     let newTags: string[] = [];
     if (tagIds && tagIds.length > 0) {
-
       newTags = this.getNewTagAdd(formSubmissionExist, tagIds);
 
       formUpdate.tags = await this.tagsGetByIdsAction.execute(context, tagIds);
-
     }
 
     if (tagIds && tagIds.length === 0) {
-
       formUpdate.tags = [];
-
     }
-    
+
     await formUpdate.save();
     // automation
     if (newTags.length > 0) {
@@ -66,7 +62,7 @@ export class FormSubmissionUpdateAction {
       if (phoneSystem) {
         const from = `+${phoneSystem[0].code}${phoneSystem[0].phone}`;
         const startTimeTrigger = now(3000);
-        automations.forEach((automation) => {
+        for (const automation of automations) {
           this.automationBaseTriggeAction.excuteTasks(
             context,
             this.smsService,
@@ -77,7 +73,7 @@ export class FormSubmissionUpdateAction {
             formSubmissionExist.phoneNumber,
             this.formSubmissionUpdateLastContactedAction,
           )();
-        });
+        }
       }
     }
 
@@ -86,16 +82,15 @@ export class FormSubmissionUpdateAction {
       { path: 'tags' },
       { path: 'owner', select: ['-password'] },
     ]);
-
   }
 
   private getNewTagAdd(formSubmission: FormSubmissionDocument, tagIds: string[]): string[] {
     const newTags: string[] = [];
-    tagIds.forEach((tagId) => {
+    for (const tagId of tagIds) {
       if (!formSubmission.tags?.some((tag) => tag._id.toString() === tagId)) {
         newTags.push(tagId);
       }
-    });
+    }
     return newTags;
   }
 }
