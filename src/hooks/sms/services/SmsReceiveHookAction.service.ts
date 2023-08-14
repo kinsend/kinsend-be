@@ -1,3 +1,5 @@
+/* eslint-disable unicorn/prefer-array-find */
+/* eslint-disable @typescript-eslint/lines-between-class-members */
 /* eslint-disable unicorn/no-useless-undefined */
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger } from '@nestjs/common';
@@ -102,7 +104,6 @@ export class SmsReceiveHookAction {
       if (createdBy.length === 0) {
         return;
       }
-
       const updates = await this.updatesFindByCreatedByAction.execute(context, createdBy[0].id);
       if (updates.length === 0) {
         return;
@@ -114,6 +115,7 @@ export class SmsReceiveHookAction {
       );
       const subscriber = this.getSubcriberByOwner(subscribers, createdBy[0]);
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
+
       await this.updateReportingUpdateByResponseAction.execute(
         context,
         updatesFiltered,
