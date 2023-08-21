@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-module */
 /* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger } from '@nestjs/common';
@@ -40,6 +41,7 @@ export class PaymentSendInvoiceAction {
     namePlane?: string,
     numberPhoneNumber?: number,
     overLimit?: number,
+    noOfSegments?: number,
   ): Promise<void> {
     context.logger.info('Send mail after charged, type: ' + type);
 
@@ -58,6 +60,7 @@ export class PaymentSendInvoiceAction {
         numberCard,
         messageDomestic,
         messageInternational,
+        noOfSegments,
       );
       return;
     }
@@ -118,6 +121,7 @@ export class PaymentSendInvoiceAction {
     numberCard: string,
     messageDomestic?: MessageContext,
     messageInternational?: MessageContext,
+    noOfSegments?: number,
   ) {
     const { id, amount } = bill;
     const { email } = user;
@@ -131,7 +135,7 @@ export class PaymentSendInvoiceAction {
     const { mailForm } = this.configService;
     const replacements = {
       ...customerInfo,
-      numberSegment: 1,
+      numberSegment: noOfSegments || 1,
       domestic_mes: messageDomestic?.totalMessages || 0,
       international_mes: messageInternational?.totalMessages || 0,
       charge_price: unitAmountToPrice(amount),
@@ -160,7 +164,7 @@ export class PaymentSendInvoiceAction {
       <br>
       Items:<br>
       <br>
-      Description : Charge for sending an update with 1 segments to ${
+      Description : Charge for sending an update with ${noOfSegments || 1} segments to ${
         messageDomestic?.totalMessages || 0
       } US numbers and ${messageInternational?.totalMessages || 0} international numbers.<br>
       Unit Cost : ${replacements.total_price || 0}<br>

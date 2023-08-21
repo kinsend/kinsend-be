@@ -1,3 +1,4 @@
+/* eslint-disable curly */
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { ConfigService } from '../../../../configs/config.service';
@@ -36,27 +37,27 @@ export class UpdateChargeMessageTriggerAction {
     private paymentSendInvoiceAction: PaymentSendInvoiceAction,
   ) {}
 
-  async execute(context: RequestContext, updateId: string, datetimeTrigger: Date): Promise<void> {
+  async execute(
+    context: RequestContext,
+    updateId: string,
+    datetimeTrigger: Date,
+    messageDomestic: MessageContext,
+    totalFee: number,
+    mms: MessageContext,
+    messageInternational: MessageContext,
+    noOfSegments: number,
+  ): Promise<void> {
     const { logger } = context;
     logger.info('Charge message after trigger.');
 
     const { user } = context;
     const userModel = await this.userFindByIdAction.execute(context, user.id);
-    const [messageDomestic, mms] = await Promise.all([
-      this.handleMessages(context, updateId, datetimeTrigger, TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC),
-      this.handleMessages(context, updateId, datetimeTrigger, TYPE_MESSAGE.MMS),
-    ]);
-    const messageInternational = await this.handleMessages(
-      context,
-      updateId,
-      datetimeTrigger,
-      TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL,
-    );
-    const totalFee = messageDomestic.totalPrice + messageInternational.totalPrice + mms.totalPrice;
-    const messages = await this.totalMessage(updateId, datetimeTrigger);
     logger.info(
       `messageDomestic: ${messageDomestic.totalPrice}, mms: ${mms.totalPrice}, totalFee: ${totalFee}`,
     );
+
+    const messages =
+      messageDomestic.totalMessages + messageInternational.totalMessages + mms.totalMessages;
 
     const isValid = await this.verifyPriceCharge(context, totalFee);
 
@@ -76,6 +77,14 @@ export class UpdateChargeMessageTriggerAction {
         'UPDATE',
         messageDomestic,
         messageInternational,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        noOfSegments,
       );
 
       await this.saveBillCharged(
@@ -84,12 +93,8 @@ export class UpdateChargeMessageTriggerAction {
         bill,
         updateId,
         userModel.stripeCustomerUserId,
-        messages.length,
+        messages,
       );
-      const ids = messages.map((message) => message._id);
-      await this.messageUpdateManyAction.execute(ids, {
-        statusPaid: true,
-      });
       return;
     }
     context.logger.info('Total fee less limit. Skip it');

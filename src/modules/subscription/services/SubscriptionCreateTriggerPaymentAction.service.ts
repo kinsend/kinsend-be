@@ -88,6 +88,7 @@ export class SubscriptionCreateTriggerPaymentAction {
     planPaymentMethod: PLAN_PAYMENT_METHOD,
   ): Promise<void> {
     console.log('******Trigger payment monthly***********');
+    console.log(`Monthly cron task for user: ${user.id} email: ${user.email}`);
     const { id: userId, phoneSystem } = user;
     const { price: pricePlan } = price;
     const endDate = new Date();
@@ -95,7 +96,7 @@ export class SubscriptionCreateTriggerPaymentAction {
       planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY
         ? moment(endDate).subtract(1, 'month').toDate()
         : moment(endDate).subtract(1, 'year').toDate();
-
+    // CALCUATE FEE PER MESSAGE SEGMENT
     const feeSms = await this.handleMessageFee(context, user, startDate, endDate);
     const { totalFeeMms, totalFeeSms } = feeSms;
     const totalFeeChargedMessagesUpdate = await this.totalBillMessageUpdate(
@@ -111,7 +112,8 @@ export class SubscriptionCreateTriggerPaymentAction {
     const totalFeeUsed =
       totalFeeSms + totalFeeMms + totalFeeSub + totalFeeChargedMessagesUpdate + phoneNumberFee;
 
-    context.logger.info(`\ntotalFeeMms: ${totalFeeMms},totalFeeSms: ${totalFeeSms},
+    context.logger
+      .info(`Monthly cron task  \ntotalFeeMms: ${totalFeeMms},totalFeeSms: ${totalFeeSms},
      chargedMessagesUpdate: ${totalFeeChargedMessagesUpdate}, priceSubs: ${totalFeeSub},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}, totalFeePhoneNumber: ${phoneNumberFee} `);
 
     const chargeFeePayload: IChargeFee = {
@@ -159,16 +161,18 @@ export class SubscriptionCreateTriggerPaymentAction {
     });
     let totalFeeSms = 0;
     let totalFeeMms = 0;
+    // ADDED SEGMNETS LOGIC HERE...
     for await (const message of messages) {
+      const segments = message.content ? Math.floor(message?.content?.length / 160) + 1 : 1;
       if (message.typeMessage === TYPE_MESSAGE.MMS) {
         totalFeeMms += this.configService.priceMMS * RATE_CENT_USD;
         continue;
       }
       if (message.phoneNumberReceipted.startsWith('+1')) {
-        totalFeeSms += PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD;
+        totalFeeSms += segments * PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD;
       } else {
         const price = await this.handlePricePerMessage(context, message.phoneNumberReceipted);
-        totalFeeSms += Number(price) * 2;
+        totalFeeSms += Number(price) * segments * 2;
       }
     }
 

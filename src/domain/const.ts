@@ -47,13 +47,13 @@ export const TTL = 60;
 
 export const BILLING_CYCLE_ANCHOR = 30;
 
-export const PRICE_PER_MESSAGE_DOMESTIC = 0.01;
+export const PRICE_PER_MESSAGE_DOMESTIC = 0.015;
 
 export const PRICE_PER_MESSAGE_INTERNATIONAL = 0.16;
 
 export const PRICE_BASE_PLAN = 19.99;
 
-export const PRICE_ATTACH_CHARGE = 5; // 5$
+export const PRICE_ATTACH_CHARGE = 1; // 1$
 
 export const NUMBER_DAY_TRIGGER_CHARGE = 30;
 
@@ -67,7 +67,7 @@ export enum PAYMENT_MONTHLY_STATUS {
   PENDING = 'pending',
 }
 
-export const PRICE_PER_PHONE_NUMBER = 1;
+export const PRICE_PER_PHONE_NUMBER = 2;
 
 export enum REGISTRATION_STATUS {
   PENDING = 'PENDING',
