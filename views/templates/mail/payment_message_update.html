@@ -16,10 +16,11 @@
       } /* branch */
       .header-branch-container {
         width: 60%;
+        margin-top: 32px;
       }
       .header-branch-container .logo {
-        width: 200px;
-        height: 69px;
+        width: 130px;
+        height: 50px;
         display: inline-block;
         position: relative;
       }
@@ -28,10 +29,10 @@
         line-height: 22px;
       }
       .header-branch-container .logo img {
-        width: 200px;
-        height: 69px;
+        width: 120px;
+        height: 25px;
         position: absolute;
-        left: -20px;
+        /* left: -20px; */
       } /* */
       .list-invoice {
         list-style-type: none;
@@ -164,7 +165,7 @@
           <tr class="bt">
             <td class="bold py">
               Charge for sending an update with {{numberSegment}} segments to {{domestic_mes}} US
-              numbers and {{international_mes}} international numbers.
+              {{domesticMsgText}} and {{international_mes}} international {{internationalMsgText}}.
             </td>
             <td class="text-center">1</td>
             <td class="text-right">{{charge_price}}</td>
@@ -205,18 +206,18 @@
       <p class="bold" style="margin: 0">NOTES</p>
       <span class="line" style="margin: 6px 0"></span>
       <p style="margin: 0; white-space: 1.5px">
-        FAQs: 1. SMS is billed at $0.01 per outbound segment. Inbound is free. Please note: Any SMS
+        FAQs: 1. SMS is billed at $0.015 per outbound and inbound segment. Please note: Any SMS
         longer than 160 characters is broken into multiple segments so you may have a larger number
         than you recall sending. // 2. MMS is billed at $0.04 per media message (inbound and
         outbound) this includes photos, video, audio, etc. // 3. Voice is billed at $0.01 per minute
-        (inbound and outbound). // 4. Phone numbers are billed at $1/number. You have one number for
-        every 500 conversations. // 5. Add ons are billed by the mobile carriers to help ensure
-        delivery. // 6. Conversations are billed based on your plan at either $0.10 (Starter Plan),
-        $0.08 (Growth), or $0.01 (High-Volume). // 7. Already paid is your pre-paid amount for the
-        previous month according to your plan. // *All of the pricing mentioned is for USA -
-        international rates can increase your bill significantly. // Other questions? Please reach
-        out via Intercom by logging into your account on desktop and clicking the gold chat bubble
-        in the bottom right corner. Thank you for using Kinsend®. We appreciate your business.
+        (inbound and outbound). // 4. Phone numbers are billed at $2/number. // 5. Add ons are billed
+        by the mobile carriers to help ensure delivery. // 6. Conversations are billed based on your 
+        plan at either $0.10 (Starter Plan), $0.08 (Growth), or $0.01 (High-Volume). // 7. Already 
+        paid is your pre-paid amount for the previous month according to your plan. // *All of the
+        pricing mentioned is for USA - international rates can increase your bill significantly. 
+        // Other questions? Please reach out via the chat bubble in the bottom right corner with our 
+        logo icon by logging into your account on desktop or mobile. Thank you for using Kinsend©. 
+        We appreciate your business.
       </p>
     </div>
   </body>

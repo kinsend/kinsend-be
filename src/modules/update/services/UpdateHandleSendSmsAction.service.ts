@@ -160,7 +160,6 @@ export class UpdateHandleSendSmsAction {
       return accumulator;
     }, Promise.resolve([] as FormSubmission[][]));
 
-
     if (chunks.length === 0 && update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
       Logger.warn('Do not have a subscriber, marking update as done');
       // Note: update process for update type Once
@@ -172,7 +171,6 @@ export class UpdateHandleSendSmsAction {
         },
       );
     }
-
     try {
       await this.updateChargeMessageTriggerAction.execute(
         context,
@@ -184,7 +182,6 @@ export class UpdateHandleSendSmsAction {
         messageInternational,
         totalNoOfSegments,
       );
-
     } catch (error) {
       Logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
     }
