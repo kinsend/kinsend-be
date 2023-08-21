@@ -92,6 +92,15 @@ export class PaymentSendInvoiceAction {
     const { customer, amount } = bill;
     const { email, phoneNumber, firstName, lastName } = user;
     const date = new Date();
+
+    const formattedDate = date.toLocaleString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      timeZoneName: 'short',
+    });
     const customerInfo: ICustomerInfoInvoice = {
       invoice_id: Math.floor(100000 + Math.random() * 900000),
       name: `${firstName} ${lastName}`,
@@ -107,9 +116,7 @@ export class PaymentSendInvoiceAction {
       total_paid: unitAmountToPrice(amount),
       invoice_date: `${MonthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`,
       price_plane: unitAmountToPrice(pricePlane || 0),
-      datetime_paid: `${date.getDate()} ${
-        MonthNames[date.getMonth()]
-      }, ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()} EDT`,
+      datetime_paid: formattedDate,
     };
     return customerInfo;
   }
