@@ -1,3 +1,8 @@
+/* eslint-disable import/order */
+/* eslint-disable curly */
+/* eslint-disable unicorn/prevent-abbreviations */
+/* eslint-disable prettier/prettier */
+/* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable unicorn/no-array-reduce */
 /* eslint-disable consistent-return */
@@ -12,8 +17,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { SqsService } from '@ssut/nestjs-sqs';
 import { Model } from 'mongoose';
 import * as schedule from 'node-schedule';
+import {
+  PRICE_PER_MESSAGE_DOMESTIC,
+  PRICE_PER_MESSAGE_INTERNATIONAL,
+  RATE_CENT_USD,
+  REGION_DOMESTIC,
+  TYPE_MESSAGE,
+} from 'src/domain/const';
 import { FormSubmission } from 'src/modules/form.submission/form.submission.schema';
 import { FormSubmissionFindByIdAction } from 'src/modules/form.submission/services/FormSubmissionFindByIdAction.service';
+import { fillMergeFieldsToMessage } from 'src/utils/fillMergeFieldsToMessage';
+import { regionPhoneNumber } from 'src/utils/utilsPhoneNumber';
 import { v4 as uuid } from 'uuid';
 import { SmsService } from '../../../shared/services/sms.service';
 import { RequestContext } from '../../../utils/RequestContext';
@@ -26,12 +40,15 @@ import { UpdateFindByIdWithoutReportingAction } from './UpdateFindByIdWithoutRep
 import { UpdateChargeMessageTriggerAction } from './UpdateTriggerAction/UpdateChargeMessageTriggerAction';
 import { UpdateUpdateProgressAction } from './UpdateUpdateProgressAction.service';
 import { LinkRediectCreateByMessageAction } from './link.redirect/LinkRediectCreateByMessageAction.service';
+import { MessageContext } from 'src/modules/subscription/interfaces/message.interface';
+import { ConfigService as EnvConfigService } from '../../../configs/config.service';
 
 @Injectable()
 export class UpdateHandleSendSmsAction {
   constructor(
     private readonly sqsService: SqsService,
     private readonly configService: ConfigService,
+    private readonly envConfigService: EnvConfigService, // private smsService: SmsService,
   ) {}
 
   private timesPerformedOtherWeek = 0;
@@ -80,12 +97,68 @@ export class UpdateHandleSendSmsAction {
     if (isCleanSchedule) {
       return;
     }
-    const chunks = subscribers.reduce((accumulator, _, index) => {
+    const { message: messageValue, fileUrl } = update;
+    let totalPrice = 0;
+    let totalNoOfSegments = 0;
+    const messageDomestic: MessageContext = {
+      totalMessages: 0,
+      totalPrice: 0,
+    };
+
+    const mms: MessageContext = {
+      totalMessages: 0,
+      totalPrice: 0,
+    };
+
+    const messageInternational: MessageContext = {
+      totalMessages: 0,
+      totalPrice: 0,
+    };
+    const timeTriggerSchedule = new Date();
+    const chunks = await subscribers.reduce(async (accumulatorPromise, currentValue, index) => {
+      const accumulator = await accumulatorPromise;
+      const { phoneNumber, firstName, lastName, email, _id } = currentValue;
+
+      const to = `+${phoneNumber.code}${phoneNumber.phone}`;
+
+      // FILLING MERGE FIELDS
+      const messageFilled = fillMergeFieldsToMessage(messageValue, {
+        fname: firstName,
+        lname: lastName,
+        name: firstName + lastName,
+        mobile: to,
+        email,
+      });
+
+      const typeMessage = !fileUrl ? this.handleTypeMessage(to) : TYPE_MESSAGE.MMS;
+
+      // CALCULATING PRICE
+      const noOfSegments = Math.floor(messageFilled?.length / 160) + 1;
+      totalNoOfSegments += noOfSegments;
+      if (
+        typeMessage === TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC ||
+        typeMessage === TYPE_MESSAGE.MESSAGE_DOMESTIC
+      ) {
+        totalPrice += noOfSegments * (PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD);
+        messageDomestic.totalMessages += 1;
+        messageDomestic.totalPrice += noOfSegments * (PRICE_PER_MESSAGE_DOMESTIC * RATE_CENT_USD);
+      } else if (typeMessage === TYPE_MESSAGE.MMS) {
+        totalPrice += this.envConfigService.priceMMS * RATE_CENT_USD;
+        mms.totalMessages += 1;
+        mms.totalPrice += this.envConfigService.priceMMS * RATE_CENT_USD;
+      } else {
+        // International
+        const price = await this.handlePricePerMessage(context, to, smsService);
+        totalPrice += Number(price) * noOfSegments * 2;
+        messageInternational.totalMessages += 1;
+        messageInternational.totalPrice += Number(price) * noOfSegments * 2;
+      }
+
       if (index % 200 === 0) {
         accumulator.push(subscribers.slice(index, index + 200));
       }
       return accumulator;
-    }, [] as FormSubmission[][]);
+    }, Promise.resolve([] as FormSubmission[][]));
 
     if (chunks.length === 0 && update.triggerType === INTERVAL_TRIGGER_TYPE.ONCE) {
       Logger.warn('Do not have a subscriber, marking update as done');
@@ -97,6 +170,20 @@ export class UpdateHandleSendSmsAction {
           status: UPDATE_PROGRESS.DONE,
         },
       );
+    }
+    try {
+      await this.updateChargeMessageTriggerAction.execute(
+        context,
+        update.id,
+        timeTriggerSchedule,
+        messageDomestic,
+        totalPrice,
+        mms,
+        messageInternational,
+        totalNoOfSegments,
+      );
+    } catch (error) {
+      Logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
     }
 
     const promises: Promise<AWS.SQS.SendMessageBatchResultEntryList | undefined>[] = chunks.map(
@@ -199,5 +286,25 @@ export class UpdateHandleSendSmsAction {
       return;
     }
     my_job.cancel();
+  }
+
+  private handleTypeMessage(phoneNumberReceipted: string): TYPE_MESSAGE {
+    const region = regionPhoneNumber(phoneNumberReceipted);
+    if (!region || region === REGION_DOMESTIC) {
+      return TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC;
+    }
+    return TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL;
+  }
+
+  private async handlePricePerMessage(
+    context: RequestContext,
+    phone: string,
+    smsService: SmsService,
+  ): Promise<number> {
+    const region = regionPhoneNumber(phone);
+    if (!region) return PRICE_PER_MESSAGE_INTERNATIONAL;
+    const price = await smsService.getPriceSendMessage(context, region);
+    // Convert to cent
+    return price * RATE_CENT_USD;
   }
 }

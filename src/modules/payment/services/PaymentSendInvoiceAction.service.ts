@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-module */
 /* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable no-underscore-dangle */
 import { Injectable, Logger } from '@nestjs/common';
@@ -40,6 +41,7 @@ export class PaymentSendInvoiceAction {
     namePlane?: string,
     numberPhoneNumber?: number,
     overLimit?: number,
+    noOfSegments?: number,
   ): Promise<void> {
     context.logger.info('Send mail after charged, type: ' + type);
 
@@ -58,6 +60,7 @@ export class PaymentSendInvoiceAction {
         numberCard,
         messageDomestic,
         messageInternational,
+        noOfSegments,
       );
       return;
     }
@@ -89,6 +92,15 @@ export class PaymentSendInvoiceAction {
     const { customer, amount } = bill;
     const { email, phoneNumber, firstName, lastName } = user;
     const date = new Date();
+
+    const formattedDate = date.toLocaleString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      timeZoneName: 'short',
+    });
     const customerInfo: ICustomerInfoInvoice = {
       invoice_id: Math.floor(100000 + Math.random() * 900000),
       name: `${firstName} ${lastName}`,
@@ -99,14 +111,12 @@ export class PaymentSendInvoiceAction {
       unitsPlane: 1,
       units: 1,
       name_plane: namePlane || '',
-      logo: 'https://www.dev.kinsend.io/static/media/logo.961c15e5ab6169b8a855d4db11ed84e7.svg',
+      logo: 'https://kinsend-app-public.s3.amazonaws.com/assets/logo/KS-21-07-WHITE_BACKGROUND_LARGE_NOEXCESS.png',
       number_card: numberCard || '',
       total_paid: unitAmountToPrice(amount),
       invoice_date: `${MonthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`,
       price_plane: unitAmountToPrice(pricePlane || 0),
-      datetime_paid: `${date.getDate()} ${
-        MonthNames[date.getMonth()]
-      }, ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()} EDT`,
+      datetime_paid: formattedDate,
     };
     return customerInfo;
   }
@@ -118,6 +128,7 @@ export class PaymentSendInvoiceAction {
     numberCard: string,
     messageDomestic?: MessageContext,
     messageInternational?: MessageContext,
+    noOfSegments?: number,
   ) {
     const { id, amount } = bill;
     const { email } = user;
@@ -131,7 +142,7 @@ export class PaymentSendInvoiceAction {
     const { mailForm } = this.configService;
     const replacements = {
       ...customerInfo,
-      numberSegment: 1,
+      numberSegment: noOfSegments || 1,
       domestic_mes: messageDomestic?.totalMessages || 0,
       international_mes: messageInternational?.totalMessages || 0,
       charge_price: unitAmountToPrice(amount),
@@ -139,6 +150,9 @@ export class PaymentSendInvoiceAction {
       billing_datetime: `${MonthNames[date.getMonth()]} ${date.getDate()} to ${
         MonthNames[date.getMonth()]
       } ${date.getDate()}, ${date.getFullYear()}`,
+      domesticMsgText: messageDomestic && messageDomestic.totalMessages > 1 ? 'numbers' : 'number',
+      internationalMsgText:
+        messageInternational && messageInternational.totalMessages > 1 ? 'numbers' : 'number',
     };
     const htmlToSend = template(replacements);
 
@@ -160,9 +174,13 @@ export class PaymentSendInvoiceAction {
       <br>
       Items:<br>
       <br>
-      Description : Charge for sending an update with 1 segments to ${
+      Description : Charge for sending an update with ${noOfSegments || 1} segments to ${
         messageDomestic?.totalMessages || 0
-      } US numbers and ${messageInternational?.totalMessages || 0} international numbers.<br>
+      } US ${messageDomestic && messageDomestic?.totalMessages > 1 ? 'numbers' : 'number'} and ${
+        messageInternational?.totalMessages || 0
+      } international ${
+        messageInternational && messageInternational?.totalMessages > 1 ? 'numbers' : 'number'
+      }.<br>
       Unit Cost : ${replacements.total_price || 0}<br>
       Quantity : 1<br>
       Price : ${replacements.total_price || 0}<br>
@@ -352,8 +370,8 @@ export class PaymentSendInvoiceAction {
       const browser = await puppeteer.launch({
         headless: true,
         executablePath: process.env.CHROME_BIN || undefined,
-        args: ['--no-sandbox', '--headless', '--disable-gpu', '--disable-dev-shm-usage']
-      });;
+        args: ['--no-sandbox', '--headless', '--disable-gpu', '--disable-dev-shm-usage'],
+      });
       const page = await browser.newPage();
       await page.goto('https://google.ru', { waitUntil: 'networkidle0' }); // <== This should help
       await page.setContent(htmlToSend, { waitUntil: 'networkidle0' });
