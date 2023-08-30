@@ -49,6 +49,8 @@ export const BILLING_CYCLE_ANCHOR = 30;
 
 export const PRICE_PER_MESSAGE_DOMESTIC = 0.015;
 
+export const PRICE_PER_MESSAGE_DOMESTIC_ANNUAL_PLAN = 0.012;
+
 export const PRICE_PER_MESSAGE_INTERNATIONAL = 0.16;
 
 export const PRICE_BASE_PLAN = 19.99;
@@ -58,6 +60,12 @@ export const PRICE_ATTACH_CHARGE = 1; // 1$
 export const NUMBER_DAY_TRIGGER_CHARGE = 30;
 
 export const RATE_CENT_USD = 100;
+
+export const USER_THRESHOLD_STARTER_PLAN = 80;
+
+export const USER_THRESHOLD_GROWTH_PLAN = 200;
+
+export const USER_THRESHOLD_HIGH_VOLUME_PLAN = 400;
 
 // 500 cent
 export const MINIMUM_PRICE = 500;
