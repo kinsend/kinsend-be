@@ -200,7 +200,7 @@ export class SubscriptionCreateTriggerPaymentAction {
     const phone = `+${phoneNumberOwner.code}${phoneNumberOwner.phone}`;
 
     const messages = await this.messagesFindByConditionAction.execute({
-      userId,
+      user: userId,
       $or: [{ phoneNumberSent: phone }, { phoneNumberReceipted: phone }],
       status: 'success',
       statusPaid: false,
@@ -218,7 +218,6 @@ export class SubscriptionCreateTriggerPaymentAction {
     let annualUserUpdateMessagesFee = 0;
     // ADDED SEGMNETS LOGIC HERE...
     for await (const message of messages) {
-      console.log('message', message);
       const segments = message.content ? Math.floor(message?.content?.length / 160) + 1 : 1;
       if (message.typeMessage === TYPE_MESSAGE.MMS) {
         totalFeeMms += this.configService.priceMMS * RATE_CENT_USD;
