@@ -51,6 +51,7 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
         try {
           context.user.id = userIdSchedule;
           const user = await this.userFindByIdAction.execute(context, userIdSchedule);
+          console.log('CRON Job user', user);
           let planSubscription = await this.planSubscriptionGetByUserIdAction.execute(
             userIdSchedule,
           );
