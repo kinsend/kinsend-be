@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DataHelper } from '../../../utils/DataHelper';
 
-import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { FormSubmission, FormSubmissionDocument } from '../form.submission.schema';
@@ -19,14 +18,11 @@ export class FormSubmissionFindByPhoneNumberAction {
     phone: PhoneNumber,
     owner?: string,
   ): Promise<FormSubmissionDocument[]> {
-    const query: any = {
+    const formSubmission = await this.formSubmissionModel.find({
       'phoneNumber.phone': phone.phone,
       'phoneNumber.code': phone.code,
-    };
-    if (owner) {
-      query.owner = DataHelper.toObjectId(owner);
-    }
-    const formSubmission = await this.formSubmissionModel.find(query);
+      owner,
+    });
     return formSubmission;
   }
 }
