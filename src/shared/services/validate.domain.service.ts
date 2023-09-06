@@ -16,8 +16,7 @@ export class ValidateDomainService implements ValidatorConstraintInterface {
   validate(text: string, args: ValidationArguments) {
     const regex =
       // eslint-disable-next-line unicorn/better-regex
-      /^[a-zA-Z0-9][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9]{0,1}\.([a-zA-Z]{1,6}|[a-zA-Z0-9-]{1,30})+\.([a-zA-Z]{1,6}|[a-zA-Z0-9-]{1,30}\.[a-zA-Z]{2,3})$/g;
-
+      /^[a-zA-Z0-9][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9]{0,1}\.([a-zA-Z]{1,6}|[a-zA-Z0-9-]{1,30})+\.([a-zA-Z]{1,6}|[a-zA-Z0-9-]{1,30})+\.([a-zA-Z]{1,6}|[a-zA-Z0-9-]{1,30}\.[a-zA-Z]{2,3})$/g;
     const isValid = `${text}.${this.configService.domain}`.match(regex);
     if (isValid && isValid.length > 0) {
       return true;
