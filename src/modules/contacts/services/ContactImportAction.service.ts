@@ -1,3 +1,13 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable array-callback-return */
+/* eslint-disable import/order */
+/* eslint-disable unicorn/explicit-length-check */
+/* eslint-disable curly */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-continue */
+/* eslint-disable unicorn/prevent-abbreviations */
+/* eslint-disable unicorn/consistent-destructuring */
+/* eslint-disable no-await-in-loop */
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as chunk from 'lodash/chunk';
@@ -62,20 +72,21 @@ export class ContactImportAction {
       const promiseInsert: any[] = [];
       const contactUpdateTags: FormSubmissionDocument[] = [];
       const tags = tagId ? [tagId] : [];
+      let skippedContacts = 0;
       for (const item of payload.contacts) {
         const tempTags: any[] = [];
         const contactExist = await this.formSubmissionFindByPhoneNumberAction.execute(
           context,
           item.phoneNumber,
-          context.user.id
+          context.user.id,
         );
         const metadata = item.metaData && JSON.parse(item.metaData);
-        if(metadata.tags) {
+        if (metadata.tags) {
           const tagsArray = metadata.tags.split(',');
           for (const tag of tagsArray) {
-            if(tag.trim() === '') continue;
+            if (tag.trim() === '') continue;
             const tagDoc = await this.tagsSearchByName.execute(context, { name: tag.trim() });
-            if(tagDoc) {
+            if (tagDoc) {
               tempTags.push(tagDoc._id.toString());
             } else {
               const tagCreated = await this.tagsCreateAction.execute(context, { name: tag.trim() });
@@ -88,6 +99,7 @@ export class ContactImportAction {
           if (isOverride !== true) {
             // Skip when contact exist
             this.looger.debug(`Skip contact ${JSON.stringify(item.phoneNumber)}`);
+            skippedContacts++;
             continue;
           }
           // override contact exist
@@ -95,8 +107,8 @@ export class ContactImportAction {
           const contactUpdate = dynamicUpdateModel<FormSubmissionDocument>(item, contactExist[0]);
           if (tagId || tempTags.length > 0) {
             // if (contactUpdate.tags && !contactUpdate.tags.some((tag) => tag.toString() === tagId)) {
-              contactUpdate.tags = [...tags, ...tempTags] as any;
-              contactUpdateTags.push(contactUpdate);
+            contactUpdate.tags = [...tags, ...tempTags] as any;
+            contactUpdateTags.push(contactUpdate);
             // }
           }
           promiseUpdate.push(contactUpdate.save());
@@ -127,7 +139,7 @@ export class ContactImportAction {
       await this.contactImportHistoryCreateAction.execute(context, {
         numbersColumnMapped,
         numbersContact: row,
-        numbersContactImported,
+        numbersContactImported: numbersContactImported - skippedContacts,
       });
     } catch (error) {
       throw new IllegalStateException(error.message || error);

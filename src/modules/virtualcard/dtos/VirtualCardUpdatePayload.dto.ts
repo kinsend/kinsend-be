@@ -10,7 +10,7 @@ export class VirtualCardUpdatePayloadDto {
   email?: string;
 
   @ApiProperty({ example: '{{image_url}}', type: String, required: false })
-  @IsNotEmpty()
+  // @IsNotEmpty()
   @IsString()
   @IsOptional()
   image?: string;

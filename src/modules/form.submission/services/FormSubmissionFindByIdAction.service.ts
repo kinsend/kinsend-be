@@ -17,8 +17,9 @@ export class FormSubmissionFindByIdAction {
       owner: context.user.id,
     });
     if (!formSubmission) {
-      throw new NotFoundException('FormSubmission', 'FormSubmission not found!');
+      throw new NotFoundException('FormSubmission', 'Contact not found!');
     }
-    return formSubmission.populate('tags');
+    const user = await formSubmission.populate('tags');
+    return user;
   }
 }

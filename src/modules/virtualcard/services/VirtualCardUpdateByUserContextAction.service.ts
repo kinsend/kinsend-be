@@ -42,7 +42,10 @@ export class VirtualCardUpdateByUserContextAction {
       throw new NotFoundException('VCard', 'VCard not found');
     }
     const fileKey = `${vcard.userId}vcard`;
-    const url = await this.vCardService.uploadVCard(context, fileKey, vCardAfterUpdated);
+    let url = '';
+    if (payload.image) {
+      await this.vCardService.uploadVCard(context, fileKey, vCardAfterUpdated)
+    }
     vCardAfterUpdated.url = url;
     // Update url after upload file
     await vCardAfterUpdated.save();
