@@ -28,7 +28,9 @@ export class UpdateFindByIdAction {
   ) {}
 
   async execute(context: RequestContext, id: string): Promise<UpdateGetByIdResponse> {
-    const update = await this.updateModel.findById(id).populate('recipients');
+    const update = await this.updateModel
+      .findOne({ _id: id, createdBy: context.user.id })
+      .populate('recipients');
     if (!update) {
       throw new NotFoundException('Update', 'Update not found!');
     }
