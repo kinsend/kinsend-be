@@ -76,7 +76,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.5",
-    "sharp": "^0.31.1",
+    "sharp": "^0.32.6",
     "stripe": "^8.219.0",
     "swagger-ui-express": "^4.3.0",
     "twilio": "^3.76.1",
