@@ -50,6 +50,8 @@ export const BILLING_CYCLE_ANCHOR = 30;
 
 export const PRICE_PER_MESSAGE_DOMESTIC = 0.015;
 
+export const PRICE_PER_MESSAGE_DOMESTIC_ANNUAL_PLAN = 0.012;
+
 export const PRICE_PER_MESSAGE_INTERNATIONAL = 0.16;
 
 export const PRICE_BASE_PLAN = 19.99;
@@ -68,6 +70,13 @@ export const CAMPAIGN_REGISTRATION = 15; // 15$
 
 // 100 cent
 export const MINIMUM_PRICE = 100;
+export const USER_THRESHOLD_STARTER_PLAN = 80;
+
+export const USER_THRESHOLD_GROWTH_PLAN = 200;
+
+export const USER_THRESHOLD_HIGH_VOLUME_PLAN = 400;
+
+
 
 export enum PAYMENT_MONTHLY_STATUS {
   PAID = 'paid',

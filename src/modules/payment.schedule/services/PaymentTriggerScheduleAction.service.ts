@@ -4,7 +4,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as schedule from 'node-schedule';
 
-import * as moment from 'moment';
 import { ConfigService } from 'src/configs/config.service';
 import {
   PLAN_PAYMENT_METHOD,
@@ -20,6 +19,7 @@ import { RequestContext } from '../../../utils/RequestContext';
 import { PlanSubscriptionCreateAction } from '../../plan-subscription/services/plan-subscription-create-action.service';
 import { SubscriptionCreateTriggerPaymentAction } from '../../subscription/services/SubscriptionCreateTriggerPaymentAction.service';
 import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
+import moment from 'moment';
 
 @Injectable()
 export class PaymentTriggerScheduleAction implements OnModuleInit {
@@ -65,6 +65,7 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
               status: PLAN_SUBSCRIPTION_STATUS.ACTIVE,
               userId: userIdSchedule,
               registrationDate: new Date(),
+              a2pApprovalDate: new Date(),
             });
           }
           const {
@@ -73,16 +74,27 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
             productName,
             registrationDate,
             planPaymentMethod,
+            a2pApprovalDate,
           } = planSubscription;
+
+          // if (!a2pApprovalDate) {
+          if (!registrationDate) {
+            context.logger.info(
+              `Monthly CRON Task: a2pApprovalDate is null for ${context.user.id}`,
+            );
+            continue;
+          }
           const price: IPrice = {
             price: priceCharged || this.configService.priceStarterPlane,
             priceId: priceId || '',
             productName: productName || 'Starter',
           };
-          const createAt =
-            planSubscription.planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY
-              ? registrationDate
-              : moment(registrationDate).set('year', new Date().getFullYear()).toDate();
+          // const createAt =
+          //   planSubscription.planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY
+          //     ? registrationDate
+          //     : moment(registrationDate).set('year', new Date().getFullYear()).toDate();
+          // const createAt = a2pApprovalDate;
+          const createAt = registrationDate;
           await this.subscriptionCreateTriggerPaymentAction.execute(
             context,
             user,
@@ -93,7 +105,7 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
             planPaymentMethod,
             false,
           );
-          this.logger.debug(`Successfully created schedule for ${context.user.id}!`);
+          this.logger.log(`Successfully created schedule for ${context.user.id}!`);
         } catch (error) {
           this.logger.error(error);
           this.logger.debug(`Skip schedule of user ${context.user.id}`);

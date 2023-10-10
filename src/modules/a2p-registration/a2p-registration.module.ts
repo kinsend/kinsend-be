@@ -12,6 +12,7 @@ import { A2pRegistration, A2pRegistrationSchema } from './a2p-registration.schem
 import { A2pBrandCampaignCharge } from './services/a2p-brand-campaign-charge.service';
 import { A2pBrandStatusService } from './services/a2p-brand-status.service';
 import { A2pRegistrationTrustHubService } from './services/a2p-registration.service';
+import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { A2pRegistrationTrustHubService } from './services/a2p-registration.serv
     A2pBrandStatusService,
     ConfigService,
     A2pBrandCampaignCharge,
+    PlanSubscriptionModule,
   ],
   controllers: [A2PRegistrationController],
 })

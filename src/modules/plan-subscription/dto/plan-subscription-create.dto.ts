@@ -22,4 +22,8 @@ export class PlanSubscriptionCreateDto {
   @IsString()
   @IsOptional()
   registrationDate?: Date;
+
+  @IsString()
+  @IsOptional()
+  a2pApprovalDate?: Date;
 }
