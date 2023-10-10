@@ -31,7 +31,7 @@ export class PaymentSendInvoiceAction {
     user: UserDocument,
     bill: Stripe.PaymentIntent,
     numberCard: string,
-    type: 'UPDATE' | 'MONTHLY' | 'REGISTRY' = 'UPDATE',
+    type: 'UPDATE' | 'MONTHLY' | 'A2PBRANDCAMPREGISTRATION' | 'REGISTRY' = 'UPDATE',
     messageDomestic?: MessageContext,
     messageInternational?: MessageContext,
     smsFeeUsed?: number,
@@ -52,6 +52,9 @@ export class PaymentSendInvoiceAction {
       numberCard,
       pricePlane,
     );
+    if (type === 'A2PBRANDCAMPREGISTRATION') {
+      await this.sendMailA2pBrandCampRegistrationInvoice(user, customerInfo, bill, numberCard);
+    }
     if (type === 'UPDATE') {
       await this.sendMailUpdateInvoice(
         user,
@@ -119,6 +122,89 @@ export class PaymentSendInvoiceAction {
       datetime_paid: formattedDate,
     };
     return customerInfo;
+  }
+
+  private async sendMailA2pBrandCampRegistrationInvoice(
+    user: UserDocument,
+    customerInfo: ICustomerInfoInvoice,
+    bill: Stripe.PaymentIntent,
+    numberCard: string,
+    messageDomestic?: MessageContext,
+    messageInternational?: MessageContext,
+    noOfSegments?: number,
+  ) {
+    const { id, amount } = bill;
+    const { email } = user;
+    const date = new Date();
+    const filePath = path.join(
+      __dirname,
+      '../../../../views/templates/mail/payment_message_update.html',
+    );
+    const source = fs.readFileSync(filePath, 'utf-8').toString();
+    const template = handlebars.compile(source);
+    const { mailForm } = this.configService;
+    const replacements = {
+      ...customerInfo,
+      numberSegment: noOfSegments || 1,
+      domestic_mes: messageDomestic?.totalMessages || 0,
+      international_mes: messageInternational?.totalMessages || 0,
+      charge_price: unitAmountToPrice(amount),
+      total_price: unitAmountToPrice(amount),
+      billing_datetime: `${MonthNames[date.getMonth()]} ${date.getDate()} to ${
+        MonthNames[date.getMonth()]
+      } ${date.getDate()}, ${date.getFullYear()}`,
+      domesticMsgText: messageDomestic && messageDomestic.totalMessages > 1 ? 'numbers' : 'number',
+      internationalMsgText:
+        messageInternational && messageInternational.totalMessages > 1 ? 'numbers' : 'number',
+    };
+    const htmlToSend = template(replacements);
+
+    await this.createFilePDF(id, htmlToSend);
+    const pathInvoice = `./invoice_${id}.pdf`;
+    const invoice = fs.readFileSync(pathInvoice).toString('base64');
+    const mail = {
+      to: email,
+      subject: 'Kinsend - Thanks for your payment!',
+      from: mailForm,
+      html: `Hello,<br>
+      <br>
+      Thank you for the payment.<br>
+      <br>
+      Payment details are given below:<br>
+      <br>
+      Date: ${date.getDate()}-${MonthNames[date.getMonth()]}-${date.getFullYear()}<br>
+      Invoice: ${replacements.invoice_id}<br>
+      <br>
+      Items:<br>
+      <br>
+      Description : Charge for sending an update with ${noOfSegments || 1} segments to ${
+        messageDomestic?.totalMessages || 0
+      } US ${messageDomestic && messageDomestic?.totalMessages > 1 ? 'numbers' : 'number'} and ${
+        messageInternational?.totalMessages || 0
+      } international ${
+        messageInternational && messageInternational?.totalMessages > 1 ? 'numbers' : 'number'
+      }.<br>
+      Unit Cost : ${replacements.total_price || 0}<br>
+      Quantity : 1<br>
+      Price : ${replacements.total_price || 0}<br>
+      <br>
+      Total Amount: ${replacements.total_price || 0}<br>
+      <br>
+      Thanks again for your purchase. If you have any questions, please contact us.<br>
+      Thank You.`,
+      attachments: [
+        {
+          content: invoice,
+          filename: 'invoice.pdf',
+          type: 'application/pdf',
+          disposition: 'attachment',
+        },
+      ],
+    };
+    await this.mailSendGridService.sendUserStatusPayment(mail);
+
+    // Delete file
+    fs.unlinkSync(pathInvoice);
   }
 
   private async sendMailUpdateInvoice(

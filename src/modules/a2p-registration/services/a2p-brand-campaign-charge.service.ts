@@ -52,7 +52,7 @@ export class A2pBrandCampaignCharge {
       userModel,
       bill,
       numberCard,
-      'UPDATE', // TODO: Change this to A2P BRAND & CAMPAIGN REGISTRATION
+      'A2PBRANDCAMPREGISTRATION',
     );
 
     await this.saveBillCharged(context, user.id, bill, userModel.stripeCustomerUserId);

@@ -66,8 +66,8 @@ export const STANDARD_BRAND_REGISTRATION = 44; // 44$
 
 export const CAMPAIGN_REGISTRATION = 15; // 15$
 
-// 500 cent
-export const MINIMUM_PRICE = 500;
+// 100 cent
+export const MINIMUM_PRICE = 100;
 
 export enum PAYMENT_MONTHLY_STATUS {
   PAID = 'paid',
