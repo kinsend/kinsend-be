@@ -1,11 +1,16 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable unicorn/prefer-ternary */
+import { HttpException, Injectable } from '@nestjs/common';
 import * as moment from 'moment';
 import Stripe from 'stripe';
 
+import { A2p10dlcGetByUserIdAction } from 'src/modules/a2p-registration/services/a2p-10dlcGetByUserId.service';
 import { PlanSubscriptionGetByUserIdAction } from 'src/modules/plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 import { ConfigService } from '../../../configs/config.service';
 import {
+  A2P_PLAN_TYPE,
   MINIMUM_PRICE,
+  MONTHLY_CAMPAIGN_STANDARD_FEE,
+  MONTHLY_CAMPAIGN_STARTER_FEE,
   PAYMENT_MONTHLY_STATUS,
   PRICE_PER_MESSAGE_DOMESTIC,
   PRICE_PER_MESSAGE_DOMESTIC_ANNUAL_PLAN,
@@ -52,6 +57,7 @@ export class SubscriptionCreateTriggerPaymentAction {
     private paymentSendInvoiceAction: PaymentSendInvoiceAction,
     private paymentMonthlyFindPreviousUnpaidAction: PaymentMonthlyFindPreviousUnpaidAction,
     private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
+    private a2p10dlcGetByUserIdAction: A2p10dlcGetByUserIdAction,
   ) {}
 
   async execute(
@@ -141,13 +147,25 @@ export class SubscriptionCreateTriggerPaymentAction {
     );
     const numberPhoneNumber = phoneSystem?.length || 0;
     const phoneNumberFee = numberPhoneNumber * PRICE_PER_PHONE_NUMBER * RATE_CENT_USD;
+    // A2P 10DLC campaign monthly fee
+    let a2pCampaignFee = 0;
+    if (planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY) {
+      const a2pFeeResponse = await this.handleA2pCampaignFee(context, userId);
+      a2pCampaignFee = a2pFeeResponse.a2pCampaignFee;
+    }
+    console.log(`CRON JOB a2pCampaignFee: ${a2pCampaignFee} for user ${userId}`);
     // Rate is cent
     const totalFeeUsed =
-      totalFeeSms + totalFeeMms + totalFeeSub + totalFeeChargedMessagesUpdate + phoneNumberFee;
+      totalFeeSms +
+      totalFeeMms +
+      totalFeeSub +
+      totalFeeChargedMessagesUpdate +
+      phoneNumberFee +
+      a2pCampaignFee;
 
     context.logger
       .info(`Monthly cron task  \ntotalFeeMms: ${totalFeeMms},totalFeeSms: ${totalFeeSms},
-     chargedMessagesUpdate: ${totalFeeChargedMessagesUpdate}, priceSubs: ${totalFeeSub},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}, totalFeePhoneNumber: ${phoneNumberFee} `);
+     chargedMessagesUpdate: ${totalFeeChargedMessagesUpdate}, priceSubs: ${totalFeeSub},totalSubs: ${totalSubs}, totalFeeUsed: ${totalFeeUsed}, totalFeePhoneNumber: ${phoneNumberFee}, a2pCampaignFee: ${a2pCampaignFee} `);
 
     const chargeFeePayload: IChargeFee = {
       totalFeeChargedMessagesUpdate,
@@ -160,6 +178,7 @@ export class SubscriptionCreateTriggerPaymentAction {
       endDate,
       totalSubs,
       totalFeeSub,
+      a2pCampaignFee,
     };
     if (planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY) {
       context.logger.info('Goto monthly plan');
@@ -185,6 +204,28 @@ export class SubscriptionCreateTriggerPaymentAction {
     }
   }
 
+  private async handleA2pCampaignFee(
+    context: RequestContext,
+    userId: string,
+    isYearlyUser?: boolean,
+  ): Promise<{ a2pCampaignFee: number }> {
+    try {
+      const { planType } = await this.a2p10dlcGetByUserIdAction.execute(context, userId);
+      const campaignFee: number =
+        planType === A2P_PLAN_TYPE.STARTER
+          ? MONTHLY_CAMPAIGN_STARTER_FEE
+          : MONTHLY_CAMPAIGN_STANDARD_FEE;
+      if (isYearlyUser) {
+        return { a2pCampaignFee: campaignFee * RATE_CENT_USD * 12 };
+      }
+
+      return { a2pCampaignFee: campaignFee * RATE_CENT_USD };
+    } catch (error) {
+      console.error('CRON Job error in handleA2pCampaignFee', error);
+      return { a2pCampaignFee: 0 };
+    }
+  }
+
   private async handleMessageFee(
     context: RequestContext,
     user: UserDocument,
@@ -196,48 +237,54 @@ export class SubscriptionCreateTriggerPaymentAction {
     if (!phoneSystem || (phoneSystem as Array<any>).length === 0) {
       return { totalFeeMms: 0, totalFeeSms: 0, totalSms: 0, annualUserUpdateMessagesFee: 0 };
     }
-    const phoneNumberOwner = phoneSystem[0];
-    const phone = `+${phoneNumberOwner.code}${phoneNumberOwner.phone}`;
+    try {
+      const phoneNumberOwner = phoneSystem[0];
+      const phone = `+${phoneNumberOwner.code}${phoneNumberOwner.phone}`;
 
-    const messages = await this.messagesFindByConditionAction.execute({
-      user: userId,
-      $or: [{ phoneNumberSent: phone }, { phoneNumberReceipted: phone }],
-      status: 'success',
-      statusPaid: false,
-      createdAt: { $gt: startDate, $lte: endDate },
-      // phoneNumberSent: phone,
-      // phoneNumberReceipted: phone,
-    });
-    let totalFeeSms = 0;
-    let totalFeeMms = 0;
-    const pricePerDomesticMessage =
-      planPaymentMethod === PLAN_PAYMENT_METHOD.ANNUAL
-        ? PRICE_PER_MESSAGE_DOMESTIC_ANNUAL_PLAN
-        : PRICE_PER_MESSAGE_DOMESTIC;
+      const messages = await this.messagesFindByConditionAction.execute({
+        user: userId,
+        $or: [{ phoneNumberSent: phone }, { phoneNumberReceipted: phone }],
+        status: 'success',
+        statusPaid: false,
+        createdAt: { $gt: startDate, $lte: endDate },
+        // phoneNumberSent: phone,
+        // phoneNumberReceipted: phone,
+      });
+      let totalFeeSms = 0;
+      let totalFeeMms = 0;
+      const pricePerDomesticMessage =
+        planPaymentMethod === PLAN_PAYMENT_METHOD.ANNUAL
+          ? PRICE_PER_MESSAGE_DOMESTIC_ANNUAL_PLAN
+          : PRICE_PER_MESSAGE_DOMESTIC;
 
-    let annualUserUpdateMessagesFee = 0;
-    // ADDED SEGMNETS LOGIC HERE...
-    for await (const message of messages) {
-      const segments = message.content ? Math.floor(message?.content?.length / 160) + 1 : 1;
-      if (message.typeMessage === TYPE_MESSAGE.MMS) {
-        totalFeeMms += this.configService.priceMMS * RATE_CENT_USD;
-        continue;
-      }
-      if (message.phoneNumberReceipted.startsWith('+1')) {
-        totalFeeSms += segments * pricePerDomesticMessage * RATE_CENT_USD;
-        if (message.typeMessage === TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC) {
-          annualUserUpdateMessagesFee += segments * pricePerDomesticMessage * RATE_CENT_USD;
+      let annualUserUpdateMessagesFee = 0;
+      // ADDED SEGMNETS LOGIC HERE...
+      for await (const message of messages) {
+        const segments = message.content ? Math.floor(message?.content?.length / 160) + 1 : 1;
+        if (message.typeMessage === TYPE_MESSAGE.MMS) {
+          totalFeeMms += this.configService.priceMMS * RATE_CENT_USD;
+          continue;
         }
-      } else {
-        const price = await this.handlePricePerMessage(context, message.phoneNumberReceipted);
-        totalFeeSms += Number(price) * segments * 2;
-        if (message.typeMessage === TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL) {
-          annualUserUpdateMessagesFee += Number(price) * segments * 2;
+        if (message.phoneNumberReceipted.startsWith('+1')) {
+          totalFeeSms += segments * pricePerDomesticMessage * RATE_CENT_USD;
+          if (message.typeMessage === TYPE_MESSAGE.MESSAGE_UPDATE_DOMESTIC) {
+            annualUserUpdateMessagesFee += segments * pricePerDomesticMessage * RATE_CENT_USD;
+          }
+        } else {
+          const price = await this.handlePricePerMessage(context, message.phoneNumberReceipted);
+          totalFeeSms += Number(price) * segments * 2;
+          if (message.typeMessage === TYPE_MESSAGE.MESSAGE_UPDATE_INTERNATIONAL) {
+            annualUserUpdateMessagesFee += Number(price) * segments * 2;
+          }
         }
       }
+
+      return { totalFeeSms, totalFeeMms, totalSms: messages.length, annualUserUpdateMessagesFee };
+    } catch (error) {
+      console.log('error in handleMessageFee', error);
+
+      throw new HttpException(error, 500);
     }
-
-    return { totalFeeSms, totalFeeMms, totalSms: messages.length, annualUserUpdateMessagesFee };
   }
 
   private async handleBillCharge(
@@ -272,7 +319,7 @@ export class SubscriptionCreateTriggerPaymentAction {
   ): Promise<void> {
     // Checking if user's annual plan is expired
     const isExpired = await this.isAnnualPlanExpired(createAt);
-    const { priceCharged, price, totalFeeUsed } = payload;
+    const { priceCharged, price, totalFeeUsed, a2pCampaignFee } = payload;
     const { productName } = price;
     // await this.chargeFee(context, user, payload, totalFeeCharge, planPaymentMethod);
     const planRenewalFee = Number((priceCharged * 0.8).toFixed(2)) * 12;
@@ -290,8 +337,10 @@ export class SubscriptionCreateTriggerPaymentAction {
     console.log('overLimit', overLimit);
     if (isExpired) {
       console.log('The annual plan has expired.');
+      const { a2pCampaignFee: a2pFee } = await this.handleA2pCampaignFee(context, user.id, true);
       // Charge User for next year + last month overlimit
-      const totalFeeCharge = planRenewalFee + overLimit;
+      // const totalFeeCharge = planRenewalFee + overLimit + a2pCampaignFee;
+      const totalFeeCharge = planRenewalFee + overLimit + a2pFee;
       console.log('totalFeeCharge', totalFeeCharge);
 
       await this.chargeFee(
@@ -314,11 +363,12 @@ export class SubscriptionCreateTriggerPaymentAction {
     } else {
       console.log('The annual plan is still active.');
       // Charge User for last month overlimit
+      const a2pFeeAndOverLimit = overLimit;
       await this.chargeFee(
         context,
         user,
         payload,
-        overLimit,
+        a2pFeeAndOverLimit,
         planPaymentMethod,
         undefined,
         annualUserUpdateMessagesFee,
@@ -331,7 +381,10 @@ export class SubscriptionCreateTriggerPaymentAction {
     const currentDate = new Date();
     const expirationDate = new Date(registrationDate);
     expirationDate.setFullYear(expirationDate.getFullYear() + 1);
-    return currentDate >= expirationDate;
+    return (
+      moment(currentDate).format('YYYY-MM-DD HH:mm') >=
+      moment(expirationDate).format('YYYY-MM-DD HH:mm')
+    );
   }
 
   private async chargeFeeUsed(
@@ -340,8 +393,9 @@ export class SubscriptionCreateTriggerPaymentAction {
     payload: IChargeFee,
     planPaymentMethod: PLAN_PAYMENT_METHOD,
   ): Promise<void> {
-    const { priceCharged, totalFeeChargedMessagesUpdate } = payload;
-    const totalFeeCharge = priceCharged - totalFeeChargedMessagesUpdate;
+    console.log('CRON Job user in chargeFeeUsed', user);
+    const { priceCharged, totalFeeChargedMessagesUpdate, a2pCampaignFee } = payload;
+    const totalFeeCharge = priceCharged - totalFeeChargedMessagesUpdate + a2pCampaignFee;
     await this.chargeFee(context, user, payload, totalFeeCharge, planPaymentMethod);
   }
 

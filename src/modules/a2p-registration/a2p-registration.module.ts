@@ -13,6 +13,7 @@ import { A2pBrandCampaignCharge } from './services/a2p-brand-campaign-charge.ser
 import { A2pBrandStatusService } from './services/a2p-brand-status.service';
 import { A2pRegistrationTrustHubService } from './services/a2p-registration.service';
 import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.module';
+import { A2p10dlcGetByUserIdAction } from './services/a2p-10dlcGetByUserId.service';
 
 @Module({
   imports: [
@@ -22,14 +23,16 @@ import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.m
     forwardRef(() => PaymentModule),
     SharedModule,
     PaymentMonthlyModule,
+    PlanSubscriptionModule,
   ],
   providers: [
     A2pRegistrationTrustHubService,
     A2pBrandStatusService,
     ConfigService,
     A2pBrandCampaignCharge,
-    PlanSubscriptionModule,
+    A2p10dlcGetByUserIdAction,
   ],
+  exports: [A2p10dlcGetByUserIdAction],
   controllers: [A2PRegistrationController],
 })
 export class A2pRegistrationModule {}

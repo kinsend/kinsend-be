@@ -54,8 +54,6 @@ export class A2pBrandStatusService {
       );
     }
 
-    console.log('userA2pInfo', userA2pInfo);
-
     const { submittedFormValues } = userA2pInfo;
     const formValues = JSON.parse(submittedFormValues);
 

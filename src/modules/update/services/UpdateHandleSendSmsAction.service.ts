@@ -178,7 +178,7 @@ export class UpdateHandleSendSmsAction {
       );
     }
     // We will not charge for updates upfront for annual plan holders
-    if(planSubscription?.planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY) {
+    if (planSubscription?.planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY) {
       try {
         await this.updateChargeMessageTriggerAction.execute(
           context,
@@ -194,7 +194,6 @@ export class UpdateHandleSendSmsAction {
         Logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
       }
     }
-    
 
     const promises: Promise<AWS.SQS.SendMessageBatchResultEntryList | undefined>[] = chunks.map(
       async (subscriberChunk, index) => {
@@ -209,7 +208,7 @@ export class UpdateHandleSendSmsAction {
           };
 
           const message = JSON.stringify(messageBody);
-          Logger.log(`Sending chunk#${index}`, message);
+          // Logger.log(`Sending chunk#${index}`, message);
           // eslint-disable-next-line @typescript-eslint/return-await
           return await this.sqsService.send(`${this.configService.get('aws.sqsName')}`, {
             id: uuid(),

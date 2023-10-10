@@ -23,4 +23,5 @@ export interface IChargeFee {
   numberPhoneNumber: number;
   startDate: Date;
   endDate: Date;
+  a2pCampaignFee: number;
 }

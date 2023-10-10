@@ -68,6 +68,10 @@ export const STANDARD_BRAND_REGISTRATION = 44; // 44$
 
 export const CAMPAIGN_REGISTRATION = 15; // 15$
 
+export const MONTHLY_CAMPAIGN_STARTER_FEE = 1.5; // 1.5$
+
+export const MONTHLY_CAMPAIGN_STANDARD_FEE = 10; // 10$
+
 // 100 cent
 export const MINIMUM_PRICE = 100;
 export const USER_THRESHOLD_STARTER_PLAN = 80;
