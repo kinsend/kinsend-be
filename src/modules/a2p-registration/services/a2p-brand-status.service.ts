@@ -18,7 +18,10 @@ import { Twilio } from 'twilio';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { A2pRegistration, A2pRegistrationDocument } from '../a2p-registration.schema';
 import { PlanSubscriptionCreateAction } from 'src/modules/plan-subscription/services/plan-subscription-create-action.service';
-import { PLAN_PAYMENT_METHOD, PLAN_SUBSCRIPTION_STATUS } from 'src/modules/plan-subscription/plan-subscription.constant';
+import {
+  PLAN_PAYMENT_METHOD,
+  PLAN_SUBSCRIPTION_STATUS,
+} from 'src/modules/plan-subscription/plan-subscription.constant';
 
 @Injectable()
 export class A2pBrandStatusService {
@@ -28,8 +31,8 @@ export class A2pBrandStatusService {
     @InjectModel(A2pRegistration.name) private a2pRegistration: Model<A2pRegistrationDocument>,
     private readonly configService: ConfigService,
     private httpService: HttpService,
-    private planSubscriptionGetByUserIdAction:PlanSubscriptionGetByUserIdAction,
-    private planSubscriptionCreateAction:PlanSubscriptionCreateAction,
+    private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
+    private planSubscriptionCreateAction: PlanSubscriptionCreateAction,
   ) {
     const { twilioAccountSid, twilioAuthToken } = this.configService;
     this.twilioClient = new Twilio(twilioAccountSid, twilioAuthToken);
@@ -67,7 +70,6 @@ export class A2pBrandStatusService {
     }
     if (userA2pInfo.brandStatus !== 'APPROVED') {
       const brandStatusResponse = await this.fetchBrandStatus(context, userA2pInfo.brandSid);
-      console.log('brandStatusResponse', brandStatusResponse);
       if (brandStatusResponse.status === 'FAILED') {
         console.log(`brandStatusResponse Failed for ${context.user.email}`, brandStatusResponse);
         return {
@@ -105,10 +107,13 @@ export class A2pBrandStatusService {
           console.log('createA2pCampaignRes', createA2pCampaignRes);
         } catch (error) {
           console.log('error --- ', error);
-          throw new HttpException({
-            profileStatus: 'FAILED',
-            message: `${error.response.message}`,
-          }, HttpStatus.BAD_REQUEST);
+          throw new HttpException(
+            {
+              profileStatus: 'FAILED',
+              message: `${error.response.message}`,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
         }
 
         try {
@@ -204,7 +209,7 @@ export class A2pBrandStatusService {
           const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(
             context.user.id,
           );
-          if(planSubscription) {
+          if (planSubscription) {
             planSubscription.a2pApprovalDate = new Date();
             await planSubscription.save();
           } else {
@@ -260,6 +265,17 @@ export class A2pBrandStatusService {
     UsAppToPersonUsecase: string,
   ): Promise<any> => {
     const { logger, correlationId } = context;
+
+    const urlencoded = new URLSearchParams();
+    urlencoded.append('HasEmbeddedPhone', 'true');
+    urlencoded.append('Description', desc);
+    urlencoded.append('MessageFlow', MessageFlow);
+    urlencoded.append('MessageSamples', MessageSamples[0]);
+    urlencoded.append('MessageSamples', MessageSamples[1]);
+    urlencoded.append('UsAppToPersonUsecase', UsAppToPersonUsecase);
+    urlencoded.append('HasEmbeddedLinks', 'true');
+    urlencoded.append('BrandRegistrationSid', brandSid);
+
     try {
       const config: any = {
         method: 'post',
@@ -271,15 +287,7 @@ export class A2pBrandStatusService {
           username: this.configService.twilioAccountSid,
           password: this.configService.twilioAuthToken,
         },
-        data: QueryString.stringify({
-          HasEmbeddedPhone: true,
-          Description: desc,
-          MessageFlow,
-          MessageSamples: `${MessageSamples[0]},${MessageSamples[1]}`,
-          UsAppToPersonUsecase,
-          HasEmbeddedLinks: true,
-          BrandRegistrationSid: brandSid,
-        }),
+        data: urlencoded,
       };
 
       const { data } = await this.httpService.axiosRef(config);
