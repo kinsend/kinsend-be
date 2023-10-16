@@ -9,6 +9,7 @@ export interface ISmsFee {
   totalFeeSms: number;
   totalFeeMms: number;
   totalSms: number;
+  annualUserUpdateMessagesFee: number;
 }
 
 export interface IChargeFee {
