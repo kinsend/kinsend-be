@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/prefer-module */
 import 'source-map-support/register';
-import helmet from 'helmet';
+import helmet, { contentSecurityPolicy } from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -63,6 +63,9 @@ export async function bootstrapApp(app: NestExpressApplication) {
           'X-KinSend-Signature',
         ],
         origin(origin: string, callback: (error: Error | null, success?: true) => void) {
+          console.log('Origin', origin);
+          console.log('CORS Enabled?', corsEnabled);
+          console.log('CORS Allowed Origins', corsAllowedOrigins);
           if (corsAllowedOrigins === 'all') {
             callback(null, true);
             return;
