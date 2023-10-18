@@ -45,7 +45,6 @@ import { UpdateController } from './update.controller';
 import { UpdateReporting, UpdateReportingSchema } from './update.reporting.schema';
 import { UpdateSchedule, UpdateScheduleSchema } from './update.schedule.schema';
 import { Update, UpdateSchema } from './update.schema';
-import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.module';
 
 @Module({
   controllers: [UpdateController],
@@ -68,7 +67,6 @@ import { PlanSubscriptionModule } from '../plan-subscription/plan-subscription.m
     SQSModule,
     AWSModule,
     ConfigModule,
-    PlanSubscriptionModule,
   ],
   providers: [
     ConfigService,
