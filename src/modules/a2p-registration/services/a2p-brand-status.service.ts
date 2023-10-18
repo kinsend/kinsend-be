@@ -12,13 +12,11 @@ import { Model } from 'mongoose';
 import * as QueryString from 'qs';
 import { ConfigService } from 'src/configs/config.service';
 import { REGISTRATION_STATUS } from 'src/domain/const';
-import { PlanSubscriptionGetByUserIdAction } from 'src/modules/plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 import { RequestContext } from 'src/utils/RequestContext';
+import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
 import { Twilio } from 'twilio';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
 import { A2pRegistration, A2pRegistrationDocument } from '../a2p-registration.schema';
-import { PlanSubscriptionCreateAction } from 'src/modules/plan-subscription/services/plan-subscription-create-action.service';
-import { PLAN_PAYMENT_METHOD, PLAN_SUBSCRIPTION_STATUS } from 'src/modules/plan-subscription/plan-subscription.constant';
 
 @Injectable()
 export class A2pBrandStatusService {
@@ -28,8 +26,6 @@ export class A2pBrandStatusService {
     @InjectModel(A2pRegistration.name) private a2pRegistration: Model<A2pRegistrationDocument>,
     private readonly configService: ConfigService,
     private httpService: HttpService,
-    private planSubscriptionGetByUserIdAction:PlanSubscriptionGetByUserIdAction,
-    private planSubscriptionCreateAction:PlanSubscriptionCreateAction,
   ) {
     const { twilioAccountSid, twilioAuthToken } = this.configService;
     this.twilioClient = new Twilio(twilioAccountSid, twilioAuthToken);
@@ -201,25 +197,6 @@ export class A2pBrandStatusService {
           userA2pInfo.progress = REGISTRATION_STATUS.APPROVED;
           userA2pInfo.campaignStatus = 'VERIFIED';
           await userA2pInfo.save();
-
-          // Update the registrationDate in PlanSubscription (For Monthly Cron task Payments)
-          const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(
-            context.user.id,
-          );
-          if(planSubscription) {
-            planSubscription.a2pApprovalDate = new Date();
-            await planSubscription.save();
-          } else {
-            await this.planSubscriptionCreateAction.execute(context, {
-              planPaymentMethod: PLAN_PAYMENT_METHOD.MONTHLY,
-              priceId: context.user.priceSubscribe || '',
-              status: PLAN_SUBSCRIPTION_STATUS.ACTIVE,
-              userId: context.user.id,
-              registrationDate: new Date(),
-              a2pApprovalDate: new Date(),
-            });
-          }
-
           return {
             status: 'APPROVED',
             message: 'Campaign verification is APPROVED',

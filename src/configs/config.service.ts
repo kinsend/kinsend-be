@@ -342,30 +342,6 @@ export class ConfigService {
     return Number(result);
   }
 
-  get pricePerSubStarterPlaneAnnual(): number {
-    const result =
-      process.env.PRICE_PER_SUB_STARTER_PLANE_ANNUAL ||
-      this.envConfig['PRICE_PER_SUB_STARTER_PLANE_ANNUAL'] ||
-      0.08;
-    return Number(result);
-  }
-
-  get pricePerSubGrowthPlaneAnnual(): number {
-    const result =
-      process.env.PRICE_PER_SUB_GROWTH_PLANE_ANNUAL ||
-      this.envConfig['PRICE_PER_SUB_GROWTH_PLANE_ANNUAL'] ||
-      0.064;
-    return Number(result);
-  }
-
-  get pricePerSubHighVolumePlaneAnnual(): number {
-    const result =
-      process.env.PRICE_PER_SUB_HIGH_VOLUME_PLANE_ANNUAL ||
-      this.envConfig['PRICE_PER_SUB_HIGH_VOLUME_PLANE_ANNUAL'] ||
-      0.008;
-    return Number(result);
-  }
-
   get priceMMS(): number {
     const result = process.env.PRICE_MMS || this.envConfig['PRICE_MMS'] || 0.04;
     return Number(result);

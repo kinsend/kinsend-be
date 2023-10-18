@@ -46,9 +46,6 @@ export class PlanSubscription {
 
   @Prop({ required: false, type: Date })
   registrationDate: Date;
-
-  @Prop({ required: false, type: Date })
-  a2pApprovalDate: Date;
 }
 
 const PlanSubscriptionSchema = SchemaFactory.createForClass(PlanSubscription);

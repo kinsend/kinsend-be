@@ -42,8 +42,6 @@ import { UpdateUpdateProgressAction } from './UpdateUpdateProgressAction.service
 import { LinkRediectCreateByMessageAction } from './link.redirect/LinkRediectCreateByMessageAction.service';
 import { MessageContext } from 'src/modules/subscription/interfaces/message.interface';
 import { ConfigService as EnvConfigService } from '../../../configs/config.service';
-import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
-import { PLAN_PAYMENT_METHOD } from 'src/modules/plan-subscription/plan-subscription.constant';
 
 @Injectable()
 export class UpdateHandleSendSmsAction {
@@ -51,7 +49,6 @@ export class UpdateHandleSendSmsAction {
     private readonly sqsService: SqsService,
     private readonly configService: ConfigService,
     private readonly envConfigService: EnvConfigService, // private smsService: SmsService,
-    private planSubscriptionGetByUserIdAction: PlanSubscriptionGetByUserIdAction,
   ) {}
 
   private timesPerformedOtherWeek = 0;
@@ -86,9 +83,6 @@ export class UpdateHandleSendSmsAction {
     if (!update) {
       return;
     }
-    const { user } = context;
-    const planSubscription = await this.planSubscriptionGetByUserIdAction.execute(user.id);
-
     if (this.isSkipTrigger(context, update.triggerType)) {
       return;
     }
@@ -177,24 +171,20 @@ export class UpdateHandleSendSmsAction {
         },
       );
     }
-    // We will not charge for updates upfront for annual plan holders
-    if(planSubscription?.planPaymentMethod === PLAN_PAYMENT_METHOD.MONTHLY) {
-      try {
-        await this.updateChargeMessageTriggerAction.execute(
-          context,
-          update.id,
-          timeTriggerSchedule,
-          messageDomestic,
-          totalPrice,
-          mms,
-          messageInternational,
-          totalNoOfSegments,
-        );
-      } catch (error) {
-        Logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
-      }
+    try {
+      await this.updateChargeMessageTriggerAction.execute(
+        context,
+        update.id,
+        timeTriggerSchedule,
+        messageDomestic,
+        totalPrice,
+        mms,
+        messageInternational,
+        totalNoOfSegments,
+      );
+    } catch (error) {
+      Logger.error(`Exception payment charges error by Stripe: ${error.message || error}`);
     }
-    
 
     const promises: Promise<AWS.SQS.SendMessageBatchResultEntryList | undefined>[] = chunks.map(
       async (subscriberChunk, index) => {
