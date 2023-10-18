@@ -99,11 +99,13 @@ export class SmsReceiveHookAction {
       const createdBy = await this.userFindByPhoneSystemAction.execute(
         convertStringToPhoneNumber(payload.To),
       );
+      console.log('Successfully received response from createdBy');
       if (createdBy.length === 0) {
         return;
       }
 
       const updates = await this.updatesFindByCreatedByAction.execute(context, createdBy[0].id);
+      console.log('Successfully received response from updates');
       if (updates.length === 0) {
         return;
       }
@@ -112,6 +114,7 @@ export class SmsReceiveHookAction {
         context,
         convertStringToPhoneNumber(payload.From),
       );
+      console.log('Successfully received response from subscribers');
       const subscriber = this.getSubcriberByOwner(subscribers, createdBy[0]);
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
       await this.updateReportingUpdateByResponseAction.execute(
@@ -120,6 +123,7 @@ export class SmsReceiveHookAction {
         subscriber,
         payload.Body,
       );
+      console.log('Successfully received response from updating response action');
     } catch (error) {
       context.logger.error({
         message: 'Handle sms receive update fail!',
