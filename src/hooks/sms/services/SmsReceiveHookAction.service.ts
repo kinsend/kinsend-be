@@ -95,24 +95,29 @@ export class SmsReceiveHookAction {
 
   private async handleSmsReceiveUpdate(context: RequestContext, payload: any) {
     try {
+      context.logger.info(`Handling SMS reply from ${payload.From} to ${payload.To} with message ${payload.Body}`);
+
       await this.saveSms(context, payload.From, payload.To, payload.Body);
-      const createdBy = await this.userFindByPhoneSystemAction.execute(
-        convertStringToPhoneNumber(payload.To),
-      );
+
+      const toNumber = convertStringToPhoneNumber(payload.To);
+      const fromNumber = convertStringToPhoneNumber(payload.From);
+
+      const createdBy = await this.userFindByPhoneSystemAction.execute(toNumber);
       if (createdBy.length === 0) {
-        return;
+        throw new Error(`userFindByPhoneSystemAction returned no records for ${toNumber}`)
       }
 
       const updates = await this.updatesFindByCreatedByAction.execute(context, createdBy[0].id);
       if (updates.length === 0) {
-        return;
+        throw new Error(`updatesFindByCreatedByAction returned no records for createdBy.id ${createdBy[0].id}`)
       }
 
-      const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
-        context,
-        convertStringToPhoneNumber(payload.From),
-      );
-      const subscriber = this.getSubcriberByOwner(subscribers, createdBy[0]);
+      const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(context, fromNumber);
+      if (subscribers.length === 0) {
+        throw new Error(`formSubmissionFindByPhoneNumberAction returned no records for subscribed number ${fromNumber}`)
+      }
+
+      const subscriber = this.getSubscriberByOwner(subscribers, createdBy[0]);
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
       await this.updateReportingUpdateByResponseAction.execute(
         context,
@@ -120,14 +125,17 @@ export class SmsReceiveHookAction {
         subscriber,
         payload.Body,
       );
+
+      context.logger.info('Successfully recorded SMS reply into the database.');
+
     } catch (error) {
-      context.logger.error({
-        message: 'Handle sms receive update fail!',
-        error,
-      });
+      context.logger.error(
+        { err: error, errStack: error.stack },
+        'Unable to process received SMS!',
+      );
     }
   }
-  private getSubcriberByOwner(subscribers: FormSubmissionDocument[], owner: UserDocument) {
+  private getSubscriberByOwner(subscribers: FormSubmissionDocument[], owner: UserDocument) {
     const subs = subscribers.filter((sub) => sub.owner.toString() === owner._id.toString());
     return subs[0];
   }
