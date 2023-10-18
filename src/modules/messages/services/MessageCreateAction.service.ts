@@ -25,6 +25,7 @@ export class MessageCreateAction {
     context: RequestContext,
     payload: MessageCreatePayloadDto,
   ): Promise<MessageDocument> {
+
     const {
       isSubscriberMessage,
       phoneNumberReceipted,
@@ -32,14 +33,25 @@ export class MessageCreateAction {
       fileAttached,
       typeMessage,
     } = payload;
+
+    context.logger.info("Triggering MessageCreateAction");
+
+    const subscriberNumber = convertStringToPhoneNumber(isSubscriberMessage ? phoneNumberSent : phoneNumberReceipted);
+    const phoneSystemNumber = convertStringToPhoneNumber(isSubscriberMessage ? phoneNumberReceipted : phoneNumberSent);
+
     const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
       context,
-      convertStringToPhoneNumber(isSubscriberMessage ? phoneNumberSent : phoneNumberReceipted),
+      subscriberNumber,
     );
+    if(!subscribers || subscribers.length === 0) {
+      context.logger.error(`formSubmissionFindByPhoneNumberAction could not find subscriber number ${subscriberNumber}`);
+    }
 
-    const userModel = await this.userFindByPhoneSystemAction.execute(
-      convertStringToPhoneNumber(isSubscriberMessage ? phoneNumberReceipted : phoneNumberSent),
-    );
+    const userModel = await this.userFindByPhoneSystemAction.execute(phoneSystemNumber);
+    if(!userModel || userModel.length === 0) {
+      context.logger.error(`userFindByPhoneSystemAction could not find number ${phoneSystemNumber}`)
+    }
+
     const subscriber = this.getSubcriberByOwner(subscribers, userModel[0]);
     const type = typeMessage ? typeMessage : fileAttached ? TYPE_MESSAGE.MMS : undefined;
 
@@ -49,6 +61,7 @@ export class MessageCreateAction {
       formSubmission: subscriber,
       user: userModel[0],
     }).save();
+
   }
 
   private getSubcriberByOwner(subscribers: FormSubmissionDocument[], owner: UserDocument) {
