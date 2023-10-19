@@ -27,6 +27,7 @@ import { RequestContext } from '../../../utils/RequestContext';
 @Injectable()
 export class SmsReceiveHookAction {
   private logger = new Logger(SmsReceiveHookAction.name);
+
   constructor(
     private smsLogCreateAction: SmsLogCreateAction,
     private smsLogsGetByFromAction: SmsLogsGetByFromAction,
@@ -95,7 +96,9 @@ export class SmsReceiveHookAction {
 
   private async handleSmsReceiveUpdate(context: RequestContext, payload: any) {
     try {
-      context.logger.info(`Handling SMS reply from ${payload.From} to ${payload.To} with message ${payload.Body}`);
+      context.logger.info(
+        `Handling SMS reply from ${payload.From} to ${payload.To} with message ${payload.Body}`,
+      );
 
       await this.saveSms(context, payload.From, payload.To, payload.Body);
 
@@ -104,21 +107,26 @@ export class SmsReceiveHookAction {
 
       const createdBy = await this.userFindByPhoneSystemAction.execute(toNumber);
       if (createdBy.length === 0) {
-        throw new Error(`userFindByPhoneSystemAction returned no records for ${toNumber}`)
+        throw new Error(`userFindByPhoneSystemAction returned no records for ${toNumber}`);
       }
 
       const updates = await this.updatesFindByCreatedByAction.execute(context, createdBy[0].id);
       if (updates.length === 0) {
-        throw new Error(`updatesFindByCreatedByAction returned no records for createdBy.id ${createdBy[0].id}`)
+        throw new Error(
+          `updatesFindByCreatedByAction returned no records for createdBy.id ${createdBy[0].id}`,
+        );
       }
 
-      const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(context, fromNumber);
-      if (subscribers.length === 0) {
-        throw new Error(`formSubmissionFindByPhoneNumberAction returned no records for subscribed number ${fromNumber}`)
-      }
-
+      const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
+        context,
+        convertStringToPhoneNumber(payload.From),
+      );
+      console.log('Successfully received response from subscribers');
+      console.log('Subscribers', JSON.stringify(subscribers, null, 2));
       const subscriber = this.getSubscriberByOwner(subscribers, createdBy[0]);
+      console.log('Successfully received response from this.getSubcriberByOwner');
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
+      console.log('Successfully received response from this.filterUpdatesSubscribedbySubscriber');
       await this.updateReportingUpdateByResponseAction.execute(
         context,
         updatesFiltered,
@@ -127,7 +135,6 @@ export class SmsReceiveHookAction {
       );
 
       context.logger.info('Successfully recorded SMS reply into the database.');
-
     } catch (error) {
       context.logger.error(
         { err: error, errStack: error.stack },
@@ -135,20 +142,28 @@ export class SmsReceiveHookAction {
       );
     }
   }
+
   private getSubscriberByOwner(subscribers: FormSubmissionDocument[], owner: UserDocument) {
     const subs = subscribers.filter((sub) => sub.owner.toString() === owner._id.toString());
     return subs[0];
   }
+
   private filterUpdatesSubscribedbySubscriber(
     updates: UpdateDocument[],
     subscriber: FormSubmission,
   ) {
-    return updates.filter((update) => {
-      return update.recipients.some(
-        (recipient) => recipient._id.toString() === subscriber._id.toString(),
-      );
-    });
+    try {
+      return updates.filter((update) => {
+        return update.recipients.some(
+          (recipient) => recipient._id.toString() === subscriber._id.toString(),
+        );
+      });
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   }
+
   private async saveSms(
     context: RequestContext,
     from: string,
@@ -182,7 +197,7 @@ export class SmsReceiveHookAction {
     if (!owner || owner.length === 0) {
       return;
     }
-    return Promise.all([
+    await Promise.all([
       this.firstContactCreateScheduleAction.execute(context, owner[0], fromPhoneNumber),
       this.keywordResponseMessageCommingAction.execute(context, owner[0], fromPhoneNumber, body),
     ]);
