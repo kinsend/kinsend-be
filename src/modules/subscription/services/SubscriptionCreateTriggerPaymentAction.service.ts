@@ -210,7 +210,7 @@ export class SubscriptionCreateTriggerPaymentAction {
     payload: IChargeFee,
     planPaymentMethod: PLAN_PAYMENT_METHOD,
   ): Promise<void> {
-    console.log('CRON Job user in chargeFeeUsed', user);
+    console.log('CRON Job user in chargeFeeUsed', user.id);
     const { priceCharged, totalFeeChargedMessagesUpdate } = payload;
     const totalFeeCharge = priceCharged - totalFeeChargedMessagesUpdate;
     await this.chargeFee(context, user, payload, totalFeeCharge, planPaymentMethod);
@@ -222,7 +222,7 @@ export class SubscriptionCreateTriggerPaymentAction {
     payload: IChargeFee,
     planPaymentMethod: PLAN_PAYMENT_METHOD,
   ): Promise<void> {
-    console.log('CRON Job user in chargeFeeLimited', user);
+    console.log('CRON Job user in chargeFeeLimited', user.id);
     const { totalFeeUsed, totalFeeChargedMessagesUpdate, priceCharged } = payload;
     const overLimit = totalFeeUsed - priceCharged - totalFeeChargedMessagesUpdate;
     const totalFeeCharge = priceCharged + overLimit;
@@ -239,7 +239,7 @@ export class SubscriptionCreateTriggerPaymentAction {
     planPaymentMethod: PLAN_PAYMENT_METHOD,
     overLimit?: number,
   ) {
-    console.log('CRON JOB user in chargeFee', user);
+    console.log('CRON JOB user in chargeFee', user.id);
     const { stripeCustomerUserId, id: userId } = user;
     console.log('CRON JOB stripeCustomerUserId in chargeFee', stripeCustomerUserId);
     const { price, numberPhoneNumber, feeSms, totalSubs, totalFeeChargedMessagesUpdate } = payload;
