@@ -125,6 +125,20 @@ jobs:
         run: |
           docker push ${{ steps.vars.outputs.image }}
 
+      # This ensures your container does not get scaled down because of missing requests in CloudWatch.
+      - name: Warm-up ECS CloudWatch alarms for dev env
+        if: ${{ env.GIT_REF == 'develop' || github.event.client_payload.slash_command.command == 'ecs:deploy' }}
+        run: |
+          for progress in $(seq 1 25); do
+            (set -x; curl -s -I https://api.dev.kinsend.io/manifest.json) &
+            done
+          wait
+          sleep 5
+          for progress in $(seq 1 25); do
+            (set -x; curl -s -I https://api.dev.kinsend.io/manifest.json) &
+            done
+          wait
+
       - name: Deploy image to ECS developer cluster (on demand)
         if: ${{ env.GIT_REF == 'develop' || github.event.client_payload.slash_command.command == 'ecs:deploy' }}
         run: |

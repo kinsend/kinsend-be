@@ -18,11 +18,19 @@ export class FormSubmissionFindByPhoneNumberAction {
     phone: PhoneNumber,
     owner?: string,
   ): Promise<FormSubmissionDocument[]> {
-    const formSubmission = await this.formSubmissionModel.find({
-      'phoneNumber.phone': phone.phone,
-      'phoneNumber.code': phone.code,
-      owner,
-    });
+    // This step is necessary to remove undefined fields if any exists
+    const data = JSON.parse(
+      JSON.stringify(
+        {
+          'phoneNumber.phone': phone.phone,
+          'phoneNumber.code': phone.code,
+          owner,
+        },
+        null,
+        2,
+      ),
+    );
+    const formSubmission = await this.formSubmissionModel.find(data);
     return formSubmission;
   }
 }
