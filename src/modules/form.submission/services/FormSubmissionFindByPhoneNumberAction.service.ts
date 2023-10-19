@@ -18,6 +18,7 @@ export class FormSubmissionFindByPhoneNumberAction {
     phone: PhoneNumber,
     owner?: string,
   ): Promise<FormSubmissionDocument[]> {
+    // This step is necessary to remove undefined fields if any exists
     const data = JSON.parse(
       JSON.stringify(
         {
@@ -29,8 +30,6 @@ export class FormSubmissionFindByPhoneNumberAction {
         2,
       ),
     );
-
-    console.log('Form Submission Data', data);
     const formSubmission = await this.formSubmissionModel.find(data);
     return formSubmission;
   }

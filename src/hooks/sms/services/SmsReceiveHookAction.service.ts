@@ -119,21 +119,30 @@ export class SmsReceiveHookAction {
 
       const subscribers = await this.formSubmissionFindByPhoneNumberAction.execute(
         context,
-        convertStringToPhoneNumber(payload.From),
+        fromNumber,
       );
-      console.log('Successfully received response from subscribers');
-      console.log('Subscribers', JSON.stringify(subscribers, null, 2));
+      if (subscribers.length === 0) {
+        throw new Error(
+          `formSubmissionFindByPhoneNumberAction returned no records for ${fromNumber}`,
+        );
+      }
       const subscriber = this.getSubscriberByOwner(subscribers, createdBy[0]);
-      console.log('Successfully received response from this.getSubcriberByOwner');
-      const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(updates, subscriber);
-      console.log('Successfully received response from this.filterUpdatesSubscribedbySubscriber');
+      if (!subscriber) {
+        throw new Error(
+          `formSubmissionFindByPhoneNumberAction returned no records for ${fromNumber} and owner ${createdBy[0].id}`,
+        );
+      }
+      const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(
+        context,
+        updates,
+        subscriber,
+      );
       await this.updateReportingUpdateByResponseAction.execute(
         context,
         updatesFiltered,
         subscriber,
         payload.Body,
       );
-
       context.logger.info('Successfully recorded SMS reply into the database.');
     } catch (error) {
       context.logger.error(
@@ -144,11 +153,13 @@ export class SmsReceiveHookAction {
   }
 
   private getSubscriberByOwner(subscribers: FormSubmissionDocument[], owner: UserDocument) {
+    // eslint-disable-next-line unicorn/prefer-array-find
     const subs = subscribers.filter((sub) => sub.owner.toString() === owner._id.toString());
     return subs[0];
   }
 
   private filterUpdatesSubscribedbySubscriber(
+    context: RequestContext,
     updates: UpdateDocument[],
     subscriber: FormSubmission,
   ) {
@@ -159,7 +170,10 @@ export class SmsReceiveHookAction {
         );
       });
     } catch (error) {
-      console.log(error);
+      context.logger.error(
+        { err: error, errStack: error.stack },
+        'Unable to filter updates by subscriber!',
+      );
       return [];
     }
   }
