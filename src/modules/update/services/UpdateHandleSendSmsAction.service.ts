@@ -127,7 +127,7 @@ export class UpdateHandleSendSmsAction {
         lname: lastName,
         name: firstName + lastName,
         mobile: to,
-        email,
+        email: email,
       });
 
       const typeMessage = !fileUrl ? this.handleTypeMessage(to) : TYPE_MESSAGE.MMS;
