@@ -13,30 +13,27 @@ const nameRegex = new RegExp(UPDATE_MERGE_FIELDS.NAME);
 const mobileRegex = new RegExp(UPDATE_MERGE_FIELDS.MOBILE);
 const emailRegex = new RegExp(UPDATE_MERGE_FIELDS.EMAIL);
 
-export function fillMergeFieldsToMessage(message: string, mergeFieldsValue: MergeFieldsValue) {
+export function fillMergeFieldsToMessage(message: string, mergeFieldsValue: MergeFieldsValue): string {
   const { email, fname, lname, name, mobile } = mergeFieldsValue;
-  const messageFilled = message.split(' ').map((item) => {
-    switch (true) {
-      case fnameRegex.test(item): {
-        return item.replace(fnameRegex, fname || '');
-      }
-      case lnameRegex.test(item): {
-        return item.replace(lnameRegex, lname || '');
-      }
-      case nameRegex.test(item): {
-        return item.replace(nameRegex, name || '');
-      }
-      case mobileRegex.test(item): {
-        return item.replace(mobileRegex, mobile || '');
-      }
-      case emailRegex.test(item): {
-        return item.replace(emailRegex, email || '');
-      }
 
-      default: {
-        return item;
-      }
+  let processedLines = message.split('\n').map(line => {
+    if (fname && fnameRegex.test(line)) {
+      line = line.replace(fnameRegex, fname);
     }
+    if (lname && lnameRegex.test(line)) {
+      line = line.replace(lnameRegex, lname);
+    }
+    if (name && nameRegex.test(line)) {
+      line = line.replace(nameRegex, name);
+    }
+    if (mobile && mobileRegex.test(line)) {
+      line = line.replace(mobileRegex, mobile);
+    }
+    if (email && emailRegex.test(line)) {
+      line = line.replace(emailRegex, email);
+    }
+    return line;
   });
-  return messageFilled.join(' ');
+
+  return processedLines.join('\n');
 }
