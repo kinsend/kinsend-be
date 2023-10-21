@@ -7,33 +7,21 @@ export interface MergeFieldsValue {
   mobile?: string;
   email?: string;
 }
-const fnameRegex = new RegExp(UPDATE_MERGE_FIELDS.FNAME);
-const lnameRegex = new RegExp(UPDATE_MERGE_FIELDS.LNAME);
-const nameRegex = new RegExp(UPDATE_MERGE_FIELDS.NAME);
-const mobileRegex = new RegExp(UPDATE_MERGE_FIELDS.MOBILE);
-const emailRegex = new RegExp(UPDATE_MERGE_FIELDS.EMAIL);
+
+const mergeFieldsMap = {
+  [UPDATE_MERGE_FIELDS.FNAME]: 'fname',
+  [UPDATE_MERGE_FIELDS.LNAME]: 'lname',
+  [UPDATE_MERGE_FIELDS.NAME]: 'name',
+  [UPDATE_MERGE_FIELDS.MOBILE]: 'mobile',
+  [UPDATE_MERGE_FIELDS.EMAIL]: 'email',
+};
 
 export function fillMergeFieldsToMessage(message: string, mergeFieldsValue: MergeFieldsValue): string {
-  const { email, fname, lname, name, mobile } = mergeFieldsValue;
-
-  let processedLines = message.split('\n').map(line => {
-    if (fname && fnameRegex.test(line)) {
-      line = line.replace(fnameRegex, fname);
+  Object.entries(mergeFieldsMap).forEach(([pattern, field]) => {
+    const regex = new RegExp(pattern, 'g');
+    if (mergeFieldsValue[field] && regex.test(message)) {
+      message = message.replace(regex, mergeFieldsValue[field]);
     }
-    if (lname && lnameRegex.test(line)) {
-      line = line.replace(lnameRegex, lname);
-    }
-    if (name && nameRegex.test(line)) {
-      line = line.replace(nameRegex, name);
-    }
-    if (mobile && mobileRegex.test(line)) {
-      line = line.replace(mobileRegex, mobile);
-    }
-    if (email && emailRegex.test(line)) {
-      line = line.replace(emailRegex, email);
-    }
-    return line;
   });
-
-  return processedLines.join('\n');
+  return message;
 }
