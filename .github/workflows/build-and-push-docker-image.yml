@@ -117,9 +117,10 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.vars.outputs.registry }}
 
+
       - name: Build the kinsend-be Docker image
         run: |
-          docker build --no-cache --build-arg "MANIFEST_VERSION=${{ steps.vars.outputs.manifestVersion }}" -t ${{ steps.vars.outputs.image }} .
+          docker build --no-cache --build-arg "MANIFEST_VERSION=${{ steps.vars.outputs.manifestVersion }}" -t ${{ steps.vars.outputs.image }} -v ./node_modules:/app/node_modules  .
 
       - name: Push the kinsend-be Docker image
         run: |
