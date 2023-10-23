@@ -1,0 +1,30 @@
+name: unit-and-integration-tests
+run-name: Run unit and integration tests
+
+on:
+  workflow_dispatch: ~
+  push:
+    branches:
+      - '!master'
+      - '**'
+
+jobs:
+  tests:
+    runs-on: ks-linux
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Run npm ci
+        run: |
+          npm ci
+
+      - name: Run unit tests
+        run: |
+          npm run test:unit
