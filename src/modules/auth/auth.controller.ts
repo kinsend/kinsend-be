@@ -41,11 +41,6 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
-  @Get()
-  async getAuth() {
-    return this.configService;
-  }
-
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('')
