@@ -128,11 +128,8 @@ export class ContactImportAction {
 
         // Process CSV tags
         if (metadata.tags) {
-          const tagsArray = [
-            ...metadata.tags
-              .split(';') // `;` because `,` is CSV delimiter.
-              .filter(n => n === null || n.match(/^( *)$/g)), // filter out empty space
-          ];
+          // `;` because `,` is CSV delimiter.
+          const tagsArray = [...metadata.tags.split(';')].filter(n => n !== null && !n.match(/^( *)$/g));
 
           for (const tag of tagsArray) {
             const databaseTag = await this.getOrCreateTag(context, tag);
