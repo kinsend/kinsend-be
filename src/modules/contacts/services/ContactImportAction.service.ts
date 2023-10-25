@@ -8,7 +8,7 @@
 /* eslint-disable unicorn/prevent-abbreviations */
 /* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable no-await-in-loop */
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as chunk from 'lodash/chunk';
 import { Model } from 'mongoose';
@@ -32,38 +32,51 @@ import { FormSubmissionUpdateLastContactedAction } from '../../form.submission/s
 import { ContactImportHistoryCreateAction } from './ContactImportHistoryCreateAction.service';
 import { TagsCreateAction } from 'src/modules/tags/services/TagsCreateAction.service';
 import { TagsSearchByName } from 'src/modules/tags/services/TagsSearchByNameAction.service';
+import { TagsGetByIdAction } from '../../tags/services/TagsGetByIdAction.service';
+import { Tags } from '../../tags/tags.schema';
 
 @Injectable()
 export class ContactImportAction {
-  private looger = new Logger(ContactImportAction.name);
-
-  @Inject() private formSubmissionFindByPhoneNumberAction: FormSubmissionFindByPhoneNumberAction;
+  @Inject()
+  private formSubmissionFindByPhoneNumberAction: FormSubmissionFindByPhoneNumberAction;
 
   @Inject()
   private automationCreateTriggerAutomationAction: AutomationCreateTriggerAutomationAction;
 
-  @Inject() private userFindByIdAction: UserFindByIdAction;
+  @Inject()
+  private userFindByIdAction: UserFindByIdAction;
 
-  @Inject() private automationGetByTagIdsAction: AutomationGetByTagIdsAction;
+  @Inject()
+  private automationGetByTagIdsAction: AutomationGetByTagIdsAction;
 
-  @Inject() private automationBaseTriggeAction: AutomationBaseTriggeAction;
+  @Inject()
+  private automationBaseTriggeAction: AutomationBaseTriggeAction;
 
-  @Inject() private backgroudJobService: BackgroudJobService;
+  @Inject()
+  private backgroudJobService: BackgroudJobService;
 
-  @Inject() private smsService: SmsService;
+  @Inject()
+  private smsService: SmsService;
 
   @Inject()
   private formSubmissionUpdateLastContactedAction: FormSubmissionUpdateLastContactedAction;
 
-  @Inject() private contactImportHistoryCreateAction: ContactImportHistoryCreateAction;
+  @Inject()
+  private contactImportHistoryCreateAction: ContactImportHistoryCreateAction;
 
-  @Inject() private tagsCreateAction: TagsCreateAction;
+  @Inject()
+  private tagsCreateAction: TagsCreateAction;
 
-  @Inject() private tagsSearchByName: TagsSearchByName;
+  @Inject()
+  private tagsSearchByName: TagsSearchByName;
 
-  constructor(
-    @InjectModel(FormSubmission.name) private FormSubmissionModel: Model<FormSubmissionDocument>,
-  ) {}
+  @Inject()
+  private tagsGetByIdAction: TagsGetByIdAction;
+
+  @InjectModel(FormSubmission.name)
+  private FormSubmissionModel: Model<FormSubmissionDocument>;
+
+  constructor() {}
 
   async execute(context: RequestContext, payload: ContactImportPayload): Promise<any> {
     try {
@@ -71,71 +84,119 @@ export class ContactImportAction {
       const promiseUpdate: any[] = [];
       const promiseInsert: any[] = [];
       const contactUpdateTags: FormSubmissionDocument[] = [];
-      const tags = tagId ? [tagId] : [];
+      const phoneNumbers: Set<string> = new Set();
+
+      // Fetch override tag.
+      const inboundTag: { [key: string]: string } = {};
+      if (tagId) {
+        let tagDoc = await this.tagsGetByIdAction.execute(context, tagId);
+        if (tagDoc == null) {
+          throw new Error(`Cannot find requested inbound tagId ${tagId}!`);
+        }
+        inboundTag[tagDoc.name] = tagId;
+      }
+
       let skippedContacts = 0;
-      for (const item of payload.contacts) {
-        const tempTags: any[] = [];
-        const contactExist = await this.formSubmissionFindByPhoneNumberAction.execute(
+      for (const contactPayload of payload.contacts) {
+
+        if(phoneNumbers.has(JSON.stringify(contactPayload.phoneNumber))) {
+          context.logger.info(`${context.user.id} CSV file contains duplicates for phone number ${JSON.stringify(contactPayload.phoneNumber)}! Skipping duplicate and applying FIFO policy!`)
+          skippedContacts++;
+          continue;
+        }
+
+        phoneNumbers.add(JSON.stringify(contactPayload.phoneNumber));
+
+        //@formatter:off
+        context.logger.info(`${context.user.id} Searching for contact number ${JSON.stringify(contactPayload.phoneNumber)}`);
+        //@formatter:on
+
+        const contact = await this.formSubmissionFindByPhoneNumberAction.execute(
           context,
-          item.phoneNumber,
+          contactPayload.phoneNumber,
           context.user.id,
         );
-        const metadata = item.metaData && JSON.parse(item.metaData);
+
+        //@formatter:off
+        context.logger.info(`${context.user.id} ${contact.length == 0 ? 'does not have' : 'has'} contact with details ${JSON.stringify(contactPayload.phoneNumber)}.`);
+        //@formatter:on
+
+        const metadata = contactPayload.metaData && JSON.parse(contactPayload.metaData);
+
+        // Merge inboundTag with CSV defined tags.
+        const contactTags: { [key: string]: string } = { ...inboundTag };
+
+        // Process CSV tags
         if (metadata.tags) {
-          const tagsArray = metadata.tags.split(',');
+          const tagsArray = [
+            ...metadata.tags
+              .split(';') // `;` because `,` is CSV delimiter.
+              .filter(n => n === null || n.match(/^( *)$/g)), // filter out empty space
+          ];
+
           for (const tag of tagsArray) {
-            if (tag.trim() === '') continue;
-            const tagDoc = await this.tagsSearchByName.execute(context, { name: tag.trim() });
-            if (tagDoc) {
-              tempTags.push(tagDoc._id.toString());
-            } else {
-              const tagCreated = await this.tagsCreateAction.execute(context, { name: tag.trim() });
-              tempTags.push(tagCreated._id.toString());
-            }
+            const databaseTag = await this.getOrCreateTag(context, tag);
+            contactTags[databaseTag.name] = databaseTag._id.toString();
           }
-          item.metaData = JSON.stringify({ ...metadata, tags: undefined });
+
+          contactPayload.metaData = JSON.stringify({ ...metadata, tags: undefined });
         }
-        if (contactExist.length !== 0) {
+
+        if (contact.length !== 0) {
           if (isOverride !== true) {
             // Skip when contact exist
-            this.looger.debug(`Skip contact ${JSON.stringify(item.phoneNumber)}`);
+            //@formatter:off
+            context.logger.debug(`${context.user.id} Skipping existing contact ${JSON.stringify(contactPayload.phoneNumber)}`);
+            //@formatter:on
             skippedContacts++;
             continue;
           }
           // override contact exist
-          this.looger.debug(`Update contact ${JSON.stringify(item.phoneNumber)}`);
-          const contactUpdate = dynamicUpdateModel<FormSubmissionDocument>(item, contactExist[0]);
-          if (tagId || tempTags.length > 0) {
-            // if (contactUpdate.tags && !contactUpdate.tags.some((tag) => tag.toString() === tagId)) {
-            contactUpdate.tags = [...tags, ...tempTags] as any;
+          const contactUpdate = dynamicUpdateModel<FormSubmissionDocument>(contactPayload,contact[0]);
+          if (Object.entries(contactTags).length > 0) {
+            contactUpdate.tags = Object.values(contactTags) as any;
             contactUpdateTags.push(contactUpdate);
-            // }
           }
+
+          //@formatter:off
+          context.logger.debug(`${context.user.id} is scheduling contact update for phone number ${JSON.stringify(contactPayload.phoneNumber)} with tags ${JSON.stringify(contactTags)} and metadata ${JSON.stringify(contactPayload.metaData)}`);
+          //@formatter:on
+
           promiseUpdate.push(contactUpdate.save());
+
         } else {
-          this.looger.debug(`Insert new contact ${JSON.stringify(item.phoneNumber)}`);
+          //@formatter:off
+          context.logger.debug(`${context.user.id} is scheduling contact insert for phone number ${JSON.stringify(contactPayload.phoneNumber)}`);
+          //@formatter:on
+
           promiseInsert.push(
             new this.FormSubmissionModel({
-              ...item,
-              tags: [...tags, ...tempTags],
+              ...contactPayload,
+              tags: Object.values(contactTags) as any,
               owner: context.user.id,
             }).save(),
           );
         }
       }
+
+      // Start saving records into the database.
       const promiseUpdateChunked = chunk(promiseUpdate, 10);
-      const contactUpdated: any[] = [];
+      const updatedContacts: any[] = [];
       for (const chunks of promiseUpdateChunked) {
+        context.logger.info(`Batch updating records in the database ${JSON.stringify(chunks)}`);
         const result = await Promise.all(chunks);
-        contactUpdated.push(...result);
+        updatedContacts.push(...result);
       }
-      const promiseInsertChunked = chunk(promiseInsert, 10);
-      const contactCreated: any[] = [];
+
+      const promiseInsertChunked = chunk(promiseInsert, 20);
+      const createdContacts: any[] = [];
       for (const chunks of promiseInsertChunked) {
         const result = await Promise.all(chunks);
-        contactCreated.push(...result);
+        createdContacts.push(...result);
       }
-      this.handleAutomation(context, tagId, contactUpdateTags, contactCreated);
+
+      this.handleAutomation(context, tagId, contactUpdateTags, createdContacts);
+
       await this.contactImportHistoryCreateAction.execute(context, {
         numbersColumnMapped,
         numbersContact: row,
@@ -144,6 +205,16 @@ export class ContactImportAction {
     } catch (error) {
       throw new IllegalStateException(error.message || error);
     }
+  }
+
+  private async getOrCreateTag(context: RequestContext, tag: any): Promise<Tags> {
+    let tagDoc = await this.tagsSearchByName.execute(context, { name: tag.trim() });
+
+    if (!tagDoc) {
+      tagDoc = await this.tagsCreateAction.execute(context, { name: tag.trim() });
+    }
+
+    return tagDoc;
   }
 
   private async handleAutomation(

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as schedule from 'node-schedule';
 import { sleep } from '../../utils/sleep';
 
+// TODO: Fix class name typo
 @Injectable()
 export class BackgroudJobService {
   constructor(private readonly configService: ConfigService) {}
