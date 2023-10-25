@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DataHelper } from '../../../utils/DataHelper';
 
 import { RequestContext } from '../../../utils/RequestContext';
 import { PhoneNumber } from '../../user/dtos/UserResponse.dto';
@@ -14,7 +13,7 @@ export class FormSubmissionFindByPhoneNumberAction {
   ) {}
 
   async execute(
-    context: RequestContext,
+    context: RequestContext, // TODO: kinsend/kinsend-be#191
     phone: PhoneNumber,
     owner?: string,
   ): Promise<FormSubmissionDocument[]> {
@@ -24,7 +23,7 @@ export class FormSubmissionFindByPhoneNumberAction {
         {
           'phoneNumber.phone': phone.phone,
           'phoneNumber.code': phone.code,
-          owner,
+          'owner': owner,
         },
         null,
         2,

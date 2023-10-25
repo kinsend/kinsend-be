@@ -15,6 +15,7 @@ import { AutomationBaseTriggerAction } from '../../interfaces/automation.interfa
 import { DURATION, TRIGGER_TYPE } from '../../interfaces/const';
 import { TaskDocument } from '../../task.schema';
 
+// TODO: Fix class name typo
 export class AutomationBaseTriggeAction implements AutomationBaseTriggerAction {
   @Inject(MessageCreateAction) private messageCreateAction: MessageCreateAction;
   constructor() {}
