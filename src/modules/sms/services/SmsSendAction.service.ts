@@ -40,7 +40,7 @@ export class SmsSendAction {
       fname: firstName,
       lname: lastName,
       name: `${firstName} ${lastName}`,
-      email,
+      email: email,
     });
 
     await this.sendUpdate(context, messageFilled, payload.fileUrl, phoneNumberOwner, phoneNumber);
