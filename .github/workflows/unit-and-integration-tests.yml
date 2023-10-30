@@ -61,6 +61,6 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: Unit Tests
+          name: Integration Tests
           path: build/reports/report-integration.xml
           reporter: jest-junit
