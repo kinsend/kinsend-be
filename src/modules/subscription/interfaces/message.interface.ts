@@ -9,6 +9,7 @@ export interface ISmsFee {
   totalFeeSms: number;
   totalFeeMms: number;
   totalSms: number;
+  annualUserUpdateMessagesFee: number;
 }
 
 export interface IChargeFee {
@@ -22,4 +23,5 @@ export interface IChargeFee {
   numberPhoneNumber: number;
   startDate: Date;
   endDate: Date;
+  a2pCampaignFee: number;
 }

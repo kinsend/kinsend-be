@@ -14,6 +14,7 @@ import { RequestContext } from 'src/utils/RequestContext';
 import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
 import { Twilio } from 'twilio';
 import { A2pRegistration, A2pRegistrationDocument } from '../a2p-registration.schema';
+import { A2pBrandCampaignCharge } from './a2p-brand-campaign-charge.service';
 
 @Injectable()
 export class A2pRegistrationTrustHubService {
@@ -22,6 +23,7 @@ export class A2pRegistrationTrustHubService {
   constructor(
     @InjectModel(A2pRegistration.name) private a2pRegistration: Model<A2pRegistrationDocument>,
     private readonly configService: ConfigService,
+    private a2pBrandCampaignCharge: A2pBrandCampaignCharge,
     private httpService: HttpService,
   ) {
     const { twilioAccountSid, twilioAuthToken } = this.configService;
@@ -192,6 +194,8 @@ export class A2pRegistrationTrustHubService {
     // CREATE A MESSAGEING SERVICE
     // (4.1)
     const createdMessagingService = await this.createNewMessagingService(context);
+
+    this.a2pBrandCampaignCharge.handleCharge(context, planType);
 
     const newA2pRegistration = new this.a2pRegistration({
       userId: context.user.id,
@@ -630,7 +634,9 @@ export class A2pRegistrationTrustHubService {
     try {
       const evaluation = await this.twilioClient.trusthub.v1
         .trustProducts(trustBundleSid)
-        .trustProductsEvaluations.create({ policySid: this.configService.twilioTrustBundlePolicySid });
+        .trustProductsEvaluations.create({
+          policySid: this.configService.twilioTrustBundlePolicySid,
+        });
 
       return evaluation;
     } catch (error) {
@@ -756,7 +762,7 @@ export class A2pRegistrationTrustHubService {
   };
 
   createNewMessagingService = async (context: RequestContext) => {
-    const { logger, correlationId,user } = context;
+    const { logger, correlationId, user } = context;
     try {
       const messagingService = await this.twilioClient.messaging.v1.services.create({
         inboundRequestUrl: `${this.configService.backendDomain}/api/hook/sms`,
@@ -764,7 +770,7 @@ export class A2pRegistrationTrustHubService {
         friendlyName: `A2P Messaging Service ${user.id}`,
       });
 
-      console.log('messagingService ====================',messagingService)
+      console.log('messagingService ====================', messagingService);
 
       return messagingService;
     } catch (error) {

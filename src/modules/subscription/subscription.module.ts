@@ -13,6 +13,7 @@ import { SubscriptionGetListAction } from './services/SubscriptionGetListAction.
 import { SubscriptionGetPricesListAction } from './services/SubscriptionGetPricesListAction.service';
 import { SubscriptionGetProductsListAction } from './services/SubscriptionGetProductsListAction.service';
 import { SubscriptionController } from './subscription.controller';
+import { A2pRegistrationModule } from '../a2p-registration/a2p-registration.module';
 
 @Module({
   controllers: [SubscriptionController],
@@ -32,6 +33,7 @@ import { SubscriptionController } from './subscription.controller';
     FormSubmissionModule,
     PaymentModule,
     PlanSubscriptionModule,
+    A2pRegistrationModule,
   ],
   exports: [SubscriptionCreateTriggerPaymentAction],
 })
