@@ -33,7 +33,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: Unit Tests
+          name: Unit Test Reports
           path: build/reports/report-unit.xml
           reporter: jest-junit
 
@@ -61,6 +61,6 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: Integration Tests
+          name: Integration Test Reports
           path: build/reports/report-integration.xml
           reporter: jest-junit
