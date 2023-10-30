@@ -1,0 +1,30 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "roots": [
+    "./src",
+    "./test/unit"
+  ],
+  "testRegex": "test\/unit\/.*\\.spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^axios$": "axios/dist/node/axios.cjs"
+  },
+  "collectCoverageFrom": [
+    "<rootDir>/src/**/*.{js,jsx,ts,tsx}",
+    "!<rootDir>/node_modules/"
+  ],
+  "coverageDirectory": "./build/coverage/unit",
+  "coverageThreshold": {
+    "global": {
+      "lines": 90,
+      "statements": 90
+    }
+  },
+  "testEnvironment": "node"
+}

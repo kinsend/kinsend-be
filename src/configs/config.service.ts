@@ -8,6 +8,8 @@ import * as fs from 'fs';
 const int = (value: string | undefined, number: number): number =>
   value ? (Number.isNaN(Number.parseInt(value)) ? number : Number.parseInt(value)) : number;
 
+
+// TODO: This service should be renamed to `CustomConfigService` or `KinsendConfigService`, because it conflicts with the nestjs ConfigService.
 @Injectable()
 export class ConfigService {
   private readonly envConfig: { [key: string]: string };

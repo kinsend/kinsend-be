@@ -14,7 +14,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
-import { PLAN_PAYMENT_METHOD } from 'src/modules/plan-subscription/plan-subscription.constant';
+import { PLAN_PAYMENT_METHOD } from '../../plan-subscription/plan-subscription.constant';
 import { PhoneNumber } from './UserResponse.dto';
 
 export class PlanSubscription {
