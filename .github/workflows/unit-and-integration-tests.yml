@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  tests:
+  unit-tests:
     runs-on: ks-linux
 
     steps:
@@ -27,4 +27,40 @@ jobs:
 
       - name: Run unit tests
         run: |
-          npm run test:unit
+          npm run test:unit:coverage
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Unit Test Reports
+          path: build/reports/report-unit.xml
+          reporter: jest-junit
+
+  integration-tests:
+    runs-on: ks-linux
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Run npm ci
+        run: |
+          npm ci
+
+      - name: Run integration
+        run: |
+          npm run test:integration:coverage
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Integration Test Reports
+          path: build/reports/report-integration.xml
+          reporter: jest-junit

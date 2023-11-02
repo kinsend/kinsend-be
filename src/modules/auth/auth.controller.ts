@@ -1,19 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable unicorn/consistent-destructuring */
-import {
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
-  Req,
-  Body,
-  Delete,
-  Param,
-  Get,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiHeader, ApiTags } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Post, Req, UseGuards, } from '@nestjs/common';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import JwtRefreshGuard from '../../providers/guards/JwtRefreshGuard.provider';
 import { LocalAuthGuard } from '../../providers/guards/LocalAuthGuard.provider';
 import { AppRequest } from '../../utils/AppRequest';
@@ -32,14 +20,13 @@ import { AuthSigninProviderAction } from './services/AuthSigninProviderAction.se
 @ApiTags('Auths')
 @Controller('api/auths')
 export class AuthController {
-  constructor(
-    private authSignInAction: AuthSignInAction,
-    private authVerifyTokenAction: AuthVerifyTokenAction,
-    private authRefreshTokenAction: AuthRefreshTokenAction,
-    private authBlackListTokenAction: AuthBlackListTokenAction,
-    private authSigninProviderAction: AuthSigninProviderAction,
-    private readonly configService: ConfigService,
-  ) {}
+    constructor(private authSignInAction: AuthSignInAction,
+                private authVerifyTokenAction: AuthVerifyTokenAction,
+                private authRefreshTokenAction: AuthRefreshTokenAction,
+                private authBlackListTokenAction: AuthBlackListTokenAction,
+                private authSigninProviderAction: AuthSigninProviderAction)
+    {
+    }
 
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -51,6 +38,7 @@ export class AuthController {
       throw new IllegalStateException(correlationId);
     }
 
+    // TODO: [Refactor] Use @Res({ passthrough: true }) response: Response instead.
     request.res?.setHeader('accessToken', accessToken);
     request.res?.setHeader('refreshToken', refreshToken);
 

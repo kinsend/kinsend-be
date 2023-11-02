@@ -3,9 +3,8 @@
 /* eslint-disable new-cap */
 /* eslint-disable unicorn/prefer-module */
 import { Injectable } from '@nestjs/common';
-import { InjectModel, InjectConnection } from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as mongoose from 'mongoose';
 import * as handlebars from 'handlebars';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -27,7 +26,6 @@ import { PLAN_SUBSCRIPTION_STATUS } from '../../plan-subscription/plan-subscript
 export class UserCreateAction {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectConnection() private readonly connection: mongoose.Connection,
     private configService: ConfigService,
     private jwtService: JwtService,
     private mailSendGridService: MailSendGridService,
@@ -74,7 +72,7 @@ export class UserCreateAction {
 
     const rootUrl = `${frontEndDomain}/confirmation`;
     const url = `${rootUrl}?token=${token}`;
-    const filePath = path.join(__dirname, '../../../views/templates/mail/confirmation2.hbs');
+    const filePath = path.join(__dirname, '../../../../views/templates/mail/confirmation2.hbs');
     const source = fs.readFileSync(filePath, 'utf-8').toString();
     const template = handlebars.compile(source);
     const replacements = {

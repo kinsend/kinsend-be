@@ -5,7 +5,7 @@ import { S3Service } from '../../../shared/services/s3.service';
 import { NotFoundException } from '../../../utils/exceptions/NotFoundException';
 import { RequestContext } from '../../../utils/RequestContext';
 import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
-import { User, UserDocument } from '../../user/user.schema';
+import { UserDocument } from '../../user/user.schema';
 import { AuthRefreshTokenResponseDto } from '../dtos/AuthRefreshTokenResponseDto';
 import { AuthSignInResponseDto } from '../dtos/AuthSigninResponseDto';
 import { AuthAccessTokenResponseDto } from '../dtos/AuthTokenResponseDto';
