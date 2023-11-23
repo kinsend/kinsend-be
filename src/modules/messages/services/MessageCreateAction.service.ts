@@ -44,12 +44,12 @@ export class MessageCreateAction {
       subscriberNumber,
     );
     if(!subscribers || subscribers.length === 0) {
-      context.logger.error(`formSubmissionFindByPhoneNumberAction could not find subscriber number ${subscriberNumber}`);
+      context.logger.warn(`formSubmissionFindByPhoneNumberAction could not find subscriber number ${JSON.stringify(subscriberNumber)}`);
     }
 
     const userModel = await this.userFindByPhoneSystemAction.execute(phoneSystemNumber);
     if(!userModel || userModel.length === 0) {
-      context.logger.error(`userFindByPhoneSystemAction could not find number ${phoneSystemNumber}`)
+      context.logger.error(`userFindByPhoneSystemAction could not find number ${JSON.stringify(phoneSystemNumber)}`)
     }
 
     const subscriber = this.getSubcriberByOwner(subscribers, userModel[0]);

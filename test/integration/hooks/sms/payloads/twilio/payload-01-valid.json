@@ -1,0 +1,22 @@
+{
+  "AccountSid": "ACd9457f1dd242f48cf38f0bb1fb910403",
+  "ApiVersion": "2010-04-01",
+  "Body": "Stop",
+  "From": "+12345678901",
+  "FromCity": "PHOENIX",
+  "FromCountry": "US",
+  "FromState": "AZ",
+  "FromZip": 85031,
+  "MessageSid": "SM42a14cba2d171002606e1fdc9b33622a",
+  "MessagingServiceSid": "MG1778053dbf0871bb00d76087ae85b0b4",
+  "NumMedia": 0,
+  "NumSegments": 1,
+  "SmsMessageSid": "SM42a14cba2d171002606e1fdc9b33622a",
+  "SmsSid": "SM42a14cba2d171002606e1fdc9b33622a",
+  "SmsStatus": "received",
+  "To": "+12345678900",
+  "ToCity": "PHOENIX",
+  "ToCountry": "US",
+  "ToState": "AZ",
+  "ToZip": 85012
+}

@@ -71,7 +71,7 @@ export class SmsReceiveHookAction {
       return;
     }
 
-    // Check content if equa DONE should unsubscribe
+    // Check content if equals DONE should unsubscribe
     if (payload.Body === 'DONE') {
       const formSubmission = await this.formSubmissionFindByPhoneNumberAction.execute(
         context,
@@ -81,7 +81,7 @@ export class SmsReceiveHookAction {
       await this.formSubmissionUpdateAction.execute(context, formSubmission[0].id, {
         isSubscribed: false,
       });
-      context.logger.debug(`Body equa DONE should unsubscribe ${payload.From}`);
+      context.logger.debug(`Body equals DONE should unsubscribe ${payload.From}`);
     }
 
     await this.automationCreateTriggerAutomationAction.execute(
@@ -96,9 +96,7 @@ export class SmsReceiveHookAction {
 
   private async handleSmsReceiveUpdate(context: RequestContext, payload: any) {
     try {
-      context.logger.info(
-        `Handling SMS reply from ${payload.From} to ${payload.To} with message ${payload.Body}`,
-      );
+      context.logger.info(`Handling SMS reply from ${payload.From} to ${payload.To} with message ${payload.Body}`);
 
       await this.saveSms(context, payload.From, payload.To, payload.Body);
 
@@ -107,7 +105,7 @@ export class SmsReceiveHookAction {
 
       const createdBy = await this.userFindByPhoneSystemAction.execute(toNumber);
       if (createdBy.length === 0) {
-        throw new Error(`userFindByPhoneSystemAction returned no records for ${toNumber}`);
+        throw new Error(`userFindByPhoneSystemAction returned no records for ${JSON.stringify(toNumber)}`);
       }
 
       const updates = await this.updatesFindByCreatedByAction.execute(context, createdBy[0].id);
@@ -123,13 +121,13 @@ export class SmsReceiveHookAction {
       );
       if (subscribers.length === 0) {
         throw new Error(
-          `formSubmissionFindByPhoneNumberAction returned no records for ${fromNumber}`,
+          `formSubmissionFindByPhoneNumberAction returned no records for ${JSON.stringify(fromNumber)}`,
         );
       }
       const subscriber = this.getSubscriberByOwner(subscribers, createdBy[0]);
       if (!subscriber) {
         throw new Error(
-          `formSubmissionFindByPhoneNumberAction returned no records for ${fromNumber} and owner ${createdBy[0].id}`,
+          `formSubmissionFindByPhoneNumberAction returned no records for ${JSON.stringify(fromNumber)} and owner ${createdBy[0].id}`,
         );
       }
       const updatesFiltered = this.filterUpdatesSubscribedbySubscriber(
