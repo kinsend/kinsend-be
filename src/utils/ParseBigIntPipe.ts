@@ -1,6 +1,7 @@
 import { Injectable, PipeTransform, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import mongoose from 'mongoose';
 
+// TODO: Fix typo.
 @Injectable()
 export class TranformObjectIdPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata): string {
