@@ -45,4 +45,7 @@ export class LinkRedirect {
 const LinkRedirectSchema = SchemaFactory.createForClass(LinkRedirect);
 LinkRedirectSchema.index({ url: 'text' });
 
-export { LinkRedirectSchema };
+const LinkRedirectToken = LinkRedirect.name;
+
+export { LinkRedirectSchema, LinkRedirectToken };
+
