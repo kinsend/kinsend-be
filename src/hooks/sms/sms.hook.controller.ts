@@ -8,25 +8,51 @@ import { SmsStatusCallbackHookAction } from './services/SmsStatusCallbackHookAct
 
 @ApiTags('Hook')
 @Controller('api/hook')
-export class SmsHookController {
-  constructor(
-    private smsReceiveHookAction: SmsReceiveHookAction,
-    private smsStatusCallbackHookAction: SmsStatusCallbackHookAction,
-  ) {}
+export class SmsHookController
+{
+    constructor(private smsReceiveHookAction: SmsReceiveHookAction,
+                private smsStatusCallbackHookAction: SmsStatusCallbackHookAction)
+    {
+    }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Post('/sms')
-  recieptSmsHook(@Req() request: AppRequest, @Body() payload: any) {
-    return this.smsReceiveHookAction.execute(request, payload);
-  }
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Post('/sms')
+    receiptSmsHook(@Req() request: AppRequest,
+                   @Body() payload: any)
+    {
+        return new Promise(async(resolve,reject) => {
+            try {
+                const result = await this.smsReceiveHookAction.execute(request, payload);
+                resolve(result);
+            } catch(error) {
+                const message = 'Failed to handle received payload in receiptSmsHook !'
+                reject(message);
+                request.logger.error(
+                    { err: error, errStack: error.stack, payload: payload },
+                    message,
+                );
+            }
+        });
+    }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Post('/sms/update/status/:id')
-  statusCallbackHook(
-    @Req() request: AppRequest,
-    @Param('id', TranformObjectIdPipe) id: string,
-    @Body() payload: SmsStatusCallbackPayloadDto,
-  ) {
-    return this.smsStatusCallbackHookAction.execute(request, id, payload);
-  }
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Post('/sms/update/status/:id')
+    async statusCallbackHook(@Req() request: AppRequest,
+                             @Param('id', TranformObjectIdPipe) id: string,
+                             @Body() payload: any)
+    {
+        return new Promise(async(resolve, reject) => {
+            try {
+                const result = await this.smsStatusCallbackHookAction.execute(request, id, <SmsStatusCallbackPayloadDto>payload);
+                resolve(result);
+            } catch(error) {
+                const message = 'Failed to handle received payload in statusCallbackHook!'
+                reject(message);
+                request.logger.error(
+                    { err: error, errStack: error.stack, payload: payload },
+                    message,
+                );
+            }
+        });
+    }
 }
