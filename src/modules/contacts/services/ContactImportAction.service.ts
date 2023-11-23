@@ -30,8 +30,8 @@ import { now } from '../../../utils/nowDate';
 import { SmsService } from '../../../shared/services/sms.service';
 import { FormSubmissionUpdateLastContactedAction } from '../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 import { ContactImportHistoryCreateAction } from './ContactImportHistoryCreateAction.service';
-import { TagsCreateAction } from 'src/modules/tags/services/TagsCreateAction.service';
-import { TagsSearchByName } from 'src/modules/tags/services/TagsSearchByNameAction.service';
+import { TagsCreateAction } from '@app/modules/tags/services/TagsCreateAction.service';
+import { TagsSearchByName } from '@app/modules/tags/services/TagsSearchByNameAction.service';
 import { TagsGetByIdAction } from '../../tags/services/TagsGetByIdAction.service';
 import { Tags } from '../../tags/tags.schema';
 

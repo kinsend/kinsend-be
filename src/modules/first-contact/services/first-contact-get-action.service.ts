@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { RequestContext } from '../../../utils/RequestContext';
 import { FirstContact, FirstContactDocument } from '../first-contact.schema'; 
-import { A2pRegistration, A2pRegistrationDocument } from 'src/modules/a2p-registration/a2p-registration.schema';
+import { A2pRegistration, A2pRegistrationDocument } from '@app/modules/a2p-registration/a2p-registration.schema';
 
 @Injectable()
 export class FirstContactGetAction {

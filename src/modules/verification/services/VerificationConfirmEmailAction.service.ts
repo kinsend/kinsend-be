@@ -10,7 +10,7 @@ import * as handlebars from 'handlebars';
 import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import * as path from 'path';
-import { MailSendGridService } from 'src/modules/mail/mail-send-grid.service';
+import { MailSendGridService } from '@app/modules/mail/mail-send-grid.service';
 import { ConfigService } from '../../../configs/config.service';
 import { STATUS } from '../../../domain/const';
 import { StripeService } from '../../../shared/services/stripe.service';

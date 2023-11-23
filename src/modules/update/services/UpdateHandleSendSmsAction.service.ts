@@ -23,11 +23,11 @@ import {
   RATE_CENT_USD,
   REGION_DOMESTIC,
   TYPE_MESSAGE,
-} from 'src/domain/const';
-import { FormSubmission } from 'src/modules/form.submission/form.submission.schema';
-import { FormSubmissionFindByIdAction } from 'src/modules/form.submission/services/FormSubmissionFindByIdAction.service';
-import { fillMergeFieldsToMessage } from 'src/utils/fillMergeFieldsToMessage';
-import { regionPhoneNumber } from 'src/utils/utilsPhoneNumber';
+} from '@app/domain/const';
+import { FormSubmission } from '@app/modules/form.submission/form.submission.schema';
+import { FormSubmissionFindByIdAction } from '@app/modules/form.submission/services/FormSubmissionFindByIdAction.service';
+import { fillMergeFieldsToMessage } from '@app/utils/fillMergeFieldsToMessage';
+import { regionPhoneNumber } from '@app/utils/utilsPhoneNumber';
 import { v4 as uuid } from 'uuid';
 import { SmsService } from '../../../shared/services/sms.service';
 import { RequestContext } from '../../../utils/RequestContext';
@@ -40,7 +40,7 @@ import { UpdateFindByIdWithoutReportingAction } from './UpdateFindByIdWithoutRep
 import { UpdateChargeMessageTriggerAction } from './UpdateTriggerAction/UpdateChargeMessageTriggerAction';
 import { UpdateUpdateProgressAction } from './UpdateUpdateProgressAction.service';
 import { LinkRediectCreateByMessageAction } from './link.redirect/LinkRediectCreateByMessageAction.service';
-import { MessageContext } from 'src/modules/subscription/interfaces/message.interface';
+import { MessageContext } from '@app/modules/subscription/interfaces/message.interface';
 import { ConfigService as EnvConfigService } from '../../../configs/config.service';
 
 @Injectable()

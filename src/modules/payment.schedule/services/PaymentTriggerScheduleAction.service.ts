@@ -2,7 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as schedule from 'node-schedule';
 
 import { PaymentScheduleFindAction } from './PaymentScheduleFindAction.service';
-import { ConfigService } from 'src/configs/config.service';
+import { ConfigService } from '@app/configs/config.service';
 import { IPrice } from '../../subscription/interfaces/IGetPriceByItems';
 import { PlanSubscriptionGetByUserIdAction } from '../../plan-subscription/services/plan-subscription-get-by-user-id-action.service';
 import {

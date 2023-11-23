@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-import { A2P_PLAN_TYPE, REGISTRATION_STATUS } from 'src/domain/const';
-import { User } from '../user/user.schema';
+import { A2P_PLAN_TYPE, REGISTRATION_STATUS } from '@app/domain/const';
+import { User } from '@app/modules/user/user.schema';
 
 export type A2pRegistrationDocument = A2pRegistration & Document;
 @Schema({

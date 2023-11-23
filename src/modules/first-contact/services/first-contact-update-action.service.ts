@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import {
   A2pRegistration,
   A2pRegistrationDocument,
-} from 'src/modules/a2p-registration/a2p-registration.schema';
+} from '@app/modules/a2p-registration/a2p-registration.schema';
 import { RequestContext } from '../../../utils/RequestContext';
 import { Task, TaskDocument } from '../../automation/task.schema';
 import { FirstContactUpdatePayload } from '../dtos/first-contact-update-payload';

@@ -9,9 +9,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as QueryString from 'qs';
-import { ConfigService } from 'src/configs/config.service';
-import { RequestContext } from 'src/utils/RequestContext';
-import { IllegalStateException } from 'src/utils/exceptions/IllegalStateException';
+import { ConfigService } from '@app/configs/config.service';
+import { RequestContext } from '@app/utils/RequestContext';
+import { IllegalStateException } from '@app/utils/exceptions/IllegalStateException';
 import { Twilio } from 'twilio';
 import { A2pRegistration, A2pRegistrationDocument } from '../a2p-registration.schema';
 
