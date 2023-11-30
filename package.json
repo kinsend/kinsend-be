@@ -119,7 +119,6 @@
     "jest-junit": "^16.0.0",
     "jest-stare": "^2.2.2",
     "lint-staged": "^11.1.2",
-    "mongodb-client-encryption": "^2.9.1",
     "mongodb-memory-server": "^9.0.1",
     "prettier": "^2.6.2",
     "prisma": "^3.4.1",
