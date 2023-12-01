@@ -1,6 +1,8 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as os from "os";
+import * as dotenv from 'dotenv';
+const { existsSync, readFileSync } = require('fs')
 
 /**
  * Create a global in-memory MongoDB instance and configure the test environment
@@ -25,6 +27,15 @@ export = async function globalSetup() {
     if(process.env.MONGODB_BIN !== "") {
         instanceConfiguration.binary['systemBinary'] = process.env.MONGODB_BIN;
     }
+
+    // check .env file for MONGODB_BIN to avoid having to configure this per every test case.
+    if (existsSync('.env')) {
+        const envConfig = dotenv.parse(readFileSync('.env'));
+        if(envConfig.hasOwnProperty('MONGODB_BIN') && envConfig['MONGODB_BIN'] !== '') {
+            instanceConfiguration.binary['systemBinary'] = envConfig['MONGODB_BIN'];
+        }
+    }
+
 
     // it's needed in global space, because we don't want to create a new instance every test-suite
     const instance = await MongoMemoryServer.create(instanceConfiguration);
