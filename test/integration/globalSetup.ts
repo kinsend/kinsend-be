@@ -17,7 +17,8 @@ export = async function globalSetup() {
             version: "7.0.2",
         },
         instance: {
-            dbName: "kinsend-integration-tests"
+            dbName: "kinsend-integration-tests",
+            port: 27017
         }
     }
 
