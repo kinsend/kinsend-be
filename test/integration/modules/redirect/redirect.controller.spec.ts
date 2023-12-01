@@ -65,15 +65,17 @@ describe("RedirectController", () => {
         updateCreateAction = moduleRef.get(UpdateCreateAction);
 
         // Generate authentication token
+        const phoneNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
         user = await moduleRef.get(UserCreateAction).execute(
             { user: null, correlationId: "1-2-3-4", logger: rootLogger },
             {
-                email: "redirect.controller.test@local.domain",
+                email: `RedirectControllerTest-${phoneNumber}@local.domain`,
                 firstName: "Redirect",
                 lastName: "Link",
                 password: "password",
                 phoneNumber: [
-                    { phone: "1234567890", code: 1, short: "US", isPrimary: true }
+                    // random number to avoid unique index constraints.
+                    { phone: phoneNumber, code: 1, short: "US", isPrimary: true }
                 ]
             });
 
@@ -87,7 +89,7 @@ describe("RedirectController", () => {
     it('should redirect to link', async() => {
         // Create an update.
         let update = await updateCreateAction.execute(
-            {correlationId: "sms-hook-id", user: user, logger: rootLogger},
+            {correlationId: "redirect-link", user: user, logger: rootLogger},
             {datetime: new Date(), triggerType: INTERVAL_TRIGGER_TYPE.ONCE, message: "Integration test with link redirect http://google.com", filter: {}}
         );
 

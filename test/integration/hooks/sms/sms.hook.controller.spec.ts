@@ -63,15 +63,16 @@ describe("SmsHookController", () => {
         client = supertest(app.getHttpServer());
 
         // Generate authentication token
+        const phoneNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
         user = await moduleRef.get(UserCreateAction).execute(
             { user: null, correlationId: "1-2-3-4", logger: rootLogger },
             {
-                email: "sms.hook.controller.test@local.domain",
+                email: `SmsHookControllerTest-${phoneNumber}@local.domain`,
                 firstName: "SMS",
                 lastName: "Hook",
                 password: "password",
                 phoneNumber: [
-                    { phone: "3456789012", code: 1, short: "US", isPrimary: true }
+                    { phone: phoneNumber, code: 1, short: "US", isPrimary: true }
                 ],
             });
 
