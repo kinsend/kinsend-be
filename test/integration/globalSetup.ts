@@ -45,11 +45,13 @@ export = async function globalSetup() {
     (global as any).__MONGOINSTANCE = instance;
     process.env.MONGO_URI = uri.slice(0, uri.lastIndexOf('/')) + '/integrationTests';
 
-    console.log(`[globalSetup] MONGO_URI is ${process.env.MONGO_URI}\n`);
+    console.log(`[globalSetup] MONGO_URI is ${process.env.MONGO_URI}, attempting connection.`);
 
     // The following is to make sure the database is clean before test starts
     await mongoose.connect(`${process.env.MONGO_URI}`);
     await mongoose.connection.db.dropDatabase();
     await mongoose.disconnect();
 
+    console.log('[globalSetup] Connection to MongoDB was successful. Proceeding with running tests.')
+    console.log('\n')
 };
