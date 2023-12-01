@@ -21,6 +21,11 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt-auth') {
   }
 
   async validate(payload: AccessTokenPayloadDto): Promise<AuthAccessTokenResponseDto> {
+
+    // TODO: [Refactor] You shouldn't rely on a local cacheManager to decide if a token is valid/expired or not.
+    //       This will not work in HA environments, because the server on which we landed might not have the cache.
+    //       Check gh/kinsend/kinsend-be#201
+
     const { sessionId, id } = payload;
     const cacheKey = tokenCacheKey(`${sessionId}-${id}`);
     const hasCache = await this.cacheManager.get(cacheKey);
