@@ -26,12 +26,16 @@ export class SmsHookController
                          @Body() payload: any,
                          @Res() response: Response)
     {
-        return new Promise(async(resolve,reject) => {
+        return new Promise<void>(async(resolve,reject) => {
             try {
-                const result = await this.smsReceiveHookAction.execute(request, payload);
-                resolve(result);
+                await this.smsReceiveHookAction.execute(request, payload);
+                response.status(HttpStatus.OK);
+                response.send();
+                resolve();
             } catch(error) {
                 const message = 'Failed to handle received payload in receiptSmsHook !'
+                response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+                response.send();
                 reject(message);
                 request.logger.error(
                     { err: error, errStack: error.stack, payload: payload },
@@ -45,14 +49,19 @@ export class SmsHookController
     @Post(CONTROLLER_HOOK_STATUS_CALLBACK)
     async statusCallbackHook(@Req() request: AppRequest,
                              @Param('id', TranformObjectIdPipe) id: string,
-                             @Body() payload: any)
+                             @Body() payload: any,
+                             @Res() response: Response)
     {
-        return new Promise(async(resolve, reject) => {
+        return new Promise<void>(async(resolve, reject) => {
             try {
-                const result = await this.smsStatusCallbackHookAction.execute(request, id, <SmsStatusCallbackPayloadDto>payload);
-                resolve(result);
+                await this.smsStatusCallbackHookAction.execute(request, id, <SmsStatusCallbackPayloadDto>payload);
+                response.status(HttpStatus.OK);
+                response.send();
+                resolve();
             } catch(error) {
                 const message = 'Failed to handle received payload in statusCallbackHook!'
+                response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+                response.send();
                 reject(message);
                 request.logger.error(
                     { err: error, errStack: error.stack, payload: payload },
