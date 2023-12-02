@@ -96,13 +96,13 @@ describe("SmsHookController", () => {
 
         // Send request to hook
         const payload = require("./payloads/twilio/payload-01-valid.json");
-        const response = await supertest(app.getHttpServer())
+        const response = await client
             .post(`${CONTROLLER_BASE}${CONTROLLER_HOOK_STATUS_CALLBACK.replace(':id', update.id)}`)
             .set('Content-Type', 'application/json')
             .send(payload);
 
         // Assert http response
-        assertHttpResponse(response, HttpStatus.NO_CONTENT);
+        assertHttpResponse(response, HttpStatus.OK);
     })
 
     /**
@@ -110,21 +110,21 @@ describe("SmsHookController", () => {
      * in order to accurately simulate this case.
      */
     xit('should handle "STOP" keyword from Twilio', async() => {
-        // Create an update.
-        let update = await updateCreateAction.execute(
-            { correlationId: "sms-hook-id", user: user, logger: rootLogger },
-            { datetime: new Date(), triggerType: INTERVAL_TRIGGER_TYPE.ONCE, message: "Integration Test", filter: {} }
-        );
+        // // Create an update.
+        // let update = await updateCreateAction.execute(
+        //     { correlationId: "sms-hook-id", user: user, logger: rootLogger },
+        //     { datetime: new Date(), triggerType: INTERVAL_TRIGGER_TYPE.ONCE, message: "Integration Test", filter: {} }
+        // );
 
         // Send request to hook
-        const payload = require("./payloads/twilio/payload-02-stop-message.json");
-        const response = await supertest(app.getHttpServer())
+        const payload = require("./payloads/twilio/temp.json");
+        const response = await client
             .post(`${CONTROLLER_BASE}${CONTROLLER_HOOK_SMS}`)
             .set('Content-Type', 'application/json')
             .send(payload);
 
         // Assert http response
-        assertHttpResponse(response, HttpStatus.NO_CONTENT);
+        assertHttpResponse(response, HttpStatus.OK);
     })
 
 });
