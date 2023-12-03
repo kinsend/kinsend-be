@@ -1,5 +1,5 @@
-name: unit-and-integration-tests
-run-name: Run unit and integration tests
+name: build-and-test
+run-name: Build and run unit and integration tests
 
 on:
   workflow_dispatch: ~
@@ -9,8 +9,27 @@ on:
       - '**'
 
 jobs:
+  build:
+    runs-on: ks-linux
+    env:
+      IMAGE: "ks-be-ci-build:${{ github.sha }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build using docker
+        run: |
+          docker build --no-cache --build-arg "MANIFEST_VERSION=$IMAGE" -t $IMAGE .
+
+      - name: Post cleanup
+        if: always()
+        continue-on-error: true
+        run: |
+          docker image rm -f $IMAGE
+
   unit-tests:
     runs-on: ks-linux
+    needs: build
     steps:
 
       - name: Checkout
@@ -40,7 +59,7 @@ jobs:
 
   integration-tests:
     runs-on: ks-linux
-
+    needs: build
     steps:
 
       - name: Checkout
