@@ -17,7 +17,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOkResponse } from '@nestjs/swagger';
-import { TranformObjectIdPipe } from 'src/utils/ParseBigIntPipe';
+import { TranformObjectIdPipe } from '@app/utils/ParseBigIntPipe';
 import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
 import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
 import { AppRequest } from '../../utils/AppRequest';

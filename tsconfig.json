@@ -25,9 +25,19 @@
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "paths": {
+      "@app/configs/*": ["./src/configs/*"],
+      "@app/domain/*": ["./src/domain/*"],
+      "@app/hooks/*": ["./src/hooks/*"],
+      "@app/modules/*": ["./src/modules/*"],
+      "@app/providers/*": ["./src/providers/*"],
+      "@app/shared/*": ["./src/shared/*"],
+      "@app/utils/*": ["./src/utils/*"],
+      "@src/*": ["./src/*"]
+    }
   },
-    "include": [
+  "include": [
     "src/**/*",
     "knexfile.ts",
     "typings/**/*",

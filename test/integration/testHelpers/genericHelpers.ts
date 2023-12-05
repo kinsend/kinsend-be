@@ -1,7 +1,7 @@
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { JWT_MODULE_OPTIONS } from "@nestjs/jwt/dist/jwt.constants";
-import { CacheModule, DynamicModule, INestApplicationContext } from "@nestjs/common";
+import { CacheModule, DynamicModule, INestApplicationContext, MiddlewareConsumer, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
 
@@ -15,6 +15,7 @@ import {
     PlanSubscriptionCreateAction
 } from "../../../src/modules/plan-subscription/services/plan-subscription-create-action.service";
 import * as SendGrid from "@sendgrid/mail";
+import { LoggerMiddleware } from "../../../src/utils/middlewares/Logger.middleware";
 
 /**
  * <p>Provides module imports that are commonly used across all test modules.</p>
@@ -37,6 +38,17 @@ const LOCAL_JWT_MODULE_OPTIONS = {
     signOptions: { expiresIn: 600 },
 };
 
+
+/**
+ * This module mimics the {@link AppModule} configuration so that the {@link AppRequest} and {@link RequestContext}
+ * have the `logger` and `correlationId` properly configured during tests.
+ */
+class TestAppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(LoggerMiddleware).forRoutes('*');
+    }
+}
+
 export const MODULE_BASE_IMPORTS: DynamicModule[] | any[] = [
     CacheModule.register({ isGlobal: true }),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [ '.env' ] }),
@@ -44,6 +56,7 @@ export const MODULE_BASE_IMPORTS: DynamicModule[] | any[] = [
     MongooseModule.forFeature([ { name: User.name, schema: UserSchema } ]), // User definition.
     JwtModule.register(LOCAL_JWT_MODULE_OPTIONS),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    TestAppModule
 ]
 
 /**

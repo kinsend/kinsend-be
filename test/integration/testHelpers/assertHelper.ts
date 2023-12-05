@@ -45,11 +45,50 @@ export function assertHttpResponse(response: supertest.Response,
   request-url     : ${JSON.stringify(reqData.url)}
   request-data    : ${JSON.stringify(reqData.data)}
   request-headers : ${JSON.stringify(reqData.headers)}
-  response-status : ${JSON.stringify(response.status)}
+  response-status : got ${JSON.stringify(response.status)}, expected ${expectedStatus}
   response-body   : ${JSON.stringify(response.body)}
 
   `);
 
+}
+
+export function assertHttpResponseContainsHeader(response: supertest.Response, key: string, value?: string) {
+
+    key = key.toLowerCase(); // response headers are in lower case.
+
+    let error: string|null = null;
+
+    if(response.headers === undefined || response.headers === null || response.headers === "" || response.headers.length === 0) {
+        error = `Expected to find ${key} in headers, but headers were empty!`
+    }
+
+    if(!response.headers.hasOwnProperty(key)) {
+        error = `Expected to find ${key} in headers, but headers did not contain that key!`
+    }
+
+    const headerValue = response.headers[key]
+    if(headerValue === "" || headerValue === null || (value && !`${headerValue}`.includes(value))) {
+        error = `Expected to find ${key} in headers that contains value ${value}, but found ${headerValue}!`
+    }
+
+    // No errors - we're good to go.
+    if(error === null) {
+        return;
+    }
+
+    // Display error and debugging information.
+    const reqData = JSON.parse(JSON.stringify(response)).req;
+
+    throw new Error(` 
+  ${error}
+
+  request-method  : ${JSON.stringify(reqData.method)} 
+  request-url     : ${JSON.stringify(reqData.url)}
+  request-data    : ${JSON.stringify(reqData.data)}
+  request-headers : ${JSON.stringify(reqData.headers)}
+  response-headers : ${JSON.stringify(response.headers)}
+
+  `);
 }
 
 /**

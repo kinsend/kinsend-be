@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as SendGrid from '@sendgrid/mail';
 import { Model } from 'mongoose';
-import { RequestContext } from 'src/utils/RequestContext';
+import { RequestContext } from '@app/utils/RequestContext';
 import Stripe from 'stripe';
 import { Twilio } from 'twilio';
 import { ConfigService } from '../../configs/config.service';

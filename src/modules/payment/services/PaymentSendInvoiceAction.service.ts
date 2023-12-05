@@ -10,11 +10,11 @@ import * as puppeteer from 'puppeteer';
 import * as moment from 'moment';
 import { ConfigService } from '../../../configs/config.service';
 import { RequestContext } from '../../../utils/RequestContext';
-import { unitAmountToPrice } from 'src/utils/convertPrice';
-import { MonthNames } from 'src/utils/getDayOfNextWeek';
-import { MailSendGridService } from 'src/modules/mail/mail-send-grid.service';
-import { UserDocument } from 'src/modules/user/user.schema';
-import { MessageContext } from 'src/modules/subscription/interfaces/message.interface';
+import { unitAmountToPrice } from '@app/utils/convertPrice';
+import { MonthNames } from '@app/utils/getDayOfNextWeek';
+import { MailSendGridService } from '@app/modules/mail/mail-send-grid.service';
+import { UserDocument } from '@app/modules/user/user.schema';
+import { MessageContext } from '@app/modules/subscription/interfaces/message.interface';
 import { ICustomerInfoInvoice } from '../interface/interfaces';
 import { PRICE_PER_PHONE_NUMBER, RATE_CENT_USD } from '../../../domain/const';
 

@@ -34,7 +34,7 @@ import { FormSubmissionDeleteAllDocumentsAction } from './services/FormSubmissio
     SharedModule,
     MongooseModule.forFeature([{ name: FormSubmission.name, schema: FormSubmissionSchema }]),
     VirtualCardModule,
-    AutomationModule,
+    forwardRef(() => AutomationModule),
     UserModule,
     TagsModule,
     forwardRef(() => FormModule),

@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import {
   FormSubmission,
   FormSubmissionDocument,
-} from 'src/modules/form.submission/form.submission.schema';
+} from '@app/modules/form.submission/form.submission.schema';
 import { RequestContext } from '../../../utils/RequestContext';
 import { Tags, TagsDocument } from '../tags.schema';
 

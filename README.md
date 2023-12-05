@@ -31,19 +31,42 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-# Test
+# Testing
+
+## Unit testing
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-
+npm run test:unit
 ```
+
+```bash
+npm run test:unit:coverage
+```
+
+## Integration testing
+
+```bash
+npm run test:integration
+```
+```bash
+npm run test:integration:coverage
+```
+
+### Integration testing with db dump
+
+1. Store database credentials safely 
+   ```bash
+   echo "mongodb+srv://xyz:27017/<REMOTE_DB_NAME>" > .env.upstream-mongo-uri
+   ```
+2. Dump the database
+   ```bash
+   mongodump --uri=$(cat .upstream-mongo-uri) -o backups/
+   ```
+3. Add the following variable to your `.env` file
+   ```
+   MONGODB_RESTORE_DB_IT=backups/<REMOTE_DB_NAME>
+   ```
+4. Run the integration tests (you might want to use a debugger)
 
 # Testing if the app is running
 
@@ -54,12 +77,6 @@ curl -X GET 'http://localhost:3131/api' \
     "message": "Hello"
 }'
 ```
-
-# AWS
-AWS_REGION=
-BUCKET_NAME=
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
 
 # Docker
 

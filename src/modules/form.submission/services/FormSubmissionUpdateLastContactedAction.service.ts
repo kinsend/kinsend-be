@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { convertStringToPhoneNumber } from '../../../utils/convertStringToPhoneNumber';
-import { RequestContext } from '../../../utils/RequestContext';
-import { UserFindByPhoneSystemAction } from '../../user/services/UserFindByPhoneSystemAction.service';
-import { UserDocument } from '../../user/user.schema';
+import { convertStringToPhoneNumber } from '@app/utils/convertStringToPhoneNumber';
+import { RequestContext } from '@app/utils/RequestContext';
+import { UserFindByPhoneSystemAction } from '@app/modules/user/services/UserFindByPhoneSystemAction.service';
+import { UserDocument } from '@app/modules/user/user.schema';
 import { FormSubmissionDocument } from '../form.submission.schema';
 import { FormSubmissionFindByPhoneNumberAction } from './FormSubmissionFindByPhoneNumberAction.service';
 
@@ -29,12 +29,13 @@ export class FormSubmissionUpdateLastContactedAction {
         formSubmissionNumber,
       );
       if (!formSubmissions || formSubmissions.length === 0) {
-        throw Error(`formSubmissionFindByPhoneNumberAction could not find number: ${formSubmissionNumber}`)
+        // In this particular case, there was no Form submission so nothing for us to do.
+        return;
       }
 
       const userModel = await this.userFindByPhoneSystemAction.execute(ownerNumber);
       if(!userModel || userModel.length === 0) {
-        throw Error(`userFindByPhoneSystemAction could not find owner number: ${ownerNumber}`)
+        throw Error(`userFindByPhoneSystemAction could not find owner number: ${JSON.stringify(ownerNumber)}`)
       }
 
       const formSubmission = this.getSubscriberByOwner(formSubmissions, userModel[0]);

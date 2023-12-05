@@ -1,3 +1,12 @@
+const { pathsToModuleNameMapper } = require("ts-jest");
+
+const tsConfig = require("./tsconfig.json");
+
+const moduleNameMapper = {
+    "^axios$": "axios/dist/node/axios.cjs",
+    ...pathsToModuleNameMapper(tsConfig.compilerOptions.paths, { prefix: '<rootDir>/' } )
+}
+
 module.exports = {
     maxWorkers: 2,
     moduleFileExtensions: [
@@ -19,9 +28,7 @@ module.exports = {
     transformIgnorePatterns: [
         "/node_modules/(?!(swiper|ssr-window|dom7|rich-textarea)/)"
     ],
-    moduleNameMapper: {
-        "^axios$": "axios/dist/node/axios.cjs"
-    },
+    moduleNameMapper: moduleNameMapper,
     collectCoverageFrom: [
         "<rootDir>/src/**/*.{js,jsx,ts,tsx}",
         "!<rootDir>/node_modules/"

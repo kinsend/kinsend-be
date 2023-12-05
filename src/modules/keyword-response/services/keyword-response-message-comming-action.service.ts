@@ -3,16 +3,16 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { MessageCreateAction } from 'src/modules/messages/services/MessageCreateAction.service';
-import { RequestContext } from '../../../utils/RequestContext';
-import { UserDocument } from '../../user/user.schema';
-import { BackgroudJobService } from '../../../shared/services/backgroud.job.service';
-import { SmsService } from '../../../shared/services/sms.service';
-import { TaskDocument } from '../../automation/task.schema';
+import { MessageCreateAction } from '@app/modules//messages/services/MessageCreateAction.service';
+import { RequestContext } from '@app/utils/RequestContext';
+import { UserDocument } from '@app/modules/user/user.schema';
+import { BackgroudJobService } from '@app/shared/services/backgroud.job.service';
+import { SmsService } from '@app/shared/services/sms.service';
+import { TaskDocument } from '@app/modules/automation/task.schema';
 import { AutoKeyWordResponse, AutoKeyWordResponseDocument } from '../auto-keyword-response.schema';
 import { KeywordResponse, KeywordResponseDocument } from '../keyword-response.schema';
 import { AUTO_KEYWORD_RESPONSE_TYPE } from '../constant';
-import { FormSubmissionUpdateLastContactedAction } from '../../form.submission/services/FormSubmissionUpdateLastContactedAction.service';
+import { FormSubmissionUpdateLastContactedAction } from '@app/modules/form.submission/services/FormSubmissionUpdateLastContactedAction.service';
 
 @Injectable()
 export class KeywordResponseMessageCommingAction {

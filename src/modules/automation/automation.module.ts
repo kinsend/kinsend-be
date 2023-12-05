@@ -1,10 +1,7 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SharedModule } from '../../shared/shared.module';
-import {
-  A2pRegistration,
-  A2pRegistrationSchema,
-} from '../a2p-registration/a2p-registration.schema';
+import { A2pRegistration, A2pRegistrationSchema, } from '../a2p-registration/a2p-registration.schema';
 import { FormSubmissionModule } from '../form.submission/form.submission.module';
 import { ImageModule } from '../image/image.module';
 import { MessageModule } from '../messages/message.module';
@@ -40,7 +37,7 @@ import { Task, TaskSchema } from './task.schema';
     forwardRef(() => UserModule),
     ImageModule,
     TagsModule,
-    SmsLogModel,
+    forwardRef(() => SmsLogModel),
     forwardRef(() => FormSubmissionModule),
     forwardRef(() => MessageModule),
   ],
