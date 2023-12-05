@@ -18,10 +18,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import MongooseClassSerializerInterceptor from '../../utils/interceptors/MongooseClassSerializer.interceptor';
-import { AppRequest } from '../../utils/AppRequest';
-import { JwtAuthGuard } from '../../providers/guards/JwtAuthGuard.provider';
-import { TranformObjectIdPipe } from '../../utils/ParseBigIntPipe';
+import MongooseClassSerializerInterceptor from '@app/utils/interceptors/MongooseClassSerializer.interceptor';
+import { AppRequest } from '@app/utils/AppRequest';
+import { JwtAuthGuard } from '@app/providers/guards/JwtAuthGuard.provider';
+import { TranformObjectIdPipe } from '@app/utils/ParseBigIntPipe';
 import { UpdateModule } from './update.module';
 import { UpdateCreatePayload } from './dtos/UpdateCreatePayload.dto';
 import { UpdateCreateAction } from './services/UpdateCreateAction.service';

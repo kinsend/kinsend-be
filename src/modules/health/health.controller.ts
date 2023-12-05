@@ -1,5 +1,5 @@
 import { Controller, Get, Req } from '@nestjs/common';
-import { AppRequest } from 'src/utils/AppRequest';
+import { AppRequest } from '@app/utils/AppRequest';
 import { HealthService } from './health.service';
 
 @Controller('api/health')

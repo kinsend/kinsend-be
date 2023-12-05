@@ -4,9 +4,9 @@ import { Model } from 'mongoose';
 import {
   A2pRegistration,
   A2pRegistrationDocument,
-} from 'src/modules/a2p-registration/a2p-registration.schema';
-import { RequestContext } from '../../../utils/RequestContext';
-import { Automation, AutomationDocument } from '../automation.schema';
+} from '@app/modules/a2p-registration/a2p-registration.schema';
+import { RequestContext } from '@app/utils/RequestContext';
+import { Automation, AutomationDocument } from '@app/modules/automation/automation.schema';
 import { AUTOMATION_STATUS } from '../interfaces/const';
 
 @Injectable()

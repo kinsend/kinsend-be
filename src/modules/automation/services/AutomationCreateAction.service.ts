@@ -13,7 +13,7 @@ import mongoose, { Model } from 'mongoose';
 import {
   A2pRegistration,
   A2pRegistrationDocument,
-} from 'src/modules/a2p-registration/a2p-registration.schema';
+} from '@app/modules/a2p-registration/a2p-registration.schema';
 import { Logger } from '../../../utils/Logger';
 import { RequestContext } from '../../../utils/RequestContext';
 import { convertTimeToTimeObject } from '../../../utils/convertTimeToTimeObject';

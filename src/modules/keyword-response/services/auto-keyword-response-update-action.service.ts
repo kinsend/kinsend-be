@@ -2,7 +2,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import mongoose, { Model } from 'mongoose';
-import { Task, TaskDocument } from 'src/modules/automation/task.schema';
+import { Task, TaskDocument } from '@app/modules/automation/task.schema';
 import { RequestContext } from '../../../utils/RequestContext';
 import { AutoKeywordResponseCreatePayload } from '../dtos/auto-keyword-response-create-payload';
 import { KeywordResponseGetAction } from './keyword-response-get-action.service';

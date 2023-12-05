@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import {
   A2pRegistration,
   A2pRegistrationDocument,
-} from 'src/modules/a2p-registration/a2p-registration.schema';
+} from '@app/modules/a2p-registration/a2p-registration.schema';
 import { RequestContext } from '../../../utils/RequestContext';
 import { AutoKeyWordResponse } from '../auto-keyword-response.schema';
 import { AUTO_KEYWORD_RESPONSE_TYPE } from '../constant';

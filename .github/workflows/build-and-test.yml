@@ -1,5 +1,5 @@
-name: unit-and-integration-tests
-run-name: Run unit and integration tests
+name: build-and-test
+run-name: Build and run unit and integration tests
 
 on:
   workflow_dispatch: ~
@@ -9,9 +9,27 @@ on:
       - '**'
 
 jobs:
+  build:
+    runs-on: ks-linux
+    env:
+      IMAGE: "ks-be-ci-build:${{ github.sha }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build using docker
+        run: |
+          docker build --no-cache --build-arg "MANIFEST_VERSION=$IMAGE" -t $IMAGE .
+
+      - name: Post cleanup
+        if: always()
+        continue-on-error: true
+        run: |
+          docker image rm -f $IMAGE
+
   unit-tests:
     runs-on: ks-linux
-
+    needs: build
     steps:
 
       - name: Checkout
@@ -41,7 +59,7 @@ jobs:
 
   integration-tests:
     runs-on: ks-linux
-
+    needs: build
     steps:
 
       - name: Checkout
@@ -52,6 +70,14 @@ jobs:
           node-version: 16
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
+
+      - name: Set up .env file
+        env:
+          ENV_DATA: ${{ secrets.DOT_ENV_DEV_BASE64 }}
+        run: |
+          printf $ENV_DATA | base64 -d > .env
+          echo ".env file lines: "
+          cat .env | wc -l 
 
       - name: Run npm ci
         run: |

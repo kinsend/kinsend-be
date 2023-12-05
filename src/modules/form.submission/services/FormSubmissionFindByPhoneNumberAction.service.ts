@@ -26,7 +26,7 @@ export class FormSubmissionFindByPhoneNumberAction {
           'owner': owner,
         },
         null,
-        2,
+        0,
       ),
     );
     const formSubmission = await this.formSubmissionModel.find(data);

@@ -12,6 +12,7 @@ import { LinkRedirect, LinkRedirectDocument } from '../../link.redirect.schema';
 import { UpdateDocument } from '../../update.schema';
 import { LinkRediectCreateAction } from './LinkRediectCreateAction.service';
 
+// TODO: Fix typo.
 @Injectable()
 export class LinkRediectCreateByMessageAction {
   constructor(

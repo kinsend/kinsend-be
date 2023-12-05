@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/return-await */
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/providers/guards/JwtAuthGuard.provider';
-import { AppRequest } from 'src/utils/AppRequest';
+import { JwtAuthGuard } from '@app/providers/guards/JwtAuthGuard.provider';
+import { AppRequest } from '@app/utils/AppRequest';
 import { A2pRegistrationTrustHubService } from './services/a2p-registration.service';
 import { A2pBrandStatusService } from './services/a2p-brand-status.service';
 

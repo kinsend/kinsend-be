@@ -3,16 +3,16 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { MessageCreateAction } from 'src/modules/messages/services/MessageCreateAction.service';
-import { RequestContext } from '../../../utils/RequestContext';
+import { MessageCreateAction } from '@app/modules/messages/services/MessageCreateAction.service';
+import { RequestContext } from '@app/utils/RequestContext';
 import { FirstContact, FirstContactDocument } from '../first-contact.schema';
-import { UserDocument } from '../../user/user.schema';
-import { BackgroudJobService } from '../../../shared/services/backgroud.job.service';
-import { now } from '../../../utils/nowDate';
-import { FormSubmissionFindByPhoneNumberAction } from '../../form.submission/services/FormSubmissionFindByPhoneNumberAction.service';
-import { convertStringToPhoneNumber } from '../../../utils/convertStringToPhoneNumber';
-import { SmsService } from '../../../shared/services/sms.service';
-import { TaskDocument } from '../../automation/task.schema';
+import { UserDocument } from '@app/modules/user/user.schema';
+import { BackgroudJobService } from '@app/shared/services/backgroud.job.service';
+import { now } from '@app/utils/nowDate';
+import { FormSubmissionFindByPhoneNumberAction } from '@app/modules/form.submission/services/FormSubmissionFindByPhoneNumberAction.service';
+import { convertStringToPhoneNumber } from '@app/utils/convertStringToPhoneNumber';
+import { SmsService } from '@app/shared/services/sms.service';
+import { TaskDocument } from '@app/modules/automation/task.schema';
 
 @Injectable()
 export class FirstContactCreateScheduleAction {

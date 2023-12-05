@@ -2,14 +2,14 @@
 /* eslint-disable unicorn/consistent-destructuring */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
-import { TagsGetByIdsAction } from 'src/modules/tags/services/TagsGetByIdsAction.service';
-import { SmsService } from '../../../shared/services/sms.service';
-import { dynamicUpdateModel } from '../../../utils/dynamicUpdateModel';
-import { now } from '../../../utils/nowDate';
-import { RequestContext } from '../../../utils/RequestContext';
-import { AutomationGetByTagIdsAction } from '../../automation/services/AutomationGetByTagIdsAction.service';
-import { AutomationBaseTriggeAction } from '../../automation/services/AutomationTriggerAction/AutomationBaseTriggerAction.service';
-import { UserFindByIdAction } from '../../user/services/UserFindByIdAction.service';
+import { TagsGetByIdsAction } from '@app/modules/tags/services/TagsGetByIdsAction.service';
+import { SmsService } from '@app/shared/services/sms.service';
+import { dynamicUpdateModel } from '@app/utils/dynamicUpdateModel';
+import { now } from '@app/utils/nowDate';
+import { RequestContext } from '@app/utils/RequestContext';
+import { AutomationGetByTagIdsAction } from '@app/modules/automation/services/AutomationGetByTagIdsAction.service';
+import { AutomationBaseTriggeAction } from '@app/modules/automation/services/AutomationTriggerAction/AutomationBaseTriggerAction.service';
+import { UserFindByIdAction } from '@app/modules/user/services/UserFindByIdAction.service';
 import { FormSubmissionUpdatePayload } from '../dtos/FormSubmissionUpdatePayload.dto';
 import { FormSubmissionDocument } from '../form.submission.schema';
 import { FormSubmissionFindByIdAction } from './FormSubmissionFindByIdAction.service';

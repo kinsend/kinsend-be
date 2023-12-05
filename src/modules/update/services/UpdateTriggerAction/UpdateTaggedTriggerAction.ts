@@ -48,6 +48,8 @@ export class UpdateTaggedTriggerAction extends UpdateBaseTriggerAction {
       isArray ? tagId : [tagId],
     );
     update.recipients = subscribers;
+
+    // TODO: This code is not being called with async, why?
     update.save();
     this.updateReportingCreateAction.execute(context, update, subscribers);
     this.executeTrigger(

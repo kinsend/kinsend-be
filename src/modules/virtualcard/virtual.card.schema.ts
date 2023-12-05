@@ -14,7 +14,7 @@ export class VCard {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ unique: true })
+  @Prop()
   @Transform(({ value }) => value.toString())
   userId: string;
 
@@ -88,5 +88,6 @@ export class VCard {
 const VCardSchema = SchemaFactory.createForClass(VCard);
 
 VCardSchema.index({ firstName: 'text', lastName: 'text', email: 'text', userId: 'text' });
+VCardSchema.index({ userId: 1 }, { unique:true, partialFilterExpression: {userId: {$exists:true }}})
 
 export { VCardSchema };

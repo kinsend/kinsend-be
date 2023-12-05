@@ -69,15 +69,16 @@ describe(controllerName, () => {
         carService = moduleRef.get(CarService);
 
         // Generate authentication token
+        const phoneNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
         const user = await moduleRef.get(UserCreateAction).execute(
             { user: null, correlationId: "1-2-3-4", logger: rootLogger },
             {
-                email: "car.controller.test@local.domain",
+                email: `CarControllerTest-${phoneNumber}@local.domain`,
                 firstName: "Car",
                 lastName: "Controller",
                 password: "password",
                 phoneNumber: [
-                    { phone: "1234567890", code: 1, short: "US", isPrimary: true }
+                    { phone: phoneNumber, code: 1, short: "US", isPrimary: true }
                 ]
             });
 
