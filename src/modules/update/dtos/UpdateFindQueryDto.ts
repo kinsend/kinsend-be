@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 import { CONDITION } from '../../segment/interfaces/const';
 import { UPDATE_PROGRESS } from '../interfaces/const';
-import { boolean } from "joi";
 
 export class UpdateFindQueryQueryDto {
   @ApiProperty({ example: 'Search any thing', required: false })
@@ -38,6 +37,5 @@ export class UpdateFindQueryQueryDto {
 
   @ApiProperty({ required: false, default: true})
   @IsOptional()
-  @Type(() => boolean)
-  populateRecipients?: boolean;
+  populateRecipients?: boolean = true;
 }
