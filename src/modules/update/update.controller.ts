@@ -81,6 +81,10 @@ export class UpdateController {
   @HttpCode(HttpStatus.OK)
   @Get()
   getUpdates(@Req() request: AppRequest, @Query() query: UpdateFindQueryQueryDto) {
+    // The `populateRecipients` path is not necessary for this endpoint.
+    // We are force-overwriting any incoming REST API values to avoid overloading the database with unnecessary high volume queries.
+    // This is a temporary solution before an upcoming refactoring which should address the problem in a better way.
+    query.populateRecipients = false;
     return this.updateFindAction.execute(request, query);
   }
 
