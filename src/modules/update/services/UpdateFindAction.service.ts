@@ -17,40 +17,39 @@ export class UpdateFindAction {
     context: RequestContext,
     query: UpdateFindQueryQueryDto,
   ): Promise<UpdateDocument[]> {
-    const { search, progress, limit, skip, createdAt, condition } = query;
-    const page: number = skip || 1;
-    const size: number = limit || 10;
+    const page: number = query.skip || 1;
+    const size: number = query.limit || 10;
     const queryBuilder: FilterQuery<UpdateDocument> = {
       createdBy: context.user.id,
     };
-    if (progress) {
-      queryBuilder.progress = progress;
+    if (query.progress) {
+      queryBuilder.progress = query.progress;
     }
 
-    if (search) {
-      queryBuilder.$text = { $search: search };
+    if (query.search) {
+      queryBuilder.$text = { $search: query.search };
     }
 
-    if (createdAt && condition) {
-      switch (condition) {
+    if (query.createdAt && query.condition) {
+      switch (query.condition) {
         case CONDITION.ON: {
           queryBuilder.createdAt = {
-            $gte: createdAt.startOf('day').toDate(),
-            $lte: createdAt.endOf('day').toDate(),
+            $gte: query.createdAt.startOf('day').toDate(),
+            $lte: query.createdAt.endOf('day').toDate(),
           };
           break;
         }
 
         case CONDITION.BEFORE: {
           queryBuilder.createdAt = {
-            $lt: createdAt.startOf('day').toDate(),
+            $lt: query.createdAt.startOf('day').toDate(),
           };
           break;
         }
 
         case CONDITION.AFTER: {
           queryBuilder.createdAt = {
-            $gt: createdAt.endOf('day').toDate(),
+            $gt: query.createdAt.endOf('day').toDate(),
           };
           break;
         }
@@ -59,17 +58,24 @@ export class UpdateFindAction {
           break;
       }
     }
+
+    // Conditionally populate paths on demand.
+    const populatePaths: any[] = [{ path: 'createdBy', select: ['_id'] }];
+    if(query.populateRecipients) {
+      populatePaths.push({ path: 'recipients' })
+    }
+
     const builder = this.updateModel
       .find(queryBuilder)
       .sort({
         createdAt: -1,
       })
-      .populate([{ path: 'createdBy', select: ['_id'] }, { path: 'recipients' }]);
-    if (skip) {
+      .populate(populatePaths);
+    if (query.skip) {
       builder.skip((page - 1) * size);
     }
 
-    if (limit) {
+    if (query.limit) {
       builder.limit(size);
     }
 

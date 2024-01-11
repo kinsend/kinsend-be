@@ -20,7 +20,9 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class PaymentTriggerScheduleAction implements OnModuleInit {
+
   private logger = new Logger();
+  public static CRON_EXPRESSION = CronExpression.EVERY_DAY_AT_1AM;
 
   constructor(
     private configService: ConfigService,
@@ -32,11 +34,11 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.triggerSchedule();
+    this.schedulePaymentTasks();
   }
 
-  async triggerSchedule() {
-    this.logger.debug('Running schedule');
+  async schedulePaymentTasks() {
+    this.logger.log('Running Payment Schedule');
     const paymentSchedules = await this.paymentScheduleFindAction.execute();
     const context: RequestContext = {
       logger: rootLogger,
@@ -51,7 +53,7 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
         try {
           context.user.id = userIdSchedule;
           const user = await this.userFindByIdAction.execute(context, userIdSchedule);
-          console.log('CRON Job user', user);
+          this.logger.log(' job for user', user);
           let planSubscription = await this.planSubscriptionGetByUserIdAction.execute(
             userIdSchedule,
           );
@@ -90,18 +92,17 @@ export class PaymentTriggerScheduleAction implements OnModuleInit {
             planPaymentMethod,
             false,
           );
-          this.logger.debug(`Successfully created schedule for ${context.user.id}!`);
+          this.logger.log(`Payment task scheduled for user ${context.user.id}.`);
         } catch (error) {
-          this.logger.error(error);
-          this.logger.debug(`Skip schedule of user ${context.user.id}`);
+          this.logger.error({ err: error, errStack: error.stack }, `Exception: Payment task skipped for user ${context.user.id}!`);
         }
       }
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  @Cron(PaymentTriggerScheduleAction.CRON_EXPRESSION)
   handleCron() {
-    this.logger.debug('Triggers cron every day!');
-    this.triggerSchedule();
+    this.logger.log('Payment cron tasks are scheduled with cron expression: ' + PaymentTriggerScheduleAction.CRON_EXPRESSION);
+    this.schedulePaymentTasks();
   }
 }

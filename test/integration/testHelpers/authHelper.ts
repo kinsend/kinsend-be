@@ -1,10 +1,10 @@
 import { JwtService } from "@nestjs/jwt";
 import { TestingModule } from "@nestjs/testing";
 
-import { UserDocument } from '../../../src/modules/user/user.schema';
+import { User, UserDocument } from '../../../src/modules/user/user.schema';
 import { AuthAccessTokenResponseDto } from "../../../src/modules/auth/dtos/AuthTokenResponseDto";
 
-export async function generateAccessTokenForUser(moduleRef: TestingModule, user: UserDocument, expiresInSeconds?: number): Promise<string>
+export async function generateAccessTokenForUser(moduleRef: TestingModule, user: User | UserDocument, expiresInSeconds?: number): Promise<string>
 {
 
     if(!user) {
@@ -12,7 +12,7 @@ export async function generateAccessTokenForUser(moduleRef: TestingModule, user:
     }
 
     const authPayload: AuthAccessTokenResponseDto = {
-        id: user.id,
+        id: user._id,
         email: user.email,
         phoneNumber: user.phoneNumber,
         firstName: user.firstName,
