@@ -172,7 +172,7 @@ jobs:
           #docker system prune --all --force
 
       - name: Post job report comment reaction
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         if: ${{ always() && (github.event.client_payload.slash_command.command != '') }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -181,7 +181,7 @@ jobs:
           reactions: ${{ job.status == 'success' && 'hooray' || '-1' }}
 
       - name: Post job report comment failure
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         if: ${{ failure() && (github.event.client_payload.slash_command.command != '') }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -192,7 +192,7 @@ jobs:
             > 🔴 Failed to apply command `${{ github.event.client_payload.slash_command.command }}`. For more details check the [build log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
 
       - name: Post job report add comment on success push
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         if: ${{ success() && (github.event.client_payload.slash_command.command != '') }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
