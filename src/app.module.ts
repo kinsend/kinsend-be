@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -33,6 +33,7 @@ import { HealthModule } from './modules/health/health.module';
 import { AWSModule } from './modules/aws/aws.module';
 import { ConfigModule } from './modules/config/config.module';
 import { A2pRegistrationModule } from './modules/a2p-registration/a2p-registration.module';
+import { CORSMiddleware } from './utils/middlewares/CorsMiddleware';
 
 @Module({
   imports: [
@@ -74,5 +75,12 @@ import { A2pRegistrationModule } from './modules/a2p-registration/a2p-registrati
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer
+      .apply(CORSMiddleware)
+      .exclude(
+        { path: '/api/hooks', method: RequestMethod.GET },
+        { path: '/api/hooks', method: RequestMethod.POST },
+      )
+      .forRoutes('*');
   }
 }

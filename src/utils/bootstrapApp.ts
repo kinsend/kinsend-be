@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/prefer-module */
 import 'source-map-support/register';
-import helmet from 'helmet';
+import helmet, { contentSecurityPolicy } from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -38,43 +38,5 @@ export async function bootstrapApp(app: NestExpressApplication) {
   app.setViewEngine('ejs');
 
   app.use(helmet());
-  const { corsEnabled, corsAllowedOrigins } = new ConfigService();
-  const cors = corsEnabled
-    ? {
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-        allowedHeaders: [
-          'Authorization',
-          'RefreshToken',
-          'Content-Type',
-          'Accept',
-          'Origin',
-          'Referer',
-          'User-Agent',
-          'Authorization',
-          'X-Money-Bag-Signature',
-          'X-Api-Key',
-          'x-request-id',
-        ],
-        exposedHeaders: [
-          'Authorization',
-          'RefreshToken',
-          'X-Api-Key',
-          'AccessToken',
-          'X-KinSend-Signature',
-        ],
-        origin(origin: string, callback: (error: Error | null, success?: true) => void) {
-          if (corsAllowedOrigins === 'all') {
-            callback(null, true);
-            return;
-          }
-          if (corsAllowedOrigins.includes(origin)) {
-            callback(null, true);
-          } else {
-            callback(new Error(`Origin[${origin}] not allowed by CORS`));
-          }
-        },
-      }
-    : {};
-  app.enableCors(cors);
   app.useGlobalInterceptors(new ErrorRespTransformInterceptor());
 }
