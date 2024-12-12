@@ -1,3 +1,6 @@
+/* eslint-disable no-empty */
+/* eslint-disable unicorn/prefer-ternary */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable new-cap */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,17 +16,39 @@ export class FormGetByIdAction {
     @InjectModel(Form.name) private formModel: Model<FormDocument>,
     private cnameGetByTitleAction: CNAMEGetByTitleAction,
   ) {}
+  /**
+   * Note:
+   * When we use mongoose.Types.ObjectId.isValid on any input that's 12 characters long
+   * it always returns true.
+   * To fix this, we first convert the input into a valid ObjectId
+   * If the input is actually a valid ObjectId,
+   * then the value for that ObjectId will be the same as the input.
+   * That's how we check whether the input is a valid ObjectId or not
+   */
+
+  async getFormByCnameTitle(title: string) {
+    const cname = await this.getCNAMEByTitle(title);
+    return this.formModel.findOne({
+      cname: cname.id,
+    });
+  }
 
   async execute(context: RequestContext, parameter: string): Promise<FormDocument> {
     let form;
-    if (mongoose.Types.ObjectId.isValid(parameter)) {
-      form = await this.formModel.findById(parameter);
+    if (parameter.length < 12) {
+      form = await this.getFormByCnameTitle(parameter);
     } else {
-      const cname = await this.getCNAMEByTitle(parameter);
-      form = await this.formModel.findOne({
-        cname: cname.id,
-      });
+      let parameterAsId: null | mongoose.Types.ObjectId = null;
+      try {
+        parameterAsId = new mongoose.Types.ObjectId(parameter);
+      } catch {}
+      if (parameterAsId && parameterAsId._id.toString() === parameter) {
+        form = await this.formModel.findById(parameter);
+      } else {
+        form = await this.getFormByCnameTitle(parameter);
+      }
     }
+
     if (!form) {
       throw new NotFoundException('Form', 'Form not found!');
     }
