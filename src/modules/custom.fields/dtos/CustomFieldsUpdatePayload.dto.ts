@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsBoolean, IsArray, IsOptional } from 'class-validator';
+import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Options } from './CustomFieldsCreatePayload.dto';
 
 export class CustomFieldsUpdatePayload {
@@ -18,6 +18,11 @@ export class CustomFieldsUpdatePayload {
   @IsBoolean()
   @IsOptional()
   isRequired?: boolean;
+
+  @ApiProperty({ example: 'mongoId', required: false, type: String })
+  @IsString()
+  @IsNotEmpty()
+  tag: string;
 
   @ApiProperty({ example: [Options], required: false, type: [Options] })
   @IsArray()
